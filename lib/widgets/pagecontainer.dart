@@ -1,21 +1,16 @@
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class PageContainer extends StatefulWidget {
+  final List<Widget> children;
+  const PageContainer({super.key, required this.children});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<PageContainer> createState() => _PageContainerState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _PageContainerState extends State<PageContainer> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
-
-  static const List<Widget> _widgetOptions = <Widget>[
-    Text('Home'),
-    Text('Search'),
-    Text('Profile'),
-  ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -48,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: PageView(
         controller: _pageController,
-        children: _widgetOptions,
+        children: widget.children,
         onPageChanged: (index) {
           setState(() {
             _selectedIndex = index;
