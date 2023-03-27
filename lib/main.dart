@@ -16,9 +16,9 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   static const List<Widget> widgets = <Widget>[
+    Text('Leaderboard'),
     Text('Home'),
-    Text('Search'),
-    Text('Profile'),
+    Text('Shop'),
   ];
 
   @override

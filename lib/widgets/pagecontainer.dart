@@ -53,16 +53,16 @@ class _PageContainerState extends State<PageContainer> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
+            icon: Icon(Icons.add_chart),
+            label: 'Leaderboard',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
+            icon: Icon(Icons.shopping_basket),
+            label: 'Shop',
           ),
         ],
         currentIndex: _selectedIndex,
