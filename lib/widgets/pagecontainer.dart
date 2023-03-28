@@ -58,7 +58,7 @@ class _PageContainerState extends State<PageContainer> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Home',
+            label: "Home",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_basket),
