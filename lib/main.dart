@@ -26,19 +26,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-      fontFamily: "Quicksand",
-      textTheme: ThemeData.light().textTheme.copyWith(
-        titleMedium: const TextStyle(
-          fontFamily: "Quicksand",
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
-        ),
-        // button: TextStyle(
-        //   color: Colors.white,
-        // ),
-      ),
-    ),
+    //   theme: ThemeData(
+    //   fontFamily: "OpenSans",
+    //   textTheme: ThemeData.light().textTheme.copyWith(
+    //     titleMedium: const TextStyle(
+    //       fontFamily: "OpenSans",
+    //       fontWeight: FontWeight.bold,
+    //       // fontSize: 20,
+    //     ),
+    //     // button: TextStyle(
+    //     //   color: Colors.white,
+    //     // ),
+    //   ),
+    // ),
       home: PageContainer(
         children: widgets,
       ),
