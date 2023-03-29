@@ -61,8 +61,8 @@ class _PageContainerState extends State<PageContainer> {
             label: 'Search',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
+            icon: Icon(Icons.shopping_basket),
+            label: 'Shop',
           ),
         ],
         currentIndex: _selectedIndex,

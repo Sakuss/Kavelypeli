@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kavelypeli/screens/shop_screen.dart';
 import 'widgets/pagecontainer.dart';
 
 import 'package:firebase_core/firebase_core.dart';
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
   static const List<Widget> widgets = <Widget>[
     Text('Home'),
     Text('Search'),
-    Text('Profile'),
+    ShopScreen(),
   ];
 
   @override
