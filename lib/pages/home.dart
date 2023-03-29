@@ -267,9 +267,9 @@ class _HomeState extends State<Home> {
           ),
           Container(
             height: mediaQuery.size.height * 0.52,
-            child: Card(
+            child: const Card(
               elevation: 3,
-              child: const CharacterRender(),
+              child: CharacterRender(),
             ),
           ),
         ],
