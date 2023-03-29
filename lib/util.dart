@@ -2,8 +2,8 @@ import 'dart:math';
 
 class Util {
   String generateStepsCount(){
-    double minVal = 1;
-    double maxVal = 9999;
+    double minVal = 500;
+    double maxVal = 1999;
 
     Random rand = Random();
 

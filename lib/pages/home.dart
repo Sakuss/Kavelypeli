@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:pedometer/pedometer.dart';
 import 'dart:async';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../util.dart';
 
 class Home extends StatefulWidget {
+  static const IconData icon = Icons.home;
+  static const String name = "Home";
+
   const Home({Key? key}) : super(key: key);
 
   @override
@@ -15,11 +20,14 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   late Stream<StepCount> _stepCountStream;
   late Stream<PedestrianStatus> _pedestrianStatusStream;
-  String _status = '?', _steps = '?', _points = "", _stepGoal = "10000";
+  late SharedPreferences prefs;
+  String _status = '?', _steps = '0', _points = "";
+  final String _stepGoal = "20000";
 
   @override
   void initState() {
     super.initState();
+    _loadSteps();
     initPlatformState();
   }
 
@@ -28,6 +36,7 @@ class _HomeState extends State<Home> {
     setState(() {
       _steps = event.steps.toString();
     });
+    _saveSteps();
   }
 
   void onPedestrianStatusChanged(PedestrianStatus event) {
@@ -42,7 +51,7 @@ class _HomeState extends State<Home> {
     setState(() {
       _status = 'Pedestrian Status not available';
     });
-    print(_status);
+    print("STATUS : $_status");
   }
 
   void onStepCountError(error) {
@@ -61,7 +70,10 @@ class _HomeState extends State<Home> {
     _stepCountStream = Pedometer.stepCountStream;
     _stepCountStream.listen(onStepCount).onError(onStepCountError);
 
-    _steps = Util().generateStepsCount();
+    // _steps = _loadSteps() == null ? Util().generateStepsCount() : _loadSteps() as String;
+
+    // print("LOADED STEPS: ${await _loadSteps()}");
+    // _steps = Util().generateStepsCount();
     _points = Util().generateStepsCount();
 
     if (!mounted) return;
@@ -70,11 +82,39 @@ class _HomeState extends State<Home> {
   double get _goalPct => double.parse(_steps) / double.parse(_stepGoal);
 
   void _addSteps() {
-    int prevSteps = int.parse(_steps);
     setState(() {
-      _steps = (int.parse(_steps) + 750).toString();
+      // _steps = (int.parse(_steps) + 750).toString();
+      _steps = (int.parse(_steps) + int.parse(Util().generateStepsCount()))
+          .toString();
     });
-    print(_steps);
+    _saveSteps();
+  }
+
+  void _reduceSteps() {
+    setState(() {
+      _steps = (int.parse(_steps) - int.parse(Util().generateStepsCount()))
+          .toString();
+    });
+    _saveSteps();
+  }
+
+  void _saveSteps() async {
+    prefs = await SharedPreferences.getInstance();
+
+    _steps = int.parse(_steps) < 0 ? '0' : _steps;
+    await prefs.setString("steps", _steps);
+  }
+
+  void _loadSteps() async {
+    prefs = await SharedPreferences.getInstance();
+    final String? loadedSteps = prefs.getString("steps");
+    print("LOADED STEPS : $loadedSteps");
+
+    if (loadedSteps != null) {
+      _steps = int.parse(loadedSteps) < 0 ? '0' : loadedSteps;
+    } else {
+      _steps = '0';
+    }
   }
 
   @override
@@ -103,18 +143,17 @@ class _HomeState extends State<Home> {
               ),
               child: Column(
                 children: <Widget>[
-                  const Expanded(
+                  Expanded(
                     flex: 1,
-                    child: Text(
-                      "Steps",
-                      style: TextStyle(fontSize: 30),
+                    child: Container(
+                      margin: EdgeInsets.all(5),
+                      child: FaIcon(FontAwesomeIcons.shoePrints, size: 30),
                     ),
                   ),
                   Expanded(
                     flex: 1,
                     child: Text(
                       _steps,
-                      // "123 321",
                       style: _steps == "Step Count not available"
                           ? const TextStyle(fontSize: 20)
                           : const TextStyle(fontSize: 40),
@@ -151,12 +190,16 @@ class _HomeState extends State<Home> {
               ),
               child: Column(
                 children: <Widget>[
-                  const Expanded(
+                  Expanded(
                     flex: 1,
-                    child: Text(
-                      "Points",
-                      style: TextStyle(fontSize: 30),
+                    child: Container(
+                      margin: EdgeInsets.all(5),
+                      child: FaIcon(FontAwesomeIcons.solidStar, size: 30),
                     ),
+                    // child: Text(
+                    //   "Points",
+                    //   style: TextStyle(fontSize: 30),
+                    // ),
                   ),
                   Expanded(
                     flex: 2,
@@ -173,57 +216,44 @@ class _HomeState extends State<Home> {
         ),
         Column(
           children: <Widget>[
-            Center(
-              child: Text(
-                "Your step goal",
-                style: TextStyle(fontSize: 25),
-              ),
-            ),
             Container(
-              margin: EdgeInsets.all(10),
               width: mediaQuery.size.width,
-              child: Row(
-                children: [
-                  Container(
-                    width: mediaQuery.size.width * 0.15,
-                    child: Text(
-                      _steps,
-                      style: TextStyle(fontSize: 20),
-                      textAlign: TextAlign.start,
-                    ),
-                  ),
-                  Container(
-                    width: mediaQuery.size.width * 0.6,
-                    child: _goalPct <= 1.0
-                        ? new LinearPercentIndicator(
-                            // width: mediaQuery.size.width * 0.65,
-                            lineHeight: 14.0,
-                            percent: _goalPct,
-                            backgroundColor: Colors.grey,
-                            progressColor: Colors.blue,
-                          )
-                        : Center(
-                            child: Text(
-                              "Goal completed!",
-                              style: TextStyle(fontSize: 20),
-                            ),
-                          ),
-                  ),
-                  Container(
-                    alignment: Alignment.centerRight,
-                    width: mediaQuery.size.width * 0.15,
-                    child: Text(
-                      _stepGoal,
-                      style: TextStyle(fontSize: 20),
-                      textAlign: TextAlign.end,
-                    ),
-                  ),
-                ],
+              alignment: Alignment.center,
+              // margin: EdgeInsets.symmetric(horizontal: 10),
+              child: LinearPercentIndicator(
+                // width: mediaQuery.size.width * 0.7,
+                animation: true,
+                lineHeight: 20.0,
+                leading: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(_steps),
+                ),
+                trailing: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(_stepGoal),
+                ),
+                animationDuration: 500,
+                percent: _goalPct <= 1 ? _goalPct : 1.0,
+                center: _goalPct <= 1
+                    ? Text("${(_goalPct * 100).toStringAsFixed(2)} %")
+                    : const Text("Goal achieved!"),
+                // linearStrokeCap: .roundAll,
+                barRadius: Radius.circular(5),
+                progressColor: Colors.greenAccent,
               ),
             ),
-            ElevatedButton(
-              onPressed: _addSteps,
-              child: Text("Add steps"),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                ElevatedButton(
+                  onPressed: _addSteps,
+                  child: const Text("Add steps"),
+                ),
+                ElevatedButton(
+                  onPressed: _reduceSteps,
+                  child: const Text("Reduce steps"),
+                ),
+              ],
             ),
           ],
         ),
