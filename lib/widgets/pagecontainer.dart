@@ -9,8 +9,8 @@ class PageContainer extends StatefulWidget {
 }
 
 class _PageContainerState extends State<PageContainer> {
-  int _selectedIndex = 0;
-  final PageController _pageController = PageController();
+  int _selectedIndex = 1;
+  final PageController _pageController = PageController(initialPage: 1);
 
   void _onItemTapped(int index) {
     setState(() {
