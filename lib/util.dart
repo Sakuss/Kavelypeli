@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/material.dart';
 
 class Util {
   String generateStepsCount(){
@@ -8,5 +9,19 @@ class Util {
     Random rand = Random();
 
     return (rand.nextDouble() * (maxVal - minVal) + minVal).round().toString();
+  }
+
+  void showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          message,
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Theme.of(context).primaryColor,
+      ),
+    );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../pages/home.dart';
+import '../screens/home_screen.dart';
 
 class PageContainer extends StatefulWidget {
   final List<Widget> children;

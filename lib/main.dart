@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'widgets/pagecontainer.dart';
-import './pages/home.dart';
+import 'screens/home_screen.dart';
+import 'screens/settings_screen.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   static const List<Widget> widgets = <Widget>[
-    Text('Leaderboard'),
+    SettingsScreen(),
     Home(),
     Text('Shop'),
   ];

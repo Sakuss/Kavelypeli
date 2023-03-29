@@ -123,8 +123,6 @@ class _HomeState extends State<Home> {
       child: Column(
         children: <Widget>[
           Container(
-            height: mediaQuery.size.height * 0.3,
-            // padding: EdgeInsets.all(10),
             child: Card(
               elevation: 3,
               child: Column(
@@ -265,12 +263,8 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-          Container(
-            height: mediaQuery.size.height * 0.52,
-            child: const Card(
-              elevation: 3,
-              child: CharacterRender(),
-            ),
+          Expanded(
+            child: CharacterRender(),
           ),
         ],
       ),
