@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:kavelypeli/widgets/friends_search_delegate.dart';
 
 class FriendsPage extends StatefulWidget {
   const FriendsPage({super.key});
@@ -9,51 +10,26 @@ class FriendsPage extends StatefulWidget {
 }
 
 class _FriendsPageState extends State<FriendsPage> {
-  String _searchText = '';
-  List<String> friends = [
-    "friend1",
-    "friend2",
-    "friend3",
-    "friend4",
-    "friend5",
-    "friend6",
-  ];
+  final db = FirebaseFirestore.instance;
 
-  void findUsers() async {
-    final db = FirebaseFirestore.instance;
-
-    try {
-      var querySnapshot = await db.collection('users').where('username', isEqualTo: _searchText).get();
-      for (var docSnapshot in querySnapshot.docs) {
-        var userName = docSnapshot.get('username');
-      }
-    } catch (e) {
-      print("Error: $e");
-    }
-  }
-
-  void getFriends() async {
+  Future<List> loadFriends() async {
     // const user = firebase.auth().currentUser;
     // var userId = user.uid;
     var userId = 'testid';
-
-    final db = FirebaseFirestore.instance;
+    var friends = [];
 
     try {
       var querySnapshot = await db.collection('friends').where('user_id', isEqualTo: userId).get();
       for (var docSnapshot in querySnapshot.docs) {
         var friendId = docSnapshot.get('friend_id');
-        var friendName = await db.collection('users').doc(friendId).get();
+        var friend = await db.collection('users').doc(friendId).get();
+        friends.add(friend.data());
       }
     } catch (e) {
       print("Error: $e");
+      return [];
     }
-  }
-
-  @override
-  void initState() {
-    getFriends();
-    super.initState();
+    return friends;
   }
 
   @override
@@ -61,76 +37,51 @@ class _FriendsPageState extends State<FriendsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Friends'),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: TextField(
-              style: const TextStyle(
-                fontSize: 20,
-                decorationThickness: 0,
-              ),
-              decoration: const InputDecoration(
-                hintText: 'Search new friends...',
-                prefixIcon: Icon(Icons.search),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  borderSide: BorderSide(color: Colors.blue, width: 1),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                  borderSide: BorderSide(color: Colors.pink, width: 2),
-                ),
-              ),
-              onChanged: (value) {
-                setState(() {
-                  _searchText = value;
-                });
-              },
-            ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              showSearch(context: context, delegate: FriendsSearchDelegate());
+            },
+            icon: const Icon(Icons.add),
           ),
-          GridView.count(
-              crossAxisCount: 4,
-              shrinkWrap: true,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              children: friends
-                  .map(
-                    (friend) => Card(
-                      child: Container(
-                        child: Text(friend),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.black),
-                        ),
-                      ),
-                    ),
-                  )
-                  .toList()),
-          GridView.count(
-              crossAxisCount: 4,
-              shrinkWrap: true,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              children: friends
-                  .map(
-                    (friend) => Card(
-                      child: Column(
-                        children: [
-                          Text(friend),
-                          const SizedBox(height: 10),
-                          ElevatedButton(
-                            onPressed: () {},
-                            child: const Text('Add'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                  .toList()),
         ],
+      ),
+      body: FutureBuilder(
+        future: loadFriends(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Column(
+              children: [
+                Expanded(
+                  child: GridView.count(
+                    crossAxisCount: 3,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    children: snapshot.data!
+                        .map(
+                          (friend) => Card(
+                            elevation: 5,
+                            color: Colors.blue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Center(
+                              child: Text(friend['username']),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
+              ],
+            );
+          } else {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
       ),
     );
   }
