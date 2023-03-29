@@ -40,6 +40,37 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               icon: const Icon(Icons.arrow_back_ios),
             ),
+            SizedBox(
+              height: 20,
+            ),
+            ListTile(leading: Icon(Icons.person), title: Text('Profile')),
+            SizedBox(
+              height: 20,
+            ),
+            ListTile(leading: Icon(Icons.settings), title: Text('Settings')),
+            SizedBox(
+              height: 20,
+            ),
+            ListTile(leading: Icon(Icons.inventory), title: Text('Inventory')),
+            SizedBox(
+              height: 20,
+            ),
+            ListTile(leading: Icon(Icons.people), title: Text('Friends')),
+            SizedBox(
+              height: 20,
+            ),
+            ListTile(leading: Icon(Icons.bar_chart), title: Text('Stats')),
+            SizedBox(
+              height: 20,
+            ),
+            ListTile(
+                leading: Icon(Icons.notifications),
+                title: Text('Notifications')),
+            SizedBox(
+              height: 20,
+            ),
+            ListTile(
+                leading: Icon(Icons.logout_rounded), title: Text('Log out')),
           ],
         ),
       ),
