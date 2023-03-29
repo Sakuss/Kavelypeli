@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 
 class ShopScreen extends StatefulWidget {
-  static const IconData icon = Icons.shop;
-  static const String name = "Shop";
-
   const ShopScreen({Key? key}) : super(key: key);
 
   @override
@@ -51,168 +48,16 @@ class _ShopScreenState extends State<ShopScreen> {
                           ),
                           ElevatedButton(
                             onPressed: buyItem,
+                            style: ButtonStyle(
+                                shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                    const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(
+                                  topRight: Radius.circular(15.0),
+                                  bottomRight: Radius.circular(15.0)),
+                            ))),
                             child: const Text("1 €"),
-                          )
-                        ]),
-                  ),
-                  Container(
-                    decoration: const BoxDecoration(
-                        image: DecorationImage(
-                            image: NetworkImage(
-                                "https://picsum.photos/250?image=2"),
-                            fit: BoxFit.cover)),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: <Widget>[
-                          ElevatedButton(
-                            onPressed: buyItem,
-                            child: const Text("100 @"),
                           ),
-                          ElevatedButton(
-                            onPressed: buyItem,
-                            child: const Text("1 €"),
-                          )
-                        ]),
-                  ),
-                  Container(
-                    decoration: const BoxDecoration(
-                        image: DecorationImage(
-                            image: NetworkImage(
-                                "https://picsum.photos/250?image=3"),
-                            fit: BoxFit.cover)),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: <Widget>[
-                          ElevatedButton(
-                            onPressed: buyItem,
-                            child: const Text("100 @"),
-                          ),
-                          ElevatedButton(
-                            onPressed: buyItem,
-                            child: const Text("1 €"),
-                          )
-                        ]),
-                  ),
-                  Container(
-                    decoration: const BoxDecoration(
-                        image: DecorationImage(
-                            image: NetworkImage(
-                                "https://picsum.photos/250?image=4"),
-                            fit: BoxFit.cover)),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: <Widget>[
-                          ElevatedButton(
-                            onPressed: buyItem,
-                            child: const Text("100 @"),
-                          ),
-                          ElevatedButton(
-                            onPressed: buyItem,
-                            child: const Text("1 €"),
-                          )
-                        ]),
-                  ),
-                  Container(
-                    decoration: const BoxDecoration(
-                        image: DecorationImage(
-                            image: NetworkImage(
-                                "https://picsum.photos/250?image=5"),
-                            fit: BoxFit.cover)),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: <Widget>[
-                          ElevatedButton(
-                            onPressed: buyItem,
-                            child: const Text("100 @"),
-                          ),
-                          ElevatedButton(
-                            onPressed: buyItem,
-                            child: const Text("1 €"),
-                          )
-                        ]),
-                  ),
-                  Container(
-                    decoration: const BoxDecoration(
-                        image: DecorationImage(
-                            image: NetworkImage(
-                                "https://picsum.photos/250?image=6"),
-                            fit: BoxFit.cover)),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: <Widget>[
-                          ElevatedButton(
-                            onPressed: buyItem,
-                            child: const Text("100 @"),
-                          ),
-                          ElevatedButton(
-                            onPressed: buyItem,
-                            child: const Text("1 €"),
-                          )
-                        ]),
-                  ),
-                  Container(
-                    decoration: const BoxDecoration(
-                        image: DecorationImage(
-                            image: NetworkImage(
-                                "https://picsum.photos/250?image=7"),
-                            fit: BoxFit.cover)),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: <Widget>[
-                          ElevatedButton(
-                            onPressed: buyItem,
-                            child: const Text("100 @"),
-                          ),
-                          ElevatedButton(
-                            onPressed: buyItem,
-                            child: const Text("1 €"),
-                          )
-                        ]),
-                  ),
-                  Container(
-                    decoration: const BoxDecoration(
-                        image: DecorationImage(
-                            image: NetworkImage(
-                                "https://picsum.photos/250?image=8"),
-                            fit: BoxFit.cover)),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: <Widget>[
-                          ElevatedButton(
-                            onPressed: buyItem,
-                            child: const Text("100 @"),
-                          ),
-                          ElevatedButton(
-                            onPressed: buyItem,
-                            child: const Text("1 €"),
-                          )
-                        ]),
-                  ),
-                  Container(
-                    decoration: const BoxDecoration(
-                        image: DecorationImage(
-                            image: NetworkImage(
-                                "https://picsum.photos/250?image=9"),
-                            fit: BoxFit.cover)),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: <Widget>[
-                          ElevatedButton(
-                            onPressed: buyItem,
-                            child: const Text("100 @"),
-                          ),
-                          ElevatedButton(
-                            onPressed: buyItem,
-                            child: const Text("1 €"),
-                          )
                         ]),
                   ),
                 ],
