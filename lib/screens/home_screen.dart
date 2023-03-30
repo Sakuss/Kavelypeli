@@ -6,7 +6,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:async';
 
 import '../util.dart';
-import '../widgets/character_render.dart';
 
 class Home extends StatefulWidget {
   static const IconData icon = Icons.home;
@@ -16,21 +15,22 @@ class Home extends StatefulWidget {
 
   @override
   State<Home> createState() => _HomeState();
+
 }
 
 class _HomeState extends State<Home> {
   late Stream<StepCount> _stepCountStream;
   late Stream<PedestrianStatus> _pedestrianStatusStream;
   late SharedPreferences prefs;
-  String _status = '?', _steps = "", _points = "";
-  final String _stepGoal = "20000";
-  // final util = Util();
+  String _status = '?', _steps = "0", _points = "0", _stepGoal = "10000";
+
+  void _refresh() {
+    setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
-    // _loadSteps();
-    _steps = _loadFromPrefs("steps") ?? '0';
     initPlatformState();
   }
 
@@ -39,7 +39,6 @@ class _HomeState extends State<Home> {
     setState(() {
       _steps = event.steps.toString();
     });
-    // _saveSteps();
   }
 
   void onPedestrianStatusChanged(PedestrianStatus event) {
@@ -64,7 +63,8 @@ class _HomeState extends State<Home> {
     });
   }
 
-  void initPlatformState() {
+  void initPlatformState() async {
+    print("initPlatformState");
     _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
     _pedestrianStatusStream
         .listen(onPedestrianStatusChanged)
@@ -73,20 +73,24 @@ class _HomeState extends State<Home> {
     _stepCountStream = Pedometer.stepCountStream;
     _stepCountStream.listen(onStepCount).onError(onStepCountError);
 
+    _steps = await Util().loadFromPrefs("steps") ?? '0';
+    _stepGoal = await Util().loadFromPrefs("stepGoal") ?? '10000';
     _points = Util().generateStepsCount();
 
     if (!mounted) return;
   }
 
-  double get _goalPct => double.parse(_steps) / double.parse(_stepGoal);
+  double get _goalPct {
+    double pct = int.parse(_steps) / int.parse(_stepGoal);
+    return pct;
+  }
 
   void _addSteps() {
     setState(() {
       _steps = (int.parse(_steps) + int.parse(Util().generateStepsCount()))
           .toString();
     });
-    // _saveSteps();
-    _saveToPrefs("steps", _steps);
+    Util().saveToPrefs("steps", _steps);
   }
 
   void _reduceSteps() {
@@ -94,37 +98,7 @@ class _HomeState extends State<Home> {
       _steps = (int.parse(_steps) - int.parse(Util().generateStepsCount()))
           .toString();
     });
-    // _saveSteps();
-    _saveToPrefs("steps", _steps);
-  }
-
-  void _saveToPrefs(String key, String value) async {
-    prefs = await SharedPreferences.getInstance();
-    await prefs.setString(key, value);
-  }
-
-  Future<String?> _loadFromPrefs(String key) async {
-    prefs = await SharedPreferences.getInstance();
-    return prefs.getString(key);
-  }
-
-  void _saveSteps() async {
-    prefs = await SharedPreferences.getInstance();
-
-    _steps = int.parse(_steps) < 0 ? '0' : _steps;
-    await prefs.setString("steps", _steps);
-  }
-
-  void _loadSteps() async {
-    prefs = await SharedPreferences.getInstance();
-    final String? loadedSteps = prefs.getString("steps");
-    print("LOADED STEPS : $loadedSteps");
-
-    if (loadedSteps != null) {
-      _steps = int.parse(loadedSteps) < 0 ? '0' : loadedSteps;
-    } else {
-      _steps = '0';
-    }
+    Util().saveToPrefs("steps", _steps);
   }
 
   @override
@@ -164,7 +138,7 @@ class _HomeState extends State<Home> {
                               flex: 1,
                               child: Container(
                                 margin: EdgeInsets.all(5),
-                                child: FaIcon(FontAwesomeIcons.shoePrints,
+                                child: const FaIcon(FontAwesomeIcons.shoePrints,
                                     size: 30),
                               ),
                             ),
@@ -211,8 +185,8 @@ class _HomeState extends State<Home> {
                             Expanded(
                               flex: 1,
                               child: Container(
-                                margin: EdgeInsets.all(5),
-                                child: FaIcon(FontAwesomeIcons.solidStar,
+                                margin: const EdgeInsets.all(5),
+                                child: const FaIcon(FontAwesomeIcons.solidStar,
                                     size: 30),
                               ),
                             ),
@@ -235,16 +209,16 @@ class _HomeState extends State<Home> {
                         width: mediaQuery.size.width,
                         alignment: Alignment.center,
                         child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 10),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
                           child: LinearPercentIndicator(
                             animation: true,
                             lineHeight: 20.0,
                             leading: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
                               child: Text(_steps),
                             ),
                             trailing: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
                               child: Text(_stepGoal),
                             ),
                             animationDuration: 500,
@@ -253,12 +227,11 @@ class _HomeState extends State<Home> {
                                 ? Text(
                                     "${(_goalPct * 100).toStringAsFixed(2)} %")
                                 : const Text("Goal achieved!"),
-                            barRadius: Radius.circular(5),
+                            barRadius: const Radius.circular(5),
                             progressColor: Colors.greenAccent,
                           ),
                         ),
                       ),
-
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[

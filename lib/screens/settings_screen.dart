@@ -57,10 +57,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   try {
                     if (int.parse(valueText) >= 0 && valueText != "") {
                       _stepGoal = valueText;
+                      Util().saveToPrefs("stepGoal", _stepGoal.toString());
                     }
                     Util().showSnackBar(context, "New step goal is $_stepGoal");
                   } catch(e) {
-                    Util().showSnackBar(context, "Step goal must be 0 or higher");
+                    Util().showSnackBar(context, "Oops, couldn't update step goal.");
                     print("ERROR : $e");
                   }
                   print("STEP GOAL : $_stepGoal");
