@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -14,8 +15,21 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   TextEditingController _passwordTextController = TextEditingController();
+  TextEditingController _passwordConfirmationTextController =
+      TextEditingController();
   TextEditingController _emailTextController = TextEditingController();
   TextEditingController _userNameTextController = TextEditingController();
+
+  void _createUserDocument(User user) {
+    FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+      'email': user.email,
+      'username': _userNameTextController.text,
+    }).then((value) {
+      print('User document created successfully!');
+    }).catchError((error) {
+      print('Failed to create user document: $error');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,12 +55,36 @@ class _SignUpState extends State<SignUp> {
                     const SizedBox(
                       height: 30,
                     ),
+                    retextfield("Confirm Password", Icons.lock_outline, true,
+                        _passwordConfirmationTextController),
+                    const SizedBox(
+                      height: 30,
+                    ),
                     SignButtons(context, true, () {
+                      if (_passwordTextController.text !=
+                          _passwordConfirmationTextController.text) {
+                        showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                                  title: const Text("Passwords do not match"),
+                                  content: const Text(
+                                      "Please enter matching passwords to continue."),
+                                  actions: <Widget>[
+                                    TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text("OK"))
+                                  ],
+                                ));
+                        return;
+                      }
                       FirebaseAuth.instance
                           .createUserWithEmailAndPassword(
                               email: _emailTextController.text,
                               password: _passwordTextController.text)
                           .then((value) {
+                        _createUserDocument(value.user!);
                         Navigator.push(
                             context,
                             MaterialPageRoute(
