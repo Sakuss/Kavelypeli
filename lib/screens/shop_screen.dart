@@ -8,6 +8,15 @@ class ShopScreen extends StatefulWidget {
 }
 
 class _ShopScreenState extends State<ShopScreen> {
+  List<String> items = [
+    "https://picsum.photos/250?image=1",
+    "https://picsum.photos/250?image=1",
+    "https://picsum.photos/250?image=1",
+    "https://picsum.photos/250?image=1",
+    "https://picsum.photos/250?image=1",
+    "https://picsum.photos/250?image=1",
+  ];
+
   void buyItem() {
     // nothing here yet
   }
