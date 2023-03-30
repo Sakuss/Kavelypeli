@@ -22,13 +22,15 @@ class _HomeState extends State<Home> {
   late Stream<StepCount> _stepCountStream;
   late Stream<PedestrianStatus> _pedestrianStatusStream;
   late SharedPreferences prefs;
-  String _status = '?', _steps = '0', _points = "";
+  String _status = '?', _steps = "", _points = "";
   final String _stepGoal = "20000";
+  // final util = Util();
 
   @override
   void initState() {
     super.initState();
-    _loadSteps();
+    // _loadSteps();
+    _steps = _loadFromPrefs("steps") ?? '0';
     initPlatformState();
   }
 
@@ -37,7 +39,7 @@ class _HomeState extends State<Home> {
     setState(() {
       _steps = event.steps.toString();
     });
-    _saveSteps();
+    // _saveSteps();
   }
 
   void onPedestrianStatusChanged(PedestrianStatus event) {
@@ -83,7 +85,8 @@ class _HomeState extends State<Home> {
       _steps = (int.parse(_steps) + int.parse(Util().generateStepsCount()))
           .toString();
     });
-    _saveSteps();
+    // _saveSteps();
+    _saveToPrefs("steps", _steps);
   }
 
   void _reduceSteps() {
@@ -91,7 +94,18 @@ class _HomeState extends State<Home> {
       _steps = (int.parse(_steps) - int.parse(Util().generateStepsCount()))
           .toString();
     });
-    _saveSteps();
+    // _saveSteps();
+    _saveToPrefs("steps", _steps);
+  }
+
+  void _saveToPrefs(String key, String value) async {
+    prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, value);
+  }
+
+  Future<String?> _loadFromPrefs(String key) async {
+    prefs = await SharedPreferences.getInstance();
+    return prefs.getString(key);
   }
 
   void _saveSteps() async {
@@ -244,28 +258,29 @@ class _HomeState extends State<Home> {
                           ),
                         ),
                       ),
-                      // Row(
-                      //   mainAxisAlignment: MainAxisAlignment.center,
-                      //   children: <Widget>[
-                      //     ElevatedButton(
-                      //       onPressed: _addSteps,
-                      //       child: const Text("Add steps"),
-                      //     ),
-                      //     ElevatedButton(
-                      //       onPressed: _reduceSteps,
-                      //       child: const Text("Reduce steps"),
-                      //     ),
-                      //   ],
-                      // ),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          ElevatedButton(
+                            onPressed: _addSteps,
+                            child: const Text("Add steps"),
+                          ),
+                          ElevatedButton(
+                            onPressed: _reduceSteps,
+                            child: const Text("Reduce steps"),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
           ),
-          Expanded(
-            child: CharacterRender(),
-          ),
+          // Expanded(
+          //   child: CharacterRender(),
+          // ),
         ],
       ),
     );

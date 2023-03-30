@@ -19,7 +19,7 @@ class CharacterRender extends StatelessWidget {
           Center(
             child: Image.asset(
               "assets/images/apustaja.png",
-              width: MediaQuery.of(context).size.width * 0.8,
+              // width: MediaQuery.of(context).size.width * 0.8,
               // fit: BoxFit.scaleDown,
             ),
           ),
