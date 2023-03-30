@@ -24,18 +24,21 @@ class _HomeState extends State<Home> {
   late SharedPreferences prefs;
   String _status = '?', _steps = "0", _points = "0", _stepGoal = "10000";
 
-  void _refresh() {
-    setState(() {});
-  }
-
   @override
   void initState() {
     super.initState();
     initPlatformState();
   }
 
+  void _update() async {
+    _steps = await Util().loadFromPrefs("steps") ?? '0';
+    _stepGoal = await Util().loadFromPrefs("stepGoal") ?? '10000';
+    setState(() {});
+  }
+
   void onStepCount(StepCount event) {
     print(event);
+    Util().saveToPrefs("steps", _steps);
     setState(() {
       _steps = event.steps.toString();
     });
@@ -82,7 +85,7 @@ class _HomeState extends State<Home> {
 
   double get _goalPct {
     double pct = int.parse(_steps) / int.parse(_stepGoal);
-    return pct;
+    return pct < 0.0 ? 0.0 : pct;
   }
 
   void _addSteps() {
@@ -238,6 +241,10 @@ class _HomeState extends State<Home> {
                           ElevatedButton(
                             onPressed: _addSteps,
                             child: const Text("Add steps"),
+                          ),
+                          ElevatedButton(
+                            onPressed: _update,
+                            child: const Text("Refresh"),
                           ),
                           ElevatedButton(
                             onPressed: _reduceSteps,

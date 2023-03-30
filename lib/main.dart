@@ -27,19 +27,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-    //   theme: ThemeData(
-    //   fontFamily: "OpenSans",
-    //   textTheme: ThemeData.light().textTheme.copyWith(
-    //     titleMedium: const TextStyle(
-    //       fontFamily: "OpenSans",
-    //       fontWeight: FontWeight.bold,
-    //       // fontSize: 20,
-    //     ),
-    //     // button: TextStyle(
-    //     //   color: Colors.white,
-    //     // ),
-    //   ),
-    // ),
+      theme: ThemeData(),
+      darkTheme: ThemeData.dark(),
       home: PageContainer(
         children: widgets,
       ),

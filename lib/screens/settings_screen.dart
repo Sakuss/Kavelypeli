@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:kavelypeli/main.dart';
 
 import '../util.dart';
 
@@ -60,8 +61,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Util().saveToPrefs("stepGoal", _stepGoal.toString());
                     }
                     Util().showSnackBar(context, "New step goal is $_stepGoal");
-                  } catch(e) {
-                    Util().showSnackBar(context, "Oops, couldn't update step goal.");
+                  } catch (e) {
+                    Util().showSnackBar(
+                        context, "Oops, couldn't update step goal.");
                     print("ERROR : $e");
                   }
                   print("STEP GOAL : $_stepGoal");
@@ -77,10 +79,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool _darkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
+
     return Padding(
       padding: EdgeInsets.all(5),
       child: Container(
-        // width: MediaQuery.of(context).size.width,
         child: ListView(
           children: [
             Text("Account settings"),
@@ -101,6 +104,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               title: Text("Set step goal"),
               onTap: _displayTextInputDialog,
+            ),
+            ListTile(
+              leading: FaIcon(
+                FontAwesomeIcons.moon,
+                color: Colors.black,
+              ),
+              trailing: Switch(
+                onChanged: (value) {
+                  setState(() {
+                    _darkMode = value;
+                  });
+                  Util().saveToPrefs("darkMode", _darkMode.toString());
+                },
+                value: _darkMode,
+              ),
+              title: Text("Set dark mode"),
+              onTap: null,
+              // enabled: false,
             ),
           ],
         ),
