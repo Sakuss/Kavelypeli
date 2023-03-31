@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:kavelypeli/Reusable_widgets/SignInSignOut_widgets.dart';
+import 'package:kavelypeli/screens/friends_screen.dart';
+import 'package:kavelypeli/screens/home_screen.dart';
 import 'package:kavelypeli/widgets/pagecontainer.dart';
 
 class SignUp extends StatefulWidget {
@@ -94,7 +96,11 @@ class _SignUpState extends State<SignUp> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => const PageContainer(
-                                      children: [],
+                                      children: [
+                                        FriendsPage(),
+                                        Home(),
+                                        FriendsPage()
+                                      ],
                                     )));
                       }).onError((error, stackTrace) {
                         if (error is FirebaseAuthException &&

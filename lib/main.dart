@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:kavelypeli/util.dart';
-import 'package:kavelypeli/widgets/signin.dart';
+import 'package:kavelypeli/screens/signin_screen.dart';
 import 'widgets/pagecontainer.dart';
 import 'screens/home_screen.dart';
 import 'screens/settings_screen.dart';
@@ -71,9 +71,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(primarySwatch: Colors.blue),
       darkTheme: ThemeData.dark(),
       themeMode: _themeMode,
-      home: PageContainer(
-        children: widgets,
-      ),
+      home: SignIn(),
     );
   }
 }
