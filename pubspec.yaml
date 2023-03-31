@@ -37,6 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   pedometer: ^3.0.0
   firebase_core: ^2.8.0
+  firebase_auth: ^4.3.0
   percent_indicator: ^4.0.1
   shared_preferences: ^2.0.20
   font_awesome_flutter: ^10.4.0

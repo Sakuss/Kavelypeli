@@ -70,7 +70,10 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(primarySwatch: Colors.blue),
       darkTheme: ThemeData.dark(),
       themeMode: _themeMode,
-      home: SignIn(),
+      // home: SignIn(),
+      home: PageContainer(
+        children: widgets,
+      ),
     );
   }
 }
