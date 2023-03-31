@@ -29,15 +29,11 @@ class _HomeState extends State<Home> {
     initPlatformState();
   }
 
-  void _update() async {
-    _steps = await Util().loadFromPrefs("steps") ?? '0';
-    _stepGoal = await Util().loadFromPrefs("stepGoal") ?? '10000';
-    setState(() {});
-  }
-
   void onStepCount(StepCount event) {
     print(event);
-    Util().saveToPrefs("steps", _steps);
+    if (_steps != "Step Count not available") {
+      Util().saveToPrefs("steps", _steps);
+    }
     setState(() {
       _steps = event.steps.toString();
     });
@@ -212,28 +208,30 @@ class _HomeState extends State<Home> {
                         alignment: Alignment.center,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: LinearPercentIndicator(
-                            animation: true,
-                            lineHeight: 20.0,
-                            leading: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              child: Text(_steps),
-                            ),
-                            trailing: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              child: Text(_stepGoal),
-                            ),
-                            animationDuration: 500,
-                            percent: _goalPct <= 1 ? _goalPct : 1.0,
-                            center: _goalPct <= 1
-                                ? Text(
-                                    "${(_goalPct * 100).toStringAsFixed(2)} %")
-                                : const Text("Goal achieved!"),
-                            barRadius: const Radius.circular(5),
-                            progressColor: Colors.blueAccent,
-                          ),
+                          child: _steps != "Step Count not available"
+                              ? LinearPercentIndicator(
+                                  animation: true,
+                                  lineHeight: 20.0,
+                                  leading: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
+                                    child: Text(_steps),
+                                  ),
+                                  trailing: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
+                                    child: Text(_stepGoal),
+                                  ),
+                                  animationDuration: 500,
+                                  percent: _goalPct <= 1 ? _goalPct : 1.0,
+                                  center: _goalPct <= 1
+                                      ? Text(
+                                          "${(_goalPct * 100).toStringAsFixed(2)} %")
+                                      : const Text("Goal achieved!"),
+                                  barRadius: const Radius.circular(5),
+                                  progressColor: Colors.blueAccent,
+                                )
+                              : Text(_steps),
                         ),
                       ),
                       Row(
@@ -242,10 +240,6 @@ class _HomeState extends State<Home> {
                           ElevatedButton(
                             onPressed: _addSteps,
                             child: const Text("Add steps"),
-                          ),
-                          ElevatedButton(
-                            onPressed: _update,
-                            child: const Text("Refresh"),
                           ),
                           ElevatedButton(
                             onPressed: _reduceSteps,

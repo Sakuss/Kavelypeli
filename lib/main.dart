@@ -55,8 +55,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   late List<Widget> widgets = <Widget>[
-    // SettingsScreen(changeTheme: changeTheme),
-    Text("Leaderboard"),
+    SettingsScreen(changeTheme: changeTheme),
+    // Text("Leaderboard"),
     Home(),
     Text('Shop'),
   ];

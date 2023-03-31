@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import '../models/menu_item_model.dart';
 import '../util.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -14,10 +16,11 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  final _loggedIn = true;
   String _stepGoal = "10000", valueText = "";
-  final _textFieldController = TextEditingController();
   bool _darkMode = false;
+  final _loggedIn = true;
+  final _textFieldController = TextEditingController();
+  late FirebaseFirestore db;
 
   @override
   void initState() {
@@ -94,55 +97,170 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  void _deleteUser() async {
+    Util().showSnackBar(context, "Delete user");
+    db = FirebaseFirestore.instance;
+    try {
+      // var querySnapshot =
+      //     await db.collection('users').where('username', isEqualTo: null).get();
+      // print(querySnapshot.docs);
+      // await db.runTransaction((transaction) async {
+      //   await transaction.delete(querySnapshot);
+      // });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Widget get _darkModeSwitch {
+    print("_darkmodeswitch");
+    return Switch(
+      onChanged: (value) {
+        setState(() {
+          // print(value);
+          _darkMode = value;
+        });
+        widget.changeTheme(_darkMode ? ThemeMode.dark : ThemeMode.light);
+
+        Util().saveToPrefs("darkMode", _darkMode);
+      },
+      value: _darkMode,
+    );
+  }
+
+  late final List<MenuItem> _accountSettings = [
+    MenuItem(
+      title: "Change username",
+      icon: Icons.edit,
+      iconColor: Colors.blue,
+      onTap: () => Util().showSnackBar(context, "Change username"),
+    ),
+    MenuItem(
+      title: "Change password",
+      icon: Icons.edit,
+      iconColor: Colors.blue,
+      onTap: () => Util().showSnackBar(context, "Change password"),
+    ),
+    MenuItem(
+      title: "Change email",
+      icon: Icons.edit,
+      iconColor: Colors.blue,
+      onTap: () => Util().showSnackBar(context, "Change email"),
+    ),
+    MenuItem(
+      title: "Delete account",
+      icon: Icons.delete,
+      iconColor: Colors.red,
+      onTap: () => _deleteUser(),
+    ),
+  ];
+
+  late final List<MenuItem> _appSettings = [
+    MenuItem(
+      title: "Set step goal",
+      icon: FontAwesomeIcons.shoePrints,
+      iconColor: Colors.blue,
+      onTap: () => _displayTextInputDialog(),
+    ),
+    MenuItem(
+      title: "Set dark mode",
+      icon: FontAwesomeIcons.moon,
+      iconColor: Colors.yellow,
+      trailing: _darkModeSwitch,
+      onTap: null,
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.all(5),
-      child: Container(
-        child: ListView(
-          children: [
-            const Text("Account settings"),
-            ListTile(
-              leading: const Icon(
-                Icons.delete,
-                color: Colors.red,
-              ),
-              title: const Text("Delete account"),
-              onTap: () => Util().showSnackBar(context, "Account deleted"),
-              enabled: _loggedIn,
+      child: Column(
+        children: <Widget>[
+          const Text(
+            "Account settings",
+            style: TextStyle(fontSize: 20),
+          ),
+          Container(
+            child: Expanded(
+              child: ListView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    MenuItem item = _accountSettings[index];
+                    // return item.buildListTile;
+                    return item;
+                  },
+                  itemCount: _accountSettings.length),
             ),
-            const Text("Application settings"),
-            ListTile(
-              leading: const FaIcon(
-                FontAwesomeIcons.shoePrints,
-                color: Colors.blue,
-              ),
-              title: const Text("Set step goal"),
-              onTap: _displayTextInputDialog,
-            ),
-            ListTile(
-              leading: const FaIcon(
-                FontAwesomeIcons.moon,
-                color: Colors.black,
-              ),
-              trailing: Switch(
-                onChanged: (value) {
-                  setState(() {
-                    _darkMode = value;
-                  });
-                  widget.changeTheme(
-                      _darkMode ? ThemeMode.dark : ThemeMode.light);
-
-                  Util().saveToPrefs("darkMode", _darkMode);
+          ),
+          const Text(
+            "Application settings",
+            style: TextStyle(fontSize: 20),
+          ),
+          Expanded(
+            child: ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                itemBuilder: (context, index) {
+                  MenuItem item = _appSettings[index];
+                  return item;
                 },
-                value: _darkMode,
+                itemCount: _appSettings.length),
+          ),
+              ListTile(
+                leading: const FaIcon(
+                  FontAwesomeIcons.moon,
+                  color: Colors.black,
+                ),
+                trailing: _darkModeSwitch,
+                title: const Text("Set dark mode"),
+                onTap: null,
+                // enabled: false,
               ),
-              title: const Text("Set dark mode"),
-              onTap: null,
-              // enabled: false,
-            ),
-          ],
-        ),
+        ],
+        // child: ListView(
+        //   children: [
+        //     const Text("Account settings"),
+        //     ListTile(
+        //       leading: const Icon(
+        //         Icons.delete,
+        //         color: Colors.red,
+        //       ),
+        //       title: const Text("Delete account"),
+        //       onTap: () => _deleteUser(),
+        //       enabled: _loggedIn,
+        //     ),
+        //     const Text("Application settings"),
+        //     ListTile(
+        //       leading: const FaIcon(
+        //         FontAwesomeIcons.shoePrints,
+        //         color: Colors.blue,
+        //       ),
+        //       title: const Text("Set step goal"),
+        //       onTap: _displayTextInputDialog,
+        //     ),
+        //     ListTile(
+        //       leading: const FaIcon(
+        //         FontAwesomeIcons.moon,
+        //         color: Colors.black,
+        //       ),
+        //       trailing: Switch(
+        //         onChanged: (value) {
+        //           setState(() {
+        //             _darkMode = value;
+        //           });
+        //           widget.changeTheme(
+        //               _darkMode ? ThemeMode.dark : ThemeMode.light);
+        //
+        //           Util().saveToPrefs("darkMode", _darkMode);
+        //         },
+        //         value: _darkMode,
+        //       ),
+        //       title: const Text("Set dark mode"),
+        //       onTap: null,
+        //       // enabled: false,
+        //     ),
+        //   ],
+        // ),
       ),
     );
   }
