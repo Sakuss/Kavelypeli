@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
-import 'package:kavelypeli/ReUse/Reusables.dart';
+import 'package:kavelypeli/Reusable_widgets/SignInSignOut_widgets.dart';
 import 'package:kavelypeli/widgets/pagecontainer.dart';
 import 'package:kavelypeli/widgets/signup.dart';
 
@@ -14,15 +14,15 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
-  TextEditingController _passwordTextController = TextEditingController();
-  TextEditingController _emailTextController = TextEditingController();
+  final TextEditingController _passwordTextController = TextEditingController();
+  final TextEditingController _emailTextController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Center(
             child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30),
+                padding: const EdgeInsets.symmetric(horizontal: 30),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
@@ -46,7 +46,26 @@ class _SignInState extends State<SignIn> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) =>
-                                    PageContainer(children: [])));
+                                    const PageContainer(children: [])));
+                      }).catchError((error) {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text("Error"),
+                              content:
+                                  const Text("Incorrect email or password"),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: const Text("OK"),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
                       });
                     }),
                     SignupOption()
@@ -60,8 +79,8 @@ class _SignInState extends State<SignIn> {
       children: [
         GestureDetector(
             onTap: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => SignUp()));
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const SignUp()));
             },
             child: const Text(
               "Sign up",

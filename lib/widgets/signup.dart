@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
-import 'package:kavelypeli/ReUse/Reusables.dart';
+import 'package:kavelypeli/Reusable_widgets/SignInSignOut_widgets.dart';
 import 'package:kavelypeli/widgets/pagecontainer.dart';
 
 class SignUp extends StatefulWidget {
@@ -14,11 +14,11 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-  TextEditingController _passwordTextController = TextEditingController();
-  TextEditingController _passwordConfirmationTextController =
+  final TextEditingController _passwordTextController = TextEditingController();
+  final TextEditingController _passwordConfirmationTextController =
       TextEditingController();
-  TextEditingController _emailTextController = TextEditingController();
-  TextEditingController _userNameTextController = TextEditingController();
+  final TextEditingController _emailTextController = TextEditingController();
+  final TextEditingController _userNameTextController = TextEditingController();
 
   void _createUserDocument(User user) {
     FirebaseFirestore.instance.collection('users').doc(user.uid).set({
@@ -34,31 +34,36 @@ class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+            leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        )),
         body: Center(
             child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30),
+                padding: const EdgeInsets.symmetric(horizontal: 30),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     retextfield("Username", Icons.person_outline, false,
                         _userNameTextController),
                     const SizedBox(
-                      height: 30,
+                      height: 25,
                     ),
                     retextfield("Email", Icons.mail_outline, false,
                         _emailTextController),
                     const SizedBox(
-                      height: 30,
+                      height: 25,
                     ),
                     retextfield("Password", Icons.lock_outline, true,
                         _passwordTextController),
                     const SizedBox(
-                      height: 30,
+                      height: 25,
                     ),
                     retextfield("Confirm Password", Icons.lock_outline, true,
                         _passwordConfirmationTextController),
                     const SizedBox(
-                      height: 30,
+                      height: 25,
                     ),
                     SignButtons(context, true, () {
                       if (_passwordTextController.text !=
@@ -74,7 +79,7 @@ class _SignUpState extends State<SignUp> {
                                         onPressed: () {
                                           Navigator.pop(context);
                                         },
-                                        child: Text("OK"))
+                                        child: const Text("OK"))
                                   ],
                                 ));
                         return;
@@ -92,7 +97,27 @@ class _SignUpState extends State<SignUp> {
                                       children: [],
                                     )));
                       }).onError((error, stackTrace) {
-                        print("Error ${error.toString()}");
+                        if (error is FirebaseAuthException &&
+                            error.code == 'email-already-in-use') {
+                          showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                    title:
+                                        const Text("Email is already in use"),
+                                    content: const Text(
+                                        "Please enter another email"),
+                                    actions: <Widget>[
+                                      TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text("OK"))
+                                    ],
+                                  ));
+                          return;
+                        } else {
+                          //print("Error ${error.toString()}");
+                        }
                       });
                     }),
                   ],
