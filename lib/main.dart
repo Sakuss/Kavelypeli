@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kavelypeli/screens/shop_screen.dart';
+import 'package:kavelypeli/screens/friends_screen.dart';
 import 'widgets/pagecontainer.dart';
 
 import 'package:firebase_core/firebase_core.dart';
