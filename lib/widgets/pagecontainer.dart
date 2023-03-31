@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../screens/home_screen.dart';
+
 class PageContainer extends StatefulWidget {
   final List<Widget> children;
+
   const PageContainer({super.key, required this.children});
 
   @override
@@ -57,8 +60,8 @@ class _PageContainerState extends State<PageContainer> {
             label: 'Leaderboard',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+            icon: Icon(Home.icon),
+            label: Home.name,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_basket),
