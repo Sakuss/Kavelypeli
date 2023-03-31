@@ -7,14 +7,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 class Util {
   late SharedPreferences prefs;
 
-  void saveToPrefs(String key, String value) async {
+  void clearPrefs() async {
     prefs = await SharedPreferences.getInstance();
-    await prefs.setString(key, value);
+    await prefs.clear();
   }
 
-  Future<String?> loadFromPrefs(String key) async {
+  void saveToPrefs(String key, dynamic value) async {
     prefs = await SharedPreferences.getInstance();
-    return prefs.getString(key);
+    await prefs.setString(key, value.toString());
+  }
+
+  Future loadFromPrefs(String key) async {
+    prefs = await SharedPreferences.getInstance();
+    return prefs.get(key);
   }
 
   String generateStepsCount(){

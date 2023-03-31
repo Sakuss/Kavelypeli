@@ -15,7 +15,6 @@ class Home extends StatefulWidget {
 
   @override
   State<Home> createState() => _HomeState();
-
 }
 
 class _HomeState extends State<Home> {
@@ -217,11 +216,13 @@ class _HomeState extends State<Home> {
                             animation: true,
                             lineHeight: 20.0,
                             leading: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
                               child: Text(_steps),
                             ),
                             trailing: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
                               child: Text(_stepGoal),
                             ),
                             animationDuration: 500,
@@ -231,7 +232,7 @@ class _HomeState extends State<Home> {
                                     "${(_goalPct * 100).toStringAsFixed(2)} %")
                                 : const Text("Goal achieved!"),
                             barRadius: const Radius.circular(5),
-                            progressColor: Colors.greenAccent,
+                            progressColor: Colors.blueAccent,
                           ),
                         ),
                       ),
@@ -255,6 +256,14 @@ class _HomeState extends State<Home> {
                     ],
                   ),
                 ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: Card(
+              elevation: 3,
+              child: Center(
+                child: Text("Character here"),
               ),
             ),
           ),

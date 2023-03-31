@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:kavelypeli/main.dart';
 
 import '../util.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  final Function changeTheme;
+
+  SettingsScreen({super.key, required this.changeTheme});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -16,6 +17,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _loggedIn = true;
   String _stepGoal = "10000", valueText = "";
   final _textFieldController = TextEditingController();
+  bool _darkMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  void initPlatformState() async {
+    _darkMode = await Util().loadFromPrefs("darkMode") == "true";
+    _darkMode == true
+        ? widget.changeTheme(ThemeMode.dark)
+        : widget.changeTheme(ThemeMode.light);
+    setState(() {});
+    print("$_darkMode, ${_darkMode.runtimeType}");
+  }
 
   void _displayTextInputDialog() async {
     return showDialog(
@@ -79,34 +96,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    bool _darkMode = MediaQuery.of(context).platformBrightness == Brightness.dark;
-
     return Padding(
       padding: EdgeInsets.all(5),
       child: Container(
         child: ListView(
           children: [
-            Text("Account settings"),
+            const Text("Account settings"),
             ListTile(
-              leading: Icon(
+              leading: const Icon(
                 Icons.delete,
                 color: Colors.red,
               ),
-              title: Text("Delete account"),
+              title: const Text("Delete account"),
               onTap: () => Util().showSnackBar(context, "Account deleted"),
               enabled: _loggedIn,
             ),
-            Text("Application settings"),
+            const Text("Application settings"),
             ListTile(
-              leading: FaIcon(
+              leading: const FaIcon(
                 FontAwesomeIcons.shoePrints,
                 color: Colors.blue,
               ),
-              title: Text("Set step goal"),
+              title: const Text("Set step goal"),
               onTap: _displayTextInputDialog,
             ),
             ListTile(
-              leading: FaIcon(
+              leading: const FaIcon(
                 FontAwesomeIcons.moon,
                 color: Colors.black,
               ),
@@ -115,11 +130,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   setState(() {
                     _darkMode = value;
                   });
-                  Util().saveToPrefs("darkMode", _darkMode.toString());
+                  widget.changeTheme(
+                      _darkMode ? ThemeMode.dark : ThemeMode.light);
+
+                  Util().saveToPrefs("darkMode", _darkMode);
                 },
                 value: _darkMode,
               ),
-              title: Text("Set dark mode"),
+              title: const Text("Set dark mode"),
               onTap: null,
               // enabled: false,
             ),
