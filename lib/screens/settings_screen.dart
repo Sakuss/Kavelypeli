@@ -18,9 +18,51 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   String _stepGoal = "10000", valueText = "";
   bool _darkMode = false;
-  final _loggedIn = true;
+  // final _loggedIn = true;
   final _textFieldController = TextEditingController();
   late FirebaseFirestore db;
+  late final List<MenuItem> _accountSettings = [
+    MenuItem(
+      title: "Change username",
+      icon: Icons.person,
+      iconColor: Colors.blue,
+      onTap: () => Util().showSnackBar(context, "Change username"),
+    ),
+    MenuItem(
+      title: "Change password",
+      icon: Icons.password,
+      iconColor: Colors.blue,
+      onTap: () => Util().showSnackBar(context, "Change password"),
+    ),
+    MenuItem(
+      title: "Change email",
+      icon: Icons.email,
+      iconColor: Colors.blue,
+      onTap: () => Util().showSnackBar(context, "Change email"),
+    ),
+    MenuItem(
+      title: "Delete account",
+      icon: Icons.delete,
+      iconColor: Colors.red,
+      onTap: () => _deleteUser(),
+    ),
+  ];
+
+  // late final List<MenuItem> _appSettings = [
+  //   MenuItem(
+  //     title: "Set step goal",
+  //     icon: FontAwesomeIcons.shoePrints,
+  //     iconColor: Colors.blue,
+  //     onTap: () => _displayTextInputDialog(),
+  //   ),
+  //   MenuItem(
+  //     title: "Set dark mode",
+  //     icon: FontAwesomeIcons.moon,
+  //     iconColor: Colors.yellow,
+  //     trailing: _darkModeSwitch,
+  //     onTap: null,
+  //   ),
+  // ];
 
   @override
   void initState() {
@@ -29,8 +71,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void initPlatformState() async {
+    print("initPlatformState");
+    // _darkMode = await Util().loadFromPrefs("darkMode") == "true";
     _darkMode = await Util().loadFromPrefs("darkMode") == "true";
-    _darkMode == true
+    _darkMode
         ? widget.changeTheme(ThemeMode.dark)
         : widget.changeTheme(ThemeMode.light);
     setState(() {});
@@ -42,7 +86,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Step goal'),
+          title: const Text('Step goal'),
           content: TextField(
             keyboardType: TextInputType.number,
             onChanged: (value) {
@@ -51,7 +95,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               });
             },
             controller: _textFieldController,
-            decoration: InputDecoration(hintText: "Default: 10 000"),
+            decoration: const InputDecoration(hintText: "Default: 10 000"),
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
               FilteringTextInputFormatter.deny(RegExp('^0+')),
@@ -62,7 +106,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             MaterialButton(
               color: Colors.red,
               textColor: Colors.white,
-              child: Text('CANCEL'),
+              child: const Text('CANCEL'),
               onPressed: () {
                 setState(() {
                   Navigator.pop(context);
@@ -72,7 +116,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             MaterialButton(
               color: Colors.green,
               textColor: Colors.white,
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 setState(() {
                   try {
@@ -112,64 +156,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  Widget get _darkModeSwitch {
-    print("_darkmodeswitch");
-    return Switch(
-      onChanged: (value) {
-        setState(() {
-          // print(value);
-          _darkMode = value;
-        });
-        widget.changeTheme(_darkMode ? ThemeMode.dark : ThemeMode.light);
-
-        Util().saveToPrefs("darkMode", _darkMode);
-      },
-      value: _darkMode,
-    );
+  void _clearCache() {
+    Util().showSnackBar(context, "Cache cleared");
+    Util().clearPrefs();
+    setState(() {
+      _darkMode = false;
+      widget.changeTheme(ThemeMode.light);
+    });
   }
 
-  late final List<MenuItem> _accountSettings = [
-    MenuItem(
-      title: "Change username",
-      icon: Icons.edit,
-      iconColor: Colors.blue,
-      onTap: () => Util().showSnackBar(context, "Change username"),
-    ),
-    MenuItem(
-      title: "Change password",
-      icon: Icons.edit,
-      iconColor: Colors.blue,
-      onTap: () => Util().showSnackBar(context, "Change password"),
-    ),
-    MenuItem(
-      title: "Change email",
-      icon: Icons.edit,
-      iconColor: Colors.blue,
-      onTap: () => Util().showSnackBar(context, "Change email"),
-    ),
-    MenuItem(
-      title: "Delete account",
-      icon: Icons.delete,
-      iconColor: Colors.red,
-      onTap: () => _deleteUser(),
-    ),
-  ];
+  void _darkModeHandler() {
+    setState(() {
+      _darkMode = _darkMode ? false : true;
+    });
+    Util().saveToPrefs("darkMode", _darkMode);
+    widget.changeTheme(_darkMode ? ThemeMode.dark : ThemeMode.light);
+  }
 
-  late final List<MenuItem> _appSettings = [
-    MenuItem(
-      title: "Set step goal",
-      icon: FontAwesomeIcons.shoePrints,
-      iconColor: Colors.blue,
-      onTap: () => _displayTextInputDialog(),
-    ),
-    MenuItem(
-      title: "Set dark mode",
-      icon: FontAwesomeIcons.moon,
-      iconColor: Colors.yellow,
-      trailing: _darkModeSwitch,
-      onTap: null,
-    ),
-  ];
+  // Widget get _darkModeSwitch {
+  //   print("_darkmodeswitch");
+  //   return Switch(
+  //     onChanged: (value) {
+  //       setState(() {
+  //         _darkMode = value;
+  //       });
+  //       widget.changeTheme(_darkMode ? ThemeMode.dark : ThemeMode.light);
+  //       print(value);
+  //       Util().saveToPrefs("darkMode", _darkMode);
+  //     },
+  //     value: _darkMode,
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -177,90 +194,97 @@ class _SettingsScreenState extends State<SettingsScreen> {
       padding: EdgeInsets.all(5),
       child: Column(
         children: <Widget>[
-          const Text(
-            "Account settings",
-            style: TextStyle(fontSize: 20),
-          ),
-          Container(
-            child: Expanded(
-              child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    MenuItem item = _accountSettings[index];
-                    // return item.buildListTile;
-                    return item;
-                  },
-                  itemCount: _accountSettings.length),
+          const Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: Text(
+              "Account settings",
+              style: TextStyle(fontSize: 20),
             ),
-          ),
-          const Text(
-            "Application settings",
-            style: TextStyle(fontSize: 20),
           ),
           Expanded(
             child: ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                itemBuilder: (context, index) {
-                  MenuItem item = _appSettings[index];
-                  return item;
-                },
-                itemCount: _appSettings.length),
+              physics: const BouncingScrollPhysics(),
+              itemBuilder: (context, index) {
+                return _accountSettings[index].buildListTile;
+              },
+              itemCount: _accountSettings.length,
+            ),
           ),
-              ListTile(
-                leading: const FaIcon(
-                  FontAwesomeIcons.moon,
-                  color: Colors.black,
+          Expanded(
+            flex: 2,
+            child: Column(
+              children: <Widget>[
+                const Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: Text(
+                    "Application settings",
+                    style: TextStyle(fontSize: 20),
+                  ),
                 ),
-                trailing: _darkModeSwitch,
-                title: const Text("Set dark mode"),
-                onTap: null,
-                // enabled: false,
-              ),
+                ListTile(
+                  leading: const FaIcon(
+                    FontAwesomeIcons.shoePrints,
+                    color: Colors.blue,
+                  ),
+                  title: const Text("Set step goal"),
+                  onTap: () => _displayTextInputDialog(),
+                  // enabled: false,
+                ),
+                ListTile(
+                  leading: FaIcon(
+                    _darkMode ? FontAwesomeIcons.sun : FontAwesomeIcons.moon,
+                    color: Colors.yellow,
+                  ),
+                  // trailing: _darkModeSwitch,
+                  title: Text(_darkMode ? "Set light mode" : "Set dark mode"),
+                  onTap: () => _darkModeHandler(),
+                  // enabled: false,
+                ),
+                // ListTile(
+                //   leading: const FaIcon(
+                //     FontAwesomeIcons.moon,
+                //     color: Colors.yellow,
+                //   ),
+                //   trailing: _darkModeSwitch,
+                //   title: const Text("Set dark mode"),
+                //   onTap: null,
+                //   // enabled: false,
+                // ),
+                ListTile(
+                  leading: const FaIcon(
+                    FontAwesomeIcons.box,
+                    color: Colors.red,
+                  ),
+                  title: const Text("Clear cache"),
+                  onTap: () => _clearCache(),
+                  // enabled: false,
+                ),
+              ],
+            ),
+          ),
+
+          // Expanded(
+          //   child: ListView.builder(
+          //     physics: const BouncingScrollPhysics(),
+          //     itemBuilder: (context, index) {
+          //       return _appSettings[index].buildListTile;
+          //     },
+          //     itemCount: _appSettings.length,
+          //   ),
+          // ),
+          // Expanded(
+          //   child: ListTile(
+          //     leading: const FaIcon(
+          //       FontAwesomeIcons.moon,
+          //       color: Colors.yellow,
+          //     ),
+          //     trailing: _darkModeSwitch,
+          //     title: const Text("Set dark mode"),
+          //     onTap: null,
+          //     // enabled: false,
+          //   ),
+          // ),
         ],
-        // child: ListView(
-        //   children: [
-        //     const Text("Account settings"),
-        //     ListTile(
-        //       leading: const Icon(
-        //         Icons.delete,
-        //         color: Colors.red,
-        //       ),
-        //       title: const Text("Delete account"),
-        //       onTap: () => _deleteUser(),
-        //       enabled: _loggedIn,
-        //     ),
-        //     const Text("Application settings"),
-        //     ListTile(
-        //       leading: const FaIcon(
-        //         FontAwesomeIcons.shoePrints,
-        //         color: Colors.blue,
-        //       ),
-        //       title: const Text("Set step goal"),
-        //       onTap: _displayTextInputDialog,
-        //     ),
-        //     ListTile(
-        //       leading: const FaIcon(
-        //         FontAwesomeIcons.moon,
-        //         color: Colors.black,
-        //       ),
-        //       trailing: Switch(
-        //         onChanged: (value) {
-        //           setState(() {
-        //             _darkMode = value;
-        //           });
-        //           widget.changeTheme(
-        //               _darkMode ? ThemeMode.dark : ThemeMode.light);
-        //
-        //           Util().saveToPrefs("darkMode", _darkMode);
-        //         },
-        //         value: _darkMode,
-        //       ),
-        //       title: const Text("Set dark mode"),
-        //       onTap: null,
-        //       // enabled: false,
-        //     ),
-        //   ],
-        // ),
       ),
     );
   }

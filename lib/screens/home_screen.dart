@@ -11,7 +11,7 @@ class Home extends StatefulWidget {
   static const IconData icon = Icons.home;
   static const String name = "Home";
 
-  const Home({Key? key}) : super(key: key);
+  const Home({super.key});
 
   @override
   State<Home> createState() => _HomeState();
