@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:kavelypeli/widgets/friends_search_delegate.dart';
 
+import '../widgets/profile.dart';
+
 class FriendsPage extends StatefulWidget {
   const FriendsPage({super.key});
 
@@ -66,8 +68,18 @@ class _FriendsPageState extends State<FriendsPage> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
-                            child: Center(
-                              child: Text(friend['username']),
+                            child: InkWell(
+                              onTap: () => showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return const Dialog(
+                                    child: Profile(),
+                                  );
+                                },
+                              ),
+                              child: Center(
+                                child: Text(friend['username']),
+                              ),
                             ),
                           ),
                         )
