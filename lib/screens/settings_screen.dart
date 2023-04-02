@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:kavelypeli/main.dart';
 
 import '../models/menu_item_model.dart';
 import '../util.dart';
@@ -16,8 +17,9 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  String _stepGoal = "10000", valueText = "";
+  String _stepGoal = "10000", _valueText = "", _uid = "";
   bool _darkMode = false;
+
   // final _loggedIn = true;
   final _textFieldController = TextEditingController();
   late FirebaseFirestore db;
@@ -72,7 +74,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void initPlatformState() async {
     print("initPlatformState");
-    // _darkMode = await Util().loadFromPrefs("darkMode") == "true";
+    _uid = await Util().loadFromPrefs("uid") as String;
+    _stepGoal = await Util().loadFromPrefs("stepGoal") ?? "10000";
     _darkMode = await Util().loadFromPrefs("darkMode") == "true";
     _darkMode
         ? widget.changeTheme(ThemeMode.dark)
@@ -91,7 +94,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             keyboardType: TextInputType.number,
             onChanged: (value) {
               setState(() {
-                valueText = value;
+                _valueText = value;
               });
             },
             controller: _textFieldController,
@@ -120,8 +123,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onPressed: () {
                 setState(() {
                   try {
-                    if (int.parse(valueText) >= 0 && valueText != "") {
-                      _stepGoal = valueText;
+                    if (int.parse(_valueText) >= 0 && _valueText != "") {
+                      _stepGoal = _valueText;
                       Util().saveToPrefs("stepGoal", _stepGoal.toString());
                     }
                     Util().showSnackBar(context, "New step goal is $_stepGoal");
@@ -142,27 +145,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _deleteUser() async {
-    Util().showSnackBar(context, "Delete user");
+    _uid = await Util().loadFromPrefs("uid") as String;
     db = FirebaseFirestore.instance;
-    try {
-      // var querySnapshot =
-      //     await db.collection('users').where('username', isEqualTo: null).get();
-      // print(querySnapshot.docs);
-      // await db.runTransaction((transaction) async {
-      //   await transaction.delete(querySnapshot);
-      // });
-    } catch (e) {
-      print(e);
-    }
+    final docRef = db.collection("users").doc(_uid);
+    final updates = <String, dynamic>{
+      "email": FieldValue.delete(),
+      "username": FieldValue.delete(),
+      "password": FieldValue.delete(),
+      "ingame_currency": FieldValue.delete(),
+    };
+
+    docRef.update(updates);
+    docRef.delete().then(
+          (doc) {
+            Util().showSnackBar(context, "User deleted");
+          },
+          onError: (e) => print("Error updating document $e"),
+        );
+    Util().deleteFromPrefs("uid");
+    setState(() {});
   }
 
   void _clearCache() {
-    Util().showSnackBar(context, "Cache cleared");
     Util().clearPrefs();
     setState(() {
       _darkMode = false;
       widget.changeTheme(ThemeMode.light);
     });
+    Util().showSnackBar(context, "Cache cleared");
   }
 
   void _darkModeHandler() {

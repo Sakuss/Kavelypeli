@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class Util {
   late SharedPreferences prefs;
 
@@ -11,18 +10,39 @@ class Util {
     prefs = await SharedPreferences.getInstance();
     await prefs.clear();
   }
+  // void clearPrefs() async =>
+  //     await SharedPreferences.getInstance().then((value) => value.clear());
 
   void saveToPrefs(String key, dynamic value) async {
     prefs = await SharedPreferences.getInstance();
     await prefs.setString(key, value.toString());
   }
+  // void saveToPrefs(String key, dynamic value) async =>
+  //     await SharedPreferences.getInstance()
+  //         .then((value) => value.setString(key, value.toString()));
 
   Future loadFromPrefs(String key) async {
     prefs = await SharedPreferences.getInstance();
     return prefs.get(key);
   }
+  // Future loadFromPrefs(String key) async =>
+  //     await SharedPreferences.getInstance().then((value) => value.get(key));
 
-  String generateStepsCount(){
+  void deleteFromPrefs(String key) async {
+    prefs = await SharedPreferences.getInstance();
+    await prefs.remove(key);
+  }
+  // void deleteFromPrefs(String key) async =>
+  //     await SharedPreferences.getInstance().then((value) => value.remove(key));
+
+  void printPrefs() async {
+    prefs = await SharedPreferences.getInstance();
+    print(prefs.getKeys());
+  }
+  // void printPrefs() async => await SharedPreferences.getInstance()
+  //     .then((value) => print(() => value.getKeys()));
+
+  String generateStepsCount() {
     double minVal = 500;
     double maxVal = 1999;
 
