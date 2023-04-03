@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../screens/home_screen.dart';
+
 class PageContainer extends StatefulWidget {
   final List<Widget> children;
+
   const PageContainer({super.key, required this.children});
 
   @override
@@ -9,8 +12,8 @@ class PageContainer extends StatefulWidget {
 }
 
 class _PageContainerState extends State<PageContainer> {
-  int _selectedIndex = 0;
-  final PageController _pageController = PageController();
+  int _selectedIndex = 1;
+  final PageController _pageController = PageController(initialPage: 1);
 
   void _onItemTapped(int index) {
     setState(() {
@@ -53,12 +56,12 @@ class _PageContainerState extends State<PageContainer> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+            icon: Icon(Icons.add_chart),
+            label: 'Leaderboard',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
+            icon: Icon(Home.icon),
+            label: Home.name,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_basket),
