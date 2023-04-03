@@ -32,7 +32,7 @@ class _HomeState extends State<Home> {
   void onStepCount(StepCount event) {
     print(event);
     if (_steps != "Step Count not available") {
-      Util().saveToPrefs("steps", _steps);
+      // Util().saveToPrefs("steps", _steps);
     }
     setState(() {
       _steps = event.steps.toString();
@@ -62,7 +62,7 @@ class _HomeState extends State<Home> {
   }
 
   void initPlatformState() async {
-    print("initPlatformState");
+    print("HOME : initPlatformState");
     _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
     _pedestrianStatusStream
         .listen(onPedestrianStatusChanged)
@@ -70,7 +70,7 @@ class _HomeState extends State<Home> {
 
     _stepCountStream = Pedometer.stepCountStream;
     _stepCountStream.listen(onStepCount).onError(onStepCountError);
-
+    
     _steps = await Util().loadFromPrefs("steps") ?? '0';
     _stepGoal = await Util().loadFromPrefs("stepGoal") ?? '10000';
     _points = Util().generateStepsCount();
@@ -79,8 +79,14 @@ class _HomeState extends State<Home> {
   }
 
   double get _goalPct {
-    double pct = int.parse(_steps) / int.parse(_stepGoal);
-    return pct < 0.0 ? 0.0 : pct;
+    // print("GOALPCT : $_steps, ${_steps.runtimeType}");
+    try {
+      double pct = int.parse(_steps) / int.parse(_stepGoal);
+      return pct < 0.0 ? 0.0 : pct;
+    } catch (e) {
+      print(e);
+      return 0.0;
+    }
   }
 
   void _addSteps() {

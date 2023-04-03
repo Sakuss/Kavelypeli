@@ -5,6 +5,7 @@ import 'package:flutter/src/widgets/placeholder.dart';
 import '../Reusable_widgets/SignInSignOut_widgets.dart';
 import '../widgets/pagecontainer.dart';
 import '../util.dart';
+import '../models/app_user_model.dart';
 
 import './friends_screen.dart';
 import './signup_screen.dart';
@@ -46,21 +47,31 @@ class _SignInState extends State<SignIn> {
                     SignButtons(context, true, () {
                       FirebaseAuth.instance
                           .signInWithEmailAndPassword(
-                              email: _emailTextController.text,
-                              password: _passwordTextController.text)
+                              email: "upi@gmail.com",
+                              // email: _emailTextController.text,
+                              // password: _passwordTextController.text)
+                              password: "upi123")
                           .then((value) {
-                            print("VALUE : $value");
-                            Util().saveToPrefs("uid", value.user?.uid);
+                        print("VALUE : $value");
+                        // Util().saveToPrefs("uid", value.user?.uid);
+                        // Util().saveToPrefs(
+                        //   "user",
+                        //   AppUser(
+                        //           username: value.additionalUserInfo?.username,
+                        //           uid: value.user?.uid,
+                        //           email: value.user?.email)
+                        //       .toJson(),
+                        // );
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => PageContainer(
-                                        children: [
-                                          // FriendsPage(),
-                                          SettingsScreen(changeTheme: widget.changeTheme),
-                                          Home(),
-                                          FriendsPage()
-                                        ])));
+                                builder: (context) => PageContainer(children: [
+                                      // FriendsPage(),
+                                      SettingsScreen(
+                                          changeTheme: widget.changeTheme),
+                                      Home(),
+                                      FriendsPage()
+                                    ])));
                       }).catchError((error) {
                         showDialog(
                           context: context,
@@ -93,8 +104,11 @@ class _SignInState extends State<SignIn> {
       children: [
         GestureDetector(
             onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const SignUp()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          SignUp(changeTheme: widget.changeTheme)));
             },
             child: const Text(
               "Sign up",

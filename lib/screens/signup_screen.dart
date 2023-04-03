@@ -6,10 +6,12 @@ import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:kavelypeli/Reusable_widgets/SignInSignOut_widgets.dart';
 import 'package:kavelypeli/screens/friends_screen.dart';
 import 'package:kavelypeli/screens/home_screen.dart';
+import 'package:kavelypeli/screens/settings_screen.dart';
 import 'package:kavelypeli/widgets/pagecontainer.dart';
 
 class SignUp extends StatefulWidget {
-  const SignUp({super.key});
+  final Function changeTheme;
+  const SignUp({super.key, required this.changeTheme});
 
   @override
   State<SignUp> createState() => _SignUpState();
@@ -24,8 +26,10 @@ class _SignUpState extends State<SignUp> {
 
   void _createUserDocument(User user) {
     FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-      'email': user.email,
-      'username': _userNameTextController.text,
+      // 'email': user.email,
+      'email': "upi@gmail.com",
+      // 'username': _userNameTextController.text,
+      'username': "upi",
     }).then((value) {
       print('User document created successfully!');
     }).catchError((error) {
@@ -88,16 +92,20 @@ class _SignUpState extends State<SignUp> {
                       }
                       FirebaseAuth.instance
                           .createUserWithEmailAndPassword(
-                              email: _emailTextController.text,
-                              password: _passwordTextController.text)
+                              // email: _emailTextController.text,
+                              email: "upi@gmail.com",
+                              // password: _passwordTextController.text)
+                              password: "upi123")
                           .then((value) {
                         _createUserDocument(value.user!);
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const PageContainer(
+                                builder: (context) => PageContainer(
                                       children: [
-                                        FriendsPage(),
+                                        // FriendsPage(),
+                                        SettingsScreen(
+                                            changeTheme: widget.changeTheme),
                                         Home(),
                                         FriendsPage()
                                       ],

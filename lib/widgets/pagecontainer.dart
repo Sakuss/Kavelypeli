@@ -4,8 +4,9 @@ import '../screens/home_screen.dart';
 
 class PageContainer extends StatefulWidget {
   final List<Widget> children;
+  final String? appBarText;
 
-  const PageContainer({super.key, required this.children});
+  const PageContainer({super.key, required this.children, this.appBarText});
 
   @override
   State<PageContainer> createState() => _PageContainerState();
