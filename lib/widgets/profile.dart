@@ -27,10 +27,9 @@ class Profile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           const Padding(
-            padding: EdgeInsets.symmetric(vertical: 30),
+            padding: EdgeInsets.symmetric(vertical: 20),
             child: CircleAvatar(
               radius: 100,
               backgroundImage:
@@ -48,13 +47,103 @@ class Profile extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(bottom: 30),
+            padding: const EdgeInsets.only(bottom: 40),
             child: Text(
               title,
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.normal,
               ),
+            ),
+          ),
+          SizedBox(
+            width: 300,
+            child: GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              childAspectRatio: 2,
+              children: <Widget>[
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const <Widget>[
+                    Text(
+                      'Steps',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      '0',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const <Widget>[
+                    Text(
+                      'Points',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      '0',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const <Widget>[
+                    Text(
+                      'Date joined',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      '0',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const <Widget>[
+                    Text(
+                      'Mutual friends',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      '0',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],

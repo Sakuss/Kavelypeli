@@ -40,11 +40,14 @@ class _FriendsPageState extends State<FriendsPage> {
       appBar: AppBar(
         title: const Text('Friends'),
         actions: [
-          IconButton(
-            onPressed: () {
-              showSearch(context: context, delegate: FriendsSearchDelegate());
-            },
-            icon: const Icon(Icons.add),
+          Tooltip(
+            message: 'Add a friend',
+            child: IconButton(
+              onPressed: () {
+                showSearch(context: context, delegate: FriendsSearchDelegate());
+              },
+              icon: const Icon(Icons.add),
+            ),
           ),
         ],
       ),
