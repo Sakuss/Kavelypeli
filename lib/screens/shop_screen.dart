@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 class ShopScreen extends StatefulWidget {
+  static const IconData icon = Icons.shopping_basket;
+  static const String name = "Shop";
+
   const ShopScreen({Key? key}) : super(key: key);
 
   @override

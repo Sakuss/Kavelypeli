@@ -61,9 +61,9 @@ class _MyAppState extends State<MyApp> {
 
   late List<Widget> widgets = <Widget>[
     // SettingsScreen(changeTheme: changeTheme),
-    Text("Leaderboard"),
-    Home(),
-    ShopScreen(),
+    const Text("Leaderboard"),
+    const Home(),
+    const ShopScreen(),
   ];
 
   @override
@@ -73,7 +73,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(primarySwatch: Colors.blue),
       darkTheme: ThemeData.dark(),
       themeMode: _themeMode,
-      home: SignIn(),
+      home: const SignIn(),
     );
   }
 }

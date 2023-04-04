@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kavelypeli/screens/shop_screen.dart';
 
 import '../screens/home_screen.dart';
 
@@ -64,8 +65,8 @@ class _PageContainerState extends State<PageContainer> {
             label: Home.name,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_basket),
-            label: 'Shop',
+            icon: Icon(ShopScreen.icon),
+            label: ShopScreen.name,
           ),
         ],
         currentIndex: _selectedIndex,
