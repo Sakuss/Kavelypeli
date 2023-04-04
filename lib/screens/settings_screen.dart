@@ -48,7 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       title: "Delete account",
       icon: Icons.delete,
       iconColor: Colors.red,
-      onTap: () => _deleteUserPasswordDialog(),
+      onTap: () => _deleteUser(),
     ),
   ];
 
@@ -192,7 +192,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onPressed: () {
                 setState(() {
                   Navigator.pop(context);
-                  _deleteUser(_valueTextPassword);
+                  // _deleteUser(_valueTextPassword);
+                  _deleteUser();
                 });
               },
             ),
@@ -205,12 +206,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _changePassword() async {
     await _showInputDialog(
       const InputDialog(
+        title: "Re-authenticate",
+        inputDecorator: "Type your password",
+        keyboardType: TextInputType.visiblePassword,
+      ),
+    ).then(
+      (value) {
+        print(value);
+        // if (value != null) {
+        //   final result = _authService.changeUsername(value);
+        //   if (result) {
+        //     Util().showSnackBar(context, "$value is your new username");
+        //   } else {
+        //     Util().showSnackBar(context, "Could not update username");
+        //   }
+        // }
+      },
+    );
+    await _showInputDialog(
+      const InputDialog(
         title: "Change password",
         inputDecorator: "New password",
         keyboardType: TextInputType.visiblePassword,
       ),
     ).then(
-          (value) {
+      (value) {
         print(value);
         // if (value != null) {
         //   final result = _authService.changeUsername(value);
@@ -225,28 +245,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _changeEmail() async {
+    final pass = await _reAuthenticate();
+    print("PASSWORD : $pass");
+    if (pass == null || pass == "") {
+      return;
+    }
     await _showInputDialog(
-      const InputDialog(
+      InputDialog(
         title: "Change email",
         inputDecorator: "New email",
         keyboardType: TextInputType.emailAddress,
+        inputFormatters: [FilteringTextInputFormatter.allow(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$")],
       ),
     ).then(
-      (value) {
-        print(value);
-        // if (value != null) {
-        //   final result = _authService.changeUsername(value);
-        //   if (result) {
-        //     Util().showSnackBar(context, "$value is your new username");
-        //   } else {
-        //     Util().showSnackBar(context, "Could not update username");
-        //   }
-        // }
+      (newEmail) async {
+        if (newEmail != null) {
+          await _authService.changeEmail(pass, newEmail).then(
+            (result) {
+              if (result["result"]) {
+                Util().showSnackBar(context, "Email changed");
+              } else {
+                Util().showSnackBar(context, result["message"]);
+              }
+            },
+          );
+        }
       },
     );
   }
 
   void _changeUsername() async {
+    final pass = await _reAuthenticate();
+    print("PASSWORD : $pass");
+    if (pass == null || pass == "") {
+      return;
+    }
     await _showInputDialog(
       const InputDialog(
         title: "Change username",
@@ -254,27 +287,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
         keyboardType: TextInputType.text,
       ),
     ).then(
-      (value) {
-        if (value != null) {
-          final result = _authService.changeUsername(value);
-          if (result) {
-            Util().showSnackBar(context, "$value is your new username");
-          } else {
-            Util().showSnackBar(context, "Could not update username");
-          }
+      (newUsername) async {
+        if (newUsername != null) {
+          await _authService.changeUsername(pass, newUsername).then(
+            (result) {
+              if (result["result"]) {
+                Util()
+                    .showSnackBar(context, "$newUsername is your new username");
+              } else {
+                Util().showSnackBar(context, result["message"]);
+              }
+            },
+          );
         }
       },
     );
   }
 
-  void _deleteUser(String password) async {
-    await _authService.deleteUser(password).then((value) {
-      if (value) {
+  Future<String?> _reAuthenticate() async {
+    final reAuthPassword = await _showInputDialog(
+      const InputDialog(
+        title: "Re-authenticate",
+        inputDecorator: "Type your password",
+        keyboardType: TextInputType.visiblePassword,
+        obscureText: true,
+      ),
+    );
+    print("REAUTHPASSWORD : $reAuthPassword");
+
+    return reAuthPassword;
+  }
+
+  void _deleteUser() async {
+    final pass = await _reAuthenticate();
+    if (pass == null || pass == "") {
+      return;
+    }
+    await _authService.deleteUser(pass).then((result) {
+      if (result["result"]) {
         _clearCache();
         Util().showSnackBar(context, "User deleted");
         Navigator.pop(context);
       } else {
-        Util().showSnackBar(context, "User could not be deleted");
+        Util().showSnackBar(context, result["message"]);
       }
     });
   }

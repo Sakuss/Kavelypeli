@@ -5,6 +5,7 @@ class InputDialog extends StatefulWidget {
   final String? title, inputDecorator;
   final List<TextInputFormatter>? inputFormatters;
   final TextInputType? keyboardType;
+  final bool? obscureText;
 
   const InputDialog({
     super.key,
@@ -12,6 +13,7 @@ class InputDialog extends StatefulWidget {
     this.inputDecorator,
     this.keyboardType,
     this.inputFormatters,
+    this.obscureText,
   });
 
   @override
@@ -36,6 +38,7 @@ class _InputDialogState extends State<InputDialog> {
         controller: _textEditingController,
         decoration: InputDecoration(hintText: widget.inputDecorator),
         inputFormatters: widget.inputFormatters,
+        obscureText: widget.obscureText ?? false,
       ),
       actions: <Widget>[
         MaterialButton(
