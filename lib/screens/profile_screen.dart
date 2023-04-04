@@ -11,7 +11,10 @@ class ProfilePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Profile'),
       ),
-      body: const Profile(),
+      body: const Profile(
+        name: 'testname',
+        title: 'Novice walker',
+      ),
     );
   }
 }

@@ -1,15 +1,35 @@
 import 'package:flutter/material.dart';
 
 class Profile extends StatelessWidget {
-  const Profile({super.key});
+  final String name;
+  final String title;
+  final String? profilePictureUrl;
+  // final DateTime joinedDate;
+  // final String? bio;
+
+  //achievements?
+  //points, steps
+  //profile picture
+  //bio?
+  //mutual friends / all friends?
+  //joined date?
+  //walking data (steps/distance per day / week / month)
+
+  const Profile({
+    required this.name,
+    required this.title,
+    // required this.joinedDate,
+    this.profilePictureUrl,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
-        children: const <Widget>[
-          Padding(
+        children: <Widget>[
+          const Padding(
             padding: EdgeInsets.symmetric(vertical: 30),
             child: CircleAvatar(
               radius: 100,
@@ -18,12 +38,22 @@ class Profile extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(bottom: 30),
+            padding: const EdgeInsets.only(bottom: 10),
             child: Text(
-              'John Doe',
-              style: TextStyle(
+              name,
+              style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 30),
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.normal,
               ),
             ),
           ),

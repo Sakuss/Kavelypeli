@@ -72,9 +72,25 @@ class _FriendsPageState extends State<FriendsPage> {
                               onTap: () => showDialog(
                                 context: context,
                                 builder: (context) {
-                                  return const Dialog(
-                                    child: Profile(),
-                                  );
+                                  return Dialog(
+                                      child: Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          CloseButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                      const Profile(
+                                        name: 'test',
+                                        title: 'Novice walker',
+                                      ),
+                                    ],
+                                  ));
                                 },
                               ),
                               child: Center(
