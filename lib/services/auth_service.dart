@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 import '../util.dart';
 
@@ -23,19 +24,19 @@ class AuthService {
 
   String? get email => _firebaseUser.email;
 
-  void reAuthenticate() {}
+  // void reAuthenticate() {}
 
   Future<Map<String, dynamic>> deleteUser(String password) async {
     try {
-      final docRefUsers = _db.collection("users").doc(uid);
+      final docRefUser = _db.collection("users").doc(uid);
       _authCredential = EmailAuthProvider.credential(
           email: _firebaseUser.email!, password: password);
       await _firebaseUser.reauthenticateWithCredential(_authCredential);
-      docRefUsers.update(updates);
-      docRefUsers.delete().then((doc) {
-        _firebaseUser.delete();
-      });
-      return {"result": true, "message": null};
+      // docRefUser.update(updates);
+      // docRefUser.delete().then((doc) {
+      //   _firebaseUser.delete();
+      // });
+      return {"result": true, "message": "User deleted."};
     } on FirebaseAuthException catch (e) {
       if (e.code == "wrong-password") {
         return {"result": false, "message": "Wrong password."};
@@ -47,14 +48,14 @@ class AuthService {
   Future<Map<String, dynamic>> changeUsername(
       String reAuthPassword, String newUsername) async {
     try {
-      if (newUsername.length < 5) {
+      if (newUsername.characters.length < 5) {
         throw FirebaseAuthException(code: "username-too-short");
       }
       _authCredential = EmailAuthProvider.credential(
           email: _firebaseUser.email!, password: reAuthPassword);
       await _firebaseUser.reauthenticateWithCredential(_authCredential);
-      final docRefUsers = _db.collection("users").doc(uid);
-      docRefUsers.update({"username": newUsername});
+      final docRefUser = _db.collection("users").doc(uid);
+      // docRefUser.update({"username": newUsername});
       return {"result": true, "message": null};
     } on FirebaseAuthException catch (e) {
       if (e.code == "wrong-password") {
@@ -68,12 +69,13 @@ class AuthService {
 
   Future<Map<String, dynamic>> changeEmail(
       String reAuthPassword, String newEmail) async {
+    // final regex = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
     try {
-      if (!newEmail.contains('@')) {
-        throw FirebaseAuthException(code: "invalid-email");
-      }
-      final docRefUsers = _db.collection("users").doc(uid);
-      docRefUsers.update({"email": newEmail});
+      // if (!regex.hasMatch(newEmail)) {
+      //   throw FirebaseAuthException(code: "invalid-email");
+      // }
+      final docRefUser = _db.collection("users").doc(uid);
+      // docRefUser.update({"email": newEmail});
       return {"result": true, "message": "Email changed"};
     } on FirebaseAuthException catch (e) {
       if (e.code == "wrong-password") {
@@ -85,7 +87,8 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> changePassword(String newPassword) async {
-    return {"result": false, "message": null};
+  Future<Map<String, dynamic>> changePassword(
+      String password, String newPassword) async {
+    return {"result": false, "message": "TODO"};
   }
 }

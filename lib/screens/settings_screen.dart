@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:kavelypeli/main.dart';
-import 'package:kavelypeli/services/auth_service.dart';
-import 'package:kavelypeli/widgets/input_dialog.dart';
+import '../services/auth_service.dart';
+import 'package:grouped_list/grouped_list.dart';
 
-import '../models/menu_item_model.dart';
+import '../widgets/input_dialog.dart';
+import '../widgets/menu_item.dart';
 import '../util.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -27,64 +28,147 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late AuthService _authService;
   late final List<MenuItem> _accountSettings = [
     MenuItem(
-      title: "Change username",
-      icon: Icons.person,
-      iconColor: Colors.blue,
+      title: const Text("Change username"),
+      leading: const Icon(Icons.person, color: Colors.blue),
       onTap: () => _changeUsername(),
     ),
     MenuItem(
-      title: "Change email",
-      icon: Icons.email,
-      iconColor: Colors.blue,
+      title: const Text("Change email"),
+      leading: const Icon(Icons.email, color: Colors.blue),
       onTap: () => _changeEmail(),
     ),
     MenuItem(
-      title: "Change password",
-      icon: Icons.password,
-      iconColor: Colors.blue,
+      title: const Text("Change password"),
+      leading: const Icon(Icons.password, color: Colors.blue),
       onTap: () => _changePassword(),
     ),
     MenuItem(
-      title: "Delete account",
-      icon: Icons.delete,
-      iconColor: Colors.red,
+      title: const Text("Delete account"),
+      leading: const Icon(Icons.delete, color: Colors.red),
       onTap: () => _deleteUser(),
     ),
   ];
 
-  // late final List<MenuItem> _appSettings = [
-  //   MenuItem(
-  //     title: "Set step goal",
-  //     icon: FontAwesomeIcons.shoePrints,
-  //     iconColor: Colors.blue,
-  //     onTap: () => _displayTextInputDialog(),
-  //   ),
-  //   MenuItem(
-  //     title: "Set dark mode",
-  //     icon: FontAwesomeIcons.moon,
-  //     iconColor: Colors.yellow,
-  //     trailing: _darkModeSwitch,
-  //     onTap: null,
-  //   ),
-  // ];
+  late final List<MenuItem> _appSettings = [
+    MenuItem(
+      title: const Text("Set step goal"),
+      leading: const FaIcon(
+        FontAwesomeIcons.shoePrints,
+        color: Colors.blue,
+      ),
+      onTap: () => _setStepGoal(),
+    ),
+    MenuItem(
+      leading: FaIcon(
+        _darkMode ? FontAwesomeIcons.sun : FontAwesomeIcons.moon,
+        color: Colors.yellow,
+      ),
+      title: Text(_darkMode ? "Set light mode" : "Set dark mode"),
+      onTap: () => _darkModeHandler(),
+    ),
+    MenuItem(
+      leading: const FaIcon(
+        FontAwesomeIcons.box,
+        color: Colors.red,
+      ),
+      title: const Text("Clear cache"),
+      onTap: () => _clearCache(),
+    ),
+  ];
+
+  late final List<Map<String, dynamic>> _elements = [
+    {
+      "group": "Account settings",
+      "element": MenuItem(
+        title: const Text("Change username"),
+        leading: const Icon(Icons.person, color: Colors.blue),
+        onTap: () => _changeUsername(),
+      ),
+    },
+    {
+      "group": "Account settings",
+      "element": MenuItem(
+        title: const Text("Change email"),
+        leading: const Icon(Icons.email, color: Colors.blue),
+        onTap: () => _changeEmail(),
+      ),
+    },
+    {
+      "group": "Account settings",
+      "element": MenuItem(
+        title: const Text("Change password"),
+        leading: const Icon(Icons.password, color: Colors.blue),
+        onTap: () => _changePassword(),
+      ),
+    },
+    {
+      "group": "Account settings",
+      "element": MenuItem(
+        title: const Text("Delete account"),
+        leading: const Icon(Icons.delete, color: Colors.red),
+        onTap: () => _deleteUser(),
+      ),
+    },
+    {
+      "group": "Application settings",
+      "element": MenuItem(
+        title: const Text("Set step goal"),
+        leading: const FaIcon(
+          FontAwesomeIcons.shoePrints,
+          color: Colors.blue,
+        ),
+        onTap: () => _setStepGoal(),
+      ),
+    },
+    // {
+    //   "group": "Application settings",
+    //   "element": MenuItem(
+    //     leading: FaIcon(
+    //       _darkMode ? FontAwesomeIcons.sun : FontAwesomeIcons.moon,
+    //       color: Colors.yellow,
+    //     ),
+    //     title: Text(_darkMode ? "Set light mode" : "Set dark mode"),
+    //     onTap: () => _darkModeHandler(),
+    //   ),
+    // },
+    {
+      "group": "Application settings",
+      "element": MenuItem(
+        leading: const FaIcon(FontAwesomeIcons.sun,
+          color: Colors.yellow,
+        ),
+        title: const Text("Change theme"),
+        onTap: () => _darkModeHandler(),
+      ),
+    },
+    {
+      "group": "Application settings",
+      "element": MenuItem(
+        leading: const FaIcon(
+          FontAwesomeIcons.box,
+          color: Colors.red,
+        ),
+        title: const Text("Clear cache"),
+        onTap: () => _clearCache(),
+      ),
+    },
+  ];
 
   @override
   void initState() {
     super.initState();
     initPlatformState();
+    print("SETTINGS : initState");
   }
 
   void initPlatformState() async {
-    print("SETTINGS : initPlatformState");
+    // print("SETTINGS : initPlatformState");
     _authService = AuthService();
     _stepGoal = await Util().loadFromPrefs("stepGoal") ?? "10000";
     _darkMode = await Util().loadFromPrefs("darkMode") == "true";
     _darkMode
         ? widget.changeTheme(ThemeMode.dark)
         : widget.changeTheme(ThemeMode.light);
-
-    setState(() {});
-    print("$_darkMode, ${_darkMode.runtimeType}");
   }
 
   Future<String?> _showInputDialog(InputDialog inputDialog) async {
@@ -203,43 +287,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _changePassword() async {
-    await _showInputDialog(
+  Future<String?> _reAuthenticate() async {
+    final reAuthPassword = await _showInputDialog(
       const InputDialog(
-        title: "Re-authenticate",
-        inputDecorator: "Type your password",
+        title: Text("Re-authenticate"),
+        inputDecoration: InputDecoration(labelText: "Type your password"),
         keyboardType: TextInputType.visiblePassword,
+        obscureText: true,
+        inputType: InputType.password,
       ),
-    ).then(
-      (value) {
-        print(value);
-        // if (value != null) {
-        //   final result = _authService.changeUsername(value);
-        //   if (result) {
-        //     Util().showSnackBar(context, "$value is your new username");
-        //   } else {
-        //     Util().showSnackBar(context, "Could not update username");
-        //   }
-        // }
-      },
     );
+    print("REAUTHPASSWORD : $reAuthPassword");
+
+    return reAuthPassword;
+  }
+
+  void _changePassword() async {
+    final pass = await _reAuthenticate();
+    print("PASSWORD : $pass");
+    if (pass == null || pass == "") {
+      return;
+    }
     await _showInputDialog(
       const InputDialog(
-        title: "Change password",
-        inputDecorator: "New password",
+        title: Text("Change password"),
+        inputDecoration: InputDecoration(labelText: "New password"),
         keyboardType: TextInputType.visiblePassword,
+        obscureText: true,
+        inputType: InputType.password,
+        minLength: 5,
       ),
     ).then(
-      (value) {
-        print(value);
-        // if (value != null) {
-        //   final result = _authService.changeUsername(value);
-        //   if (result) {
-        //     Util().showSnackBar(context, "$value is your new username");
-        //   } else {
-        //     Util().showSnackBar(context, "Could not update username");
-        //   }
-        // }
+      (newPassword) async {
+        if (newPassword != null) {
+          await _authService.changePassword(pass, newPassword).then(
+            (result) {
+              if (result["result"]) {
+                Util().showSnackBar(context, result["message"]);
+              } else {
+                Util().showSnackBar(context, result["message"]);
+              }
+            },
+          );
+        }
       },
     );
   }
@@ -252,10 +342,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
     await _showInputDialog(
       InputDialog(
-        title: "Change email",
-        inputDecorator: "New email",
+        title: const Text("Change email"),
+        inputDecoration: const InputDecoration(labelText: "Email"),
         keyboardType: TextInputType.emailAddress,
-        inputFormatters: [FilteringTextInputFormatter.allow(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$")],
+        regex: RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$"),
+        inputType: InputType.email,
       ),
     ).then(
       (newEmail) async {
@@ -282,9 +373,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
     await _showInputDialog(
       const InputDialog(
-        title: "Change username",
-        inputDecorator: "New username",
+        title: Text("Change username"),
+        inputDecoration: InputDecoration(labelText: "New username"),
         keyboardType: TextInputType.text,
+        inputType: InputType.username,
+        minLength: 5,
+        maxLength: 20,
       ),
     ).then(
       (newUsername) async {
@@ -292,8 +386,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           await _authService.changeUsername(pass, newUsername).then(
             (result) {
               if (result["result"]) {
-                Util()
-                    .showSnackBar(context, "$newUsername is your new username");
+                Util().showSnackBar(context, result["message"]);
               } else {
                 Util().showSnackBar(context, result["message"]);
               }
@@ -304,20 +397,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Future<String?> _reAuthenticate() async {
-    final reAuthPassword = await _showInputDialog(
-      const InputDialog(
-        title: "Re-authenticate",
-        inputDecorator: "Type your password",
-        keyboardType: TextInputType.visiblePassword,
-        obscureText: true,
-      ),
-    );
-    print("REAUTHPASSWORD : $reAuthPassword");
-
-    return reAuthPassword;
-  }
-
   void _deleteUser() async {
     final pass = await _reAuthenticate();
     if (pass == null || pass == "") {
@@ -325,13 +404,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
     await _authService.deleteUser(pass).then((result) {
       if (result["result"]) {
-        _clearCache();
-        Util().showSnackBar(context, "User deleted");
+        // _clearCache();
+        Util().showSnackBar(context, result["message"]);
         Navigator.pop(context);
       } else {
         Util().showSnackBar(context, result["message"]);
       }
     });
+  }
+
+  void _setStepGoal() async {
+    await _showInputDialog(
+      InputDialog(
+        title: const Text("Set step goal"),
+        inputDecoration: const InputDecoration(labelText: "Step goal"),
+        keyboardType: TextInputType.text,
+        inputType: InputType.username,
+        maxLength: 5,
+        inputFormatters: [
+          FilteringTextInputFormatter.digitsOnly,
+          FilteringTextInputFormatter.deny(RegExp('^0+')),
+        ],
+      ),
+    ).then(
+      (value) {
+        if (value == null || value == "") {
+          Util().showSnackBar(context, "Step goal could not be set.");
+        } else {
+          try {
+            if (int.parse(value) > 0) {
+              print("stepGoal : $value");
+              setState(() {
+                _stepGoal = value;
+              });
+              Util().saveToPrefs("stepGoal", _stepGoal);
+              Util().showSnackBar(context, "New step goal is $value");
+            } else {
+              Util().showSnackBar(context, "Step goal could not be set.");
+            }
+          } catch (e) {
+            Util().showSnackBar(context, "Step goal could not be set.");
+            print("ERROR : $e");
+          }
+        }
+      },
+    );
   }
 
   void _clearCache() {
@@ -345,77 +462,126 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _darkModeHandler() {
     setState(() {
-      _darkMode = _darkMode ? false : true;
+      // _darkMode = _darkMode ? false : true;
+      _darkMode = !_darkMode;
     });
-    print(_darkMode);
     Util().saveToPrefs("darkMode", _darkMode);
     widget.changeTheme(_darkMode ? ThemeMode.dark : ThemeMode.light);
   }
 
   @override
   Widget build(BuildContext context) {
+    print("build");
     return Padding(
       padding: const EdgeInsets.all(5),
-      child: Column(
-        children: <Widget>[
-          const Padding(
-            padding: EdgeInsets.only(top: 10),
-            child: Text(
-              "Account settings",
-              style: TextStyle(fontSize: 20),
-            ),
+      child: GroupedListView(
+        elements: _elements,
+        groupBy: (element) => element["group"],
+        groupSeparatorBuilder: (String value) => Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            value,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-          Expanded(
-            child: ListView.builder(
-              physics: const BouncingScrollPhysics(),
-              itemBuilder: (context, index) {
-                return _accountSettings[index].buildListTile;
-              },
-              itemCount: _accountSettings.length,
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Column(
-              children: <Widget>[
-                const Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: Text(
-                    "Application settings",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                ),
-                ListTile(
-                  leading: const FaIcon(
-                    FontAwesomeIcons.shoePrints,
-                    color: Colors.blue,
-                  ),
-                  title: const Text("Set step goal"),
-                  onTap: () => _displayTextInputDialog(),
-                  // enabled: false,
-                ),
-                ListTile(
-                  leading: FaIcon(
-                    _darkMode ? FontAwesomeIcons.sun : FontAwesomeIcons.moon,
-                    color: Colors.yellow,
-                  ),
-                  title: Text(_darkMode ? "Set light mode" : "Set dark mode"),
-                  onTap: () => _darkModeHandler(),
-                  // enabled: false,
-                ),
-                ListTile(
-                  leading: const FaIcon(
-                    FontAwesomeIcons.box,
-                    color: Colors.red,
-                  ),
-                  title: const Text("Clear cache"),
-                  onTap: () => _clearCache(),
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
+        itemBuilder: (c, element) {
+          return Card(
+            elevation: 8,
+            margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+            child: element["element"],
+          );
+        },
       ),
     );
   }
+
+// @override
+// Widget build(BuildContext context) {
+//   return Padding(
+//     padding: const EdgeInsets.symmetric(horizontal: 10),
+//     child: Column(
+//       children: <Widget>[
+//         const Padding(
+//           padding: EdgeInsets.symmetric(vertical: 10),
+//           child: Text(
+//             "Account settings",
+//             style: TextStyle(fontSize: 20),
+//           ),
+//         ),
+//         Expanded(
+//           flex: 1,
+//           child: ListView.builder(
+//             physics: const BouncingScrollPhysics(),
+//             itemBuilder: (context, index) {
+//               return Card(
+//                 elevation: 8,
+//                 child: _accountSettings[index],
+//               );
+//             },
+//             itemCount: _accountSettings.length,
+//           ),
+//         ),
+//         const Padding(
+//           padding: EdgeInsets.symmetric(vertical: 10),
+//           child: Text(
+//             "Application settings",
+//             style: TextStyle(fontSize: 20),
+//           ),
+//         ),
+//         Expanded(
+//           child: ListView.builder(
+//             physics: const BouncingScrollPhysics(),
+//             itemBuilder: (context, index) {
+//               return Card(
+//                 elevation: 8,
+//                 child: _appSettings[index],
+//               );
+//             },
+//             itemCount: _appSettings.length,
+//           ),
+//         ),
+//         Expanded(
+//           // flex: 2,
+//           child: Column(
+//             children: <Widget>[
+//               const Padding(
+//                 padding: EdgeInsets.only(top: 10),
+//                 child: Text(
+//                   "Application settings",
+//                   style: TextStyle(fontSize: 20),
+//                 ),
+//               ),
+//               ListTile(
+//                 leading: const FaIcon(
+//                   FontAwesomeIcons.shoePrints,
+//                   color: Colors.blue,
+//                 ),
+//                 title: const Text("Set step goal"),
+//                 onTap: () => _setStepGoal(),
+//               ),
+//               ListTile(
+//                 leading: FaIcon(
+//                   _darkMode ? FontAwesomeIcons.sun : FontAwesomeIcons.moon,
+//                   color: Colors.yellow,
+//                 ),
+//                 title: Text(_darkMode ? "Set light mode" : "Set dark mode"),
+//                 onTap: () => _darkModeHandler(),
+//                 // enabled: false,
+//               ),
+//               ListTile(
+//                 leading: const FaIcon(
+//                   FontAwesomeIcons.box,
+//                   color: Colors.red,
+//                 ),
+//                 title: const Text("Clear cache"),
+//                 onTap: () => _clearCache(),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ],
+//     ),
+//   );
+// }
 }
