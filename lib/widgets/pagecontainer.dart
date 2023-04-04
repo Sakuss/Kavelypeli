@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:kavelypeli/screens/friends_screen.dart';
+import 'package:kavelypeli/screens/profile_screen.dart';
 
 import '../screens/home_screen.dart';
 
 class PageContainer extends StatefulWidget {
-  final List<Widget> children;
-
-  const PageContainer({super.key, required this.children});
+  const PageContainer({super.key});
 
   @override
   State<PageContainer> createState() => _PageContainerState();
@@ -46,7 +46,11 @@ class _PageContainerState extends State<PageContainer> {
       ),
       body: PageView(
         controller: _pageController,
-        children: widget.children,
+        children: const <Widget>[
+          FriendsPage(),
+          Home(),
+          ProfilePage(),
+        ],
         onPageChanged: (index) {
           setState(() {
             _selectedIndex = index;
