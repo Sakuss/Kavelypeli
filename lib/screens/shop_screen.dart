@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
 
 class ShopPage extends StatefulWidget {
   static const IconData icon = Icons.shopping_basket;
@@ -11,13 +12,53 @@ class ShopPage extends StatefulWidget {
   State<ShopPage> createState() => _ShopPageState();
 }
 
+class ItemClass {
+  int _id;
+  String image;
+  int ingame_currency_price;
+  int money_price;
+  String name;
+
+  ItemClass(this._id, this.image, this.ingame_currency_price, this.money_price,
+      this.name);
+
+  factory ItemClass.fromJson(dynamic json) {
+    return ItemClass(
+        json['_id'] as int,
+        json['image'] as String,
+        json['ingame_currency_price'] as int,
+        json['money_price'] as int,
+        json['name'] as String);
+  }
+
+  @override
+  String toString() {
+    return '{ ${this._id}, ${this.image}, ${this.ingame_currency_price}, ${this.money_price}, ${this.name} }';
+  }
+}
+
 class _ShopPageState extends State<ShopPage> {
   final db = FirebaseFirestore.instance;
 
-  /*Future<List> getItems() async {
-    // Täällä pitäisi saada haettua: itemin nimi, kuva, 
+  Future<List> getItems() async {
+    // Täällä pitäisi saada haettua: itemin nimi, kuva,
     // ingamecurrency hinta ja oikeerahahinta
-  }*/
+    var itemId = 1;
+    var items = [];
+
+    db.collection("items").get().then(
+      (querySnapshot) {
+        print("Items fetched successfully");
+        for (var docSnapshot in querySnapshot.docs) {
+          items.add('${docSnapshot.id} => ${docSnapshot.data()}');
+        }
+        print(items);
+      },
+      onError: (e) => print("Error completing: $e"),
+    );
+
+    return items;
+  }
 
   void buyItem() {
     // täällä pitäisi lisätä ostettu item käyttäjän
@@ -50,7 +91,7 @@ class _ShopPageState extends State<ShopPage> {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: <Widget>[
                             ElevatedButton(
-                              onPressed: buyItem,
+                              onPressed: getItems,
                               style: ButtonStyle(
                                   shape: MaterialStateProperty.all<
                                           RoundedRectangleBorder>(
