@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kavelypeli/screens/friends_screen.dart';
 import 'package:kavelypeli/screens/profile_screen.dart';
+import 'package:kavelypeli/screens/shop_screen.dart';
 
 import '../screens/home_screen.dart';
 
@@ -49,7 +50,7 @@ class _PageContainerState extends State<PageContainer> {
         children: const <Widget>[
           FriendsPage(),
           Home(),
-          ProfilePage(),
+          ShopPage(),
         ],
         onPageChanged: (index) {
           setState(() {
@@ -68,8 +69,8 @@ class _PageContainerState extends State<PageContainer> {
             label: Home.name,
           ),
           BottomNavigationBarItem(
-            icon: Icon(ShopScreen.icon),
-            label: ShopScreen.name,
+            icon: Icon(ShopPage.icon),
+            label: ShopPage.name,
           ),
         ],
         currentIndex: _selectedIndex,
