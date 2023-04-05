@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:kavelypeli/Reusable_widgets/SignInSignOut_widgets.dart';
 import 'package:kavelypeli/screens/friends_screen.dart';
 import 'package:kavelypeli/screens/home_screen.dart';
@@ -26,10 +24,10 @@ class _SignUpState extends State<SignUp> {
     FirebaseFirestore.instance.collection('users').doc(user.uid).set({
       'email': user.email,
       'username': _userNameTextController.text,
-    }).then((value) {
-      print('User document created successfully!');
-    }).catchError((error) {
-      print('Failed to create user document: $error');
+    //}).then((value) {
+    //  print('User document created successfully!');
+    //}).catchError((error) {
+    //  print('Failed to create user document: $error');
     });
   }
 
@@ -70,20 +68,7 @@ class _SignUpState extends State<SignUp> {
                     SignButtons(context, true, () {
                       if (_passwordTextController.text !=
                           _passwordConfirmationTextController.text) {
-                        showDialog(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                                  title: const Text("Passwords do not match"),
-                                  content: const Text(
-                                      "Please enter matching passwords to continue."),
-                                  actions: <Widget>[
-                                    TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: const Text("OK"))
-                                  ],
-                                ));
+                            showAlertDialog(context, "Passwords do not match");
                         return;
                       }
                       FirebaseAuth.instance
@@ -103,30 +88,18 @@ class _SignUpState extends State<SignUp> {
                                       ],
                                     )));
                       }).onError((error, stackTrace) {
-                        if (error is FirebaseAuthException &&
-                            error.code == 'email-already-in-use') {
-                          showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                    title:
-                                        const Text("Email is already in use"),
-                                    content: const Text(
-                                        "Please enter another email"),
-                                    actions: <Widget>[
-                                      TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: const Text("OK"))
-                                    ],
-                                  ));
-                          return;
-                        } else {
-                          //print("Error ${error.toString()}");
-                        }
-                      });
-                    }),
-                  ],
+  if (error is FirebaseAuthException) {
+    if (error.code == 'email-already-in-use') {
+      showAlertDialog(context, "Email address is already in use");
+      return;
+    } else if (error.code == 'invalid-email') {
+      showAlertDialog(context, "Email address is badly formatted");
+      return;
+    }
+  }
+  print("Error ${error.toString()}");
+});
+  })],
                 ))));
   }
 }

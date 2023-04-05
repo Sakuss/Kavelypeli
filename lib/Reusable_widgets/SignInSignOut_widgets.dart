@@ -35,6 +35,7 @@ Container SignButtons(BuildContext context, bool isLogin, Function onTap) {
           onPressed: () {
             onTap();
           },
+          // ignore: sort_child_properties_last
           child: Text(
             isLogin ? 'Login' : 'Signup',
             style: const TextStyle(
@@ -52,4 +53,20 @@ Container SignButtons(BuildContext context, bool isLogin, Function onTap) {
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                   RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30))))));
+}
+
+void showAlertDialog(BuildContext context, String message) {
+  showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+            title: const Text("Error"),
+            content: Text(message),
+            actions: <Widget>[
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("OK"))
+            ],
+          ));
 }
