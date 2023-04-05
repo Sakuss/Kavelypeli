@@ -1,7 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:kavelypeli/Reusable_widgets/SignInSignOut_widgets.dart';
 import 'package:kavelypeli/screens/friends_screen.dart';
 import 'package:kavelypeli/widgets/pagecontainer.dart';
@@ -48,12 +46,7 @@ class _SignInState extends State<SignIn> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const PageContainer(
-                                        children: [
-                                          FriendsPage(),
-                                          Home(),
-                                          FriendsPage()
-                                        ])));
+                                builder: (context) => const PageContainer()));
                       }).catchError((error) {
                         showDialog(
                           context: context,

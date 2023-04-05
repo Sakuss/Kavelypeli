@@ -80,13 +80,7 @@ class _SignUpState extends State<SignUp> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const PageContainer(
-                                      children: [
-                                        FriendsPage(),
-                                        Home(),
-                                        FriendsPage()
-                                      ],
-                                    )));
+                                builder: (context) => const PageContainer()));
                       }).onError((error, stackTrace) {
   if (error is FirebaseAuthException) {
     if (error.code == 'email-already-in-use') {
