@@ -5,7 +5,7 @@ class FriendsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Friends"),
+        title: const Text("Friends"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

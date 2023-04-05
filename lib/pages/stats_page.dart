@@ -5,7 +5,7 @@ class StatsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Stats"),
+        title: const Text("Stats"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
