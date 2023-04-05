@@ -3,8 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../util.dart';
+import '../widgets/input_dialog.dart';
 
 class AuthService {
+  final BuildContext context;
   // final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   late AuthCredential _authCredential;
@@ -16,15 +18,25 @@ class AuthService {
     "ingame_currency": FieldValue.delete(),
   };
 
-  // AuthService({required this.firebaseUser});
+  AuthService({required this.context});
 
   String? get uid => _firebaseUser.uid;
-
   String? get username => _firebaseUser.displayName;
-
   String? get email => _firebaseUser.email;
 
-  // void reAuthenticate() {}
+  Future<String?> reAuthenticate() async {
+    final reAuthPassword = await InputDialog.showInputDialog(
+      context,
+      const InputDialog(
+        title: Text("Re-authenticate"),
+        inputDecoration: InputDecoration(labelText: "Type your password"),
+        keyboardType: TextInputType.visiblePassword,
+        obscureText: true,
+        inputType: InputType.password,
+      ),
+    );
+    return reAuthPassword;
+  }
 
   Future<Map<String, dynamic>> deleteUser(String password) async {
     try {
@@ -56,7 +68,7 @@ class AuthService {
       await _firebaseUser.reauthenticateWithCredential(_authCredential);
       final docRefUser = _db.collection("users").doc(uid);
       // docRefUser.update({"username": newUsername});
-      return {"result": true, "message": null};
+      return {"result": true, "message": "Username changed."};
     } on FirebaseAuthException catch (e) {
       if (e.code == "wrong-password") {
         return {"result": false, "message": "Wrong password."};

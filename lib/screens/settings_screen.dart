@@ -1,85 +1,30 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:kavelypeli/main.dart';
+import 'package:kavelypeli/widgets/dark_mode_list_tile.dart';
 import '../services/auth_service.dart';
 import 'package:grouped_list/grouped_list.dart';
 
 import '../widgets/input_dialog.dart';
-import '../widgets/menu_item.dart';
 import '../util.dart';
 
 class SettingsScreen extends StatefulWidget {
   final Function changeTheme;
 
-  SettingsScreen({super.key, required this.changeTheme});
+  const SettingsScreen({super.key, required this.changeTheme});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  String _stepGoal = "10000", _valueText = "", _valueTextPassword = "";
+  String _stepGoal = "10000";
   bool _darkMode = false;
-  final _textFieldController = TextEditingController();
-  final _textFieldPasswordController = TextEditingController();
   late AuthService _authService;
-  late final List<MenuItem> _accountSettings = [
-    MenuItem(
-      title: const Text("Change username"),
-      leading: const Icon(Icons.person, color: Colors.blue),
-      onTap: () => _changeUsername(),
-    ),
-    MenuItem(
-      title: const Text("Change email"),
-      leading: const Icon(Icons.email, color: Colors.blue),
-      onTap: () => _changeEmail(),
-    ),
-    MenuItem(
-      title: const Text("Change password"),
-      leading: const Icon(Icons.password, color: Colors.blue),
-      onTap: () => _changePassword(),
-    ),
-    MenuItem(
-      title: const Text("Delete account"),
-      leading: const Icon(Icons.delete, color: Colors.red),
-      onTap: () => _deleteUser(),
-    ),
-  ];
-
-  late final List<MenuItem> _appSettings = [
-    MenuItem(
-      title: const Text("Set step goal"),
-      leading: const FaIcon(
-        FontAwesomeIcons.shoePrints,
-        color: Colors.blue,
-      ),
-      onTap: () => _setStepGoal(),
-    ),
-    MenuItem(
-      leading: FaIcon(
-        _darkMode ? FontAwesomeIcons.sun : FontAwesomeIcons.moon,
-        color: Colors.yellow,
-      ),
-      title: Text(_darkMode ? "Set light mode" : "Set dark mode"),
-      onTap: () => _darkModeHandler(),
-    ),
-    MenuItem(
-      leading: const FaIcon(
-        FontAwesomeIcons.box,
-        color: Colors.red,
-      ),
-      title: const Text("Clear cache"),
-      onTap: () => _clearCache(),
-    ),
-  ];
-
   late final List<Map<String, dynamic>> _elements = [
     {
       "group": "Account settings",
-      "element": MenuItem(
+      "element": ListTile(
         title: const Text("Change username"),
         leading: const Icon(Icons.person, color: Colors.blue),
         onTap: () => _changeUsername(),
@@ -87,7 +32,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     },
     {
       "group": "Account settings",
-      "element": MenuItem(
+      "element": ListTile(
         title: const Text("Change email"),
         leading: const Icon(Icons.email, color: Colors.blue),
         onTap: () => _changeEmail(),
@@ -95,7 +40,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     },
     {
       "group": "Account settings",
-      "element": MenuItem(
+      "element": ListTile(
         title: const Text("Change password"),
         leading: const Icon(Icons.password, color: Colors.blue),
         onTap: () => _changePassword(),
@@ -103,7 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     },
     {
       "group": "Account settings",
-      "element": MenuItem(
+      "element": ListTile(
         title: const Text("Delete account"),
         leading: const Icon(Icons.delete, color: Colors.red),
         onTap: () => _deleteUser(),
@@ -111,7 +56,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     },
     {
       "group": "Application settings",
-      "element": MenuItem(
+      "element": ListTile(
         title: const Text("Set step goal"),
         leading: const FaIcon(
           FontAwesomeIcons.shoePrints,
@@ -120,30 +65,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
         onTap: () => _setStepGoal(),
       ),
     },
+    {
+      "group": "Application settings",
+      "element": DarkModeListTile(
+        leading: FaIcon(
+          _darkMode ? FontAwesomeIcons.sun : FontAwesomeIcons.moon,
+          color: Colors.yellow,
+        ),
+        title: Text(_darkMode ? "Set light mode" : "Set dark mode"),
+        darkModeCallback: _darkModeHandler,
+      ),
+    },
     // {
     //   "group": "Application settings",
     //   "element": MenuItem(
-    //     leading: FaIcon(
-    //       _darkMode ? FontAwesomeIcons.sun : FontAwesomeIcons.moon,
+    //     leading: const FaIcon(FontAwesomeIcons.sun,
     //       color: Colors.yellow,
     //     ),
-    //     title: Text(_darkMode ? "Set light mode" : "Set dark mode"),
+    //     title: const Text("Change theme"),
     //     onTap: () => _darkModeHandler(),
+    //   ),
+    // },
+    // {
+    //   "group": "Application settings",
+    //   "element": DarkModeListTile(
+    //     darkMode: _darkMode,
+    //     darkModeCallback: _darkModeHandler,
     //   ),
     // },
     {
       "group": "Application settings",
-      "element": MenuItem(
-        leading: const FaIcon(FontAwesomeIcons.sun,
-          color: Colors.yellow,
-        ),
-        title: const Text("Change theme"),
-        onTap: () => _darkModeHandler(),
-      ),
-    },
-    {
-      "group": "Application settings",
-      "element": MenuItem(
+      "element": ListTile(
         leading: const FaIcon(
           FontAwesomeIcons.box,
           color: Colors.red,
@@ -154,6 +106,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
     },
   ];
 
+  DarkModeListTile get darkModeTile {
+    return DarkModeListTile(
+      darkModeCallback: _darkModeHandler,
+      leading: FaIcon(
+        _darkMode ? FontAwesomeIcons.sun : FontAwesomeIcons.moon,
+        color: Colors.yellow,
+      ),
+      title: Text(_darkMode ? "Set light mode" : "Set dark mode"),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -162,10 +125,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void initPlatformState() async {
-    // print("SETTINGS : initPlatformState");
-    _authService = AuthService();
+    _authService = AuthService(context: context);
     _stepGoal = await Util().loadFromPrefs("stepGoal") ?? "10000";
     _darkMode = await Util().loadFromPrefs("darkMode") == "true";
+    _elements[5]["element"] = darkModeTile;
     _darkMode
         ? widget.changeTheme(ThemeMode.dark)
         : widget.changeTheme(ThemeMode.light);
@@ -180,135 +143,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _displayTextInputDialog() async {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Step goal'),
-          content: TextField(
-            keyboardType: TextInputType.number,
-            onChanged: (value) {
-              setState(() {
-                _valueText = value;
-              });
-            },
-            controller: _textFieldController,
-            decoration: const InputDecoration(hintText: "Default: 10 000"),
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly,
-              FilteringTextInputFormatter.deny(RegExp('^0+')),
-            ],
-            maxLength: 5,
-          ),
-          actions: <Widget>[
-            MaterialButton(
-              color: Colors.red,
-              textColor: Colors.white,
-              child: const Text('CANCEL'),
-              onPressed: () {
-                setState(() {
-                  Navigator.pop(context);
-                });
-              },
-            ),
-            MaterialButton(
-              color: Colors.green,
-              textColor: Colors.white,
-              child: const Text('OK'),
-              onPressed: () {
-                setState(() {
-                  try {
-                    if (int.parse(_valueText) >= 0 && _valueText != "") {
-                      _stepGoal = _valueText;
-                      Util().saveToPrefs("stepGoal", _stepGoal);
-                    }
-                    Util().showSnackBar(context, "New step goal is $_stepGoal");
-                  } catch (e) {
-                    Util().showSnackBar(
-                        context, "Oops, couldn't update step goal.");
-                    print("ERROR : $e");
-                  }
-                  print("STEP GOAL : $_stepGoal");
-                  Navigator.pop(context);
-                });
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _deleteUserPasswordDialog() async {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Type your password'),
-          content: TextField(
-            keyboardType: TextInputType.visiblePassword,
-            obscureText: true,
-            onChanged: (value) {
-              setState(() {
-                _valueTextPassword = value;
-              });
-            },
-            controller: _textFieldPasswordController,
-            decoration: const InputDecoration(hintText: "Password"),
-            // maxLength: 5,
-          ),
-          actions: <Widget>[
-            MaterialButton(
-              color: Colors.red,
-              textColor: Colors.white,
-              child: const Text('CANCEL'),
-              onPressed: () {
-                setState(() {
-                  Navigator.pop(context);
-                });
-              },
-            ),
-            MaterialButton(
-              color: Colors.green,
-              textColor: Colors.white,
-              child: const Text('OK'),
-              onPressed: () {
-                setState(() {
-                  Navigator.pop(context);
-                  // _deleteUser(_valueTextPassword);
-                  _deleteUser();
-                });
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<String?> _reAuthenticate() async {
-    final reAuthPassword = await _showInputDialog(
-      const InputDialog(
-        title: Text("Re-authenticate"),
-        inputDecoration: InputDecoration(labelText: "Type your password"),
-        keyboardType: TextInputType.visiblePassword,
-        obscureText: true,
-        inputType: InputType.password,
-      ),
-    );
-    print("REAUTHPASSWORD : $reAuthPassword");
-
-    return reAuthPassword;
-  }
-
   void _changePassword() async {
-    final pass = await _reAuthenticate();
-    print("PASSWORD : $pass");
+    final pass = await _authService.reAuthenticate();
     if (pass == null || pass == "") {
       return;
     }
     await _showInputDialog(
+      // await InputDialog.showInputDialog(
+      //   context,
       const InputDialog(
         title: Text("Change password"),
         inputDecoration: InputDecoration(labelText: "New password"),
@@ -335,7 +177,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _changeEmail() async {
-    final pass = await _reAuthenticate();
+    final pass = await _authService.reAuthenticate();
     print("PASSWORD : $pass");
     if (pass == null || pass == "") {
       return;
@@ -366,7 +208,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _changeUsername() async {
-    final pass = await _reAuthenticate();
+    final pass = await _authService.reAuthenticate();
     print("PASSWORD : $pass");
     if (pass == null || pass == "") {
       return;
@@ -398,7 +240,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _deleteUser() async {
-    final pass = await _reAuthenticate();
+    final pass = await _authService.reAuthenticate();
     if (pass == null || pass == "") {
       return;
     }
@@ -455,6 +297,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Util().clearPrefs();
     setState(() {
       _darkMode = false;
+      _elements[5]["element"] = darkModeTile;
       widget.changeTheme(ThemeMode.light);
     });
     Util().showSnackBar(context, "Cache cleared");
@@ -462,8 +305,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _darkModeHandler() {
     setState(() {
-      // _darkMode = _darkMode ? false : true;
       _darkMode = !_darkMode;
+      _elements[5]["element"] = darkModeTile;
     });
     Util().saveToPrefs("darkMode", _darkMode);
     widget.changeTheme(_darkMode ? ThemeMode.dark : ThemeMode.light);
@@ -471,7 +314,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("build");
     return Padding(
       padding: const EdgeInsets.all(5),
       child: GroupedListView(
@@ -495,93 +337,4 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-
-// @override
-// Widget build(BuildContext context) {
-//   return Padding(
-//     padding: const EdgeInsets.symmetric(horizontal: 10),
-//     child: Column(
-//       children: <Widget>[
-//         const Padding(
-//           padding: EdgeInsets.symmetric(vertical: 10),
-//           child: Text(
-//             "Account settings",
-//             style: TextStyle(fontSize: 20),
-//           ),
-//         ),
-//         Expanded(
-//           flex: 1,
-//           child: ListView.builder(
-//             physics: const BouncingScrollPhysics(),
-//             itemBuilder: (context, index) {
-//               return Card(
-//                 elevation: 8,
-//                 child: _accountSettings[index],
-//               );
-//             },
-//             itemCount: _accountSettings.length,
-//           ),
-//         ),
-//         const Padding(
-//           padding: EdgeInsets.symmetric(vertical: 10),
-//           child: Text(
-//             "Application settings",
-//             style: TextStyle(fontSize: 20),
-//           ),
-//         ),
-//         Expanded(
-//           child: ListView.builder(
-//             physics: const BouncingScrollPhysics(),
-//             itemBuilder: (context, index) {
-//               return Card(
-//                 elevation: 8,
-//                 child: _appSettings[index],
-//               );
-//             },
-//             itemCount: _appSettings.length,
-//           ),
-//         ),
-//         Expanded(
-//           // flex: 2,
-//           child: Column(
-//             children: <Widget>[
-//               const Padding(
-//                 padding: EdgeInsets.only(top: 10),
-//                 child: Text(
-//                   "Application settings",
-//                   style: TextStyle(fontSize: 20),
-//                 ),
-//               ),
-//               ListTile(
-//                 leading: const FaIcon(
-//                   FontAwesomeIcons.shoePrints,
-//                   color: Colors.blue,
-//                 ),
-//                 title: const Text("Set step goal"),
-//                 onTap: () => _setStepGoal(),
-//               ),
-//               ListTile(
-//                 leading: FaIcon(
-//                   _darkMode ? FontAwesomeIcons.sun : FontAwesomeIcons.moon,
-//                   color: Colors.yellow,
-//                 ),
-//                 title: Text(_darkMode ? "Set light mode" : "Set dark mode"),
-//                 onTap: () => _darkModeHandler(),
-//                 // enabled: false,
-//               ),
-//               ListTile(
-//                 leading: const FaIcon(
-//                   FontAwesomeIcons.box,
-//                   color: Colors.red,
-//                 ),
-//                 title: const Text("Clear cache"),
-//                 onTap: () => _clearCache(),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ],
-//     ),
-//   );
-// }
 }

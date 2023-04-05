@@ -42,14 +42,14 @@ class InputDialog extends StatefulWidget {
     this.inputType,
   });
 
-  // static Future<String?> showInputDialog(BuildContext context, InputDialog inputDialog) async {
-  //   return await showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       return inputDialog;
-  //     },
-  //   );
-  // }
+  static Future<String?> showInputDialog(BuildContext context, InputDialog inputDialog) async {
+    return await showDialog(
+      context: context,
+      builder: (context) {
+        return inputDialog;
+      },
+    );
+  }
 
   @override
   State<InputDialog> createState() => _InputDialogState();
