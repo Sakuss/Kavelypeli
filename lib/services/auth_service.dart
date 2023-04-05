@@ -7,6 +7,7 @@ import '../widgets/input_dialog.dart';
 
 class AuthService {
   final BuildContext context;
+
   // final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   late AuthCredential _authCredential;
@@ -21,7 +22,9 @@ class AuthService {
   AuthService({required this.context});
 
   String? get uid => _firebaseUser.uid;
+
   String? get username => _firebaseUser.displayName;
+
   String? get email => _firebaseUser.email;
 
   Future<String?> reAuthenticate() async {
@@ -100,7 +103,26 @@ class AuthService {
   }
 
   Future<Map<String, dynamic>> changePassword(
-      String password, String newPassword) async {
-    return {"result": false, "message": "TODO"};
+      String reAuthPassword, String newPassword) async {
+    try {
+      // if (newPassword.characters.length < 5) {
+      //   throw FirebaseAuthException(code: "username-too-short");
+      // }
+      _authCredential = EmailAuthProvider.credential(
+          email: _firebaseUser.email!, password: reAuthPassword);
+      final docRefUser = _db.collection("users").doc(uid);
+      await _firebaseUser.reauthenticateWithCredential(_authCredential);
+      _firebaseUser.updatePassword(newPassword).then((value) {
+        // docRefUser.update({"password": newPassword});
+      });
+      return {"result": true, "message": "Password changed."};
+    } on FirebaseAuthException catch (e) {
+      if (e.code == "wrong-password") {
+        return {"result": false, "message": "Wrong password."};
+      } else if (e.code == "password-too-short") {
+        return {"result": false, "message": "Password too short."};
+      }
+      return {"result": false, "message": "Password could not be changed."};
+    }
   }
 }
