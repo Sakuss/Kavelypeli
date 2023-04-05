@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:kavelypeli/widgets/map.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
 
 import '../util.dart';
@@ -21,7 +24,8 @@ class _HomeState extends State<Home> {
   late Stream<StepCount> _stepCountStream;
   late Stream<PedestrianStatus> _pedestrianStatusStream;
   late SharedPreferences prefs;
-  String _status = '?', _steps = "0", _points = "0", _stepGoal = "10000";
+  late String _status = '?', _steps = "0", _points = "0", _stepGoal = "10000";
+  late bool _isMapVisible = false;
 
   @override
   void initState() {
@@ -71,7 +75,7 @@ class _HomeState extends State<Home> {
 
     _stepCountStream = Pedometer.stepCountStream;
     _stepCountStream.listen(onStepCount).onError(onStepCountError);
-    
+
     _steps = await Util().loadFromPrefs("steps") ?? '0';
     _stepGoal = await Util().loadFromPrefs("stepGoal") ?? '10000';
     _points = Util().generateStepsCount();
@@ -80,7 +84,6 @@ class _HomeState extends State<Home> {
   }
 
   double get _goalPct {
-    // print("GOALPCT : $_steps, ${_steps.runtimeType}");
     try {
       double pct = int.parse(_steps) / int.parse(_stepGoal);
       return pct < 0.0 ? 0.0 : pct;
@@ -263,8 +266,43 @@ class _HomeState extends State<Home> {
           Expanded(
             child: Card(
               elevation: 3,
-              child: Center(
-                child: Text("Character here"),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        color: _isMapVisible ? null : Colors.blue,
+                        onPressed: () => {
+                          setState(() {
+                            _isMapVisible = false;
+                          })
+                        },
+                        icon: const Icon(Icons.person),
+                        iconSize: 30,
+                      ),
+                      IconButton(
+                        color: _isMapVisible ? Colors.blue : null,
+                        onPressed: () => {
+                          setState(() {
+                            _isMapVisible = true;
+                          })
+                        },
+                        icon: Icon(Icons.map),
+                        iconSize: 30,
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: Center(
+                        child: _isMapVisible
+                            ? true
+                                ? const Center(
+                                    child: CircularProgressIndicator())
+                                : MapWidget()
+                            : Text("Character here")),
+                  ),
+                ],
               ),
             ),
           ),

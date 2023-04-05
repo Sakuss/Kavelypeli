@@ -76,23 +76,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         darkModeCallback: _darkModeHandler,
       ),
     },
-    // {
-    //   "group": "Application settings",
-    //   "element": MenuItem(
-    //     leading: const FaIcon(FontAwesomeIcons.sun,
-    //       color: Colors.yellow,
-    //     ),
-    //     title: const Text("Change theme"),
-    //     onTap: () => _darkModeHandler(),
-    //   ),
-    // },
-    // {
-    //   "group": "Application settings",
-    //   "element": DarkModeListTile(
-    //     darkMode: _darkMode,
-    //     darkModeCallback: _darkModeHandler,
-    //   ),
-    // },
     {
       "group": "Application settings",
       "element": ListTile(

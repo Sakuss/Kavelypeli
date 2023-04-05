@@ -2,13 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import '../util.dart';
 import '../widgets/input_dialog.dart';
 
 class AuthService {
   final BuildContext context;
-
-  // final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   late AuthCredential _authCredential;
   final User _firebaseUser = FirebaseAuth.instance.currentUser!;
@@ -63,13 +60,10 @@ class AuthService {
   Future<Map<String, dynamic>> changeUsername(
       String reAuthPassword, String newUsername) async {
     try {
-      if (newUsername.characters.length < 5) {
-        throw FirebaseAuthException(code: "username-too-short");
-      }
+      final docRefUser = _db.collection("users").doc(uid);
       _authCredential = EmailAuthProvider.credential(
           email: _firebaseUser.email!, password: reAuthPassword);
       await _firebaseUser.reauthenticateWithCredential(_authCredential);
-      final docRefUser = _db.collection("users").doc(uid);
       // docRefUser.update({"username": newUsername});
       return {"result": true, "message": "Username changed."};
     } on FirebaseAuthException catch (e) {
@@ -84,13 +78,14 @@ class AuthService {
 
   Future<Map<String, dynamic>> changeEmail(
       String reAuthPassword, String newEmail) async {
-    // final regex = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
     try {
-      // if (!regex.hasMatch(newEmail)) {
-      //   throw FirebaseAuthException(code: "invalid-email");
-      // }
       final docRefUser = _db.collection("users").doc(uid);
-      // docRefUser.update({"email": newEmail});
+      _authCredential = EmailAuthProvider.credential(
+          email: _firebaseUser.email!, password: reAuthPassword);
+      await _firebaseUser.reauthenticateWithCredential(_authCredential);
+      _firebaseUser.updateEmail(newEmail).then((value) {
+        // docRefUser.update({"email": newEmail});
+      });
       return {"result": true, "message": "Email changed"};
     } on FirebaseAuthException catch (e) {
       if (e.code == "wrong-password") {
@@ -105,12 +100,9 @@ class AuthService {
   Future<Map<String, dynamic>> changePassword(
       String reAuthPassword, String newPassword) async {
     try {
-      // if (newPassword.characters.length < 5) {
-      //   throw FirebaseAuthException(code: "username-too-short");
-      // }
+      final docRefUser = _db.collection("users").doc(uid);
       _authCredential = EmailAuthProvider.credential(
           email: _firebaseUser.email!, password: reAuthPassword);
-      final docRefUser = _db.collection("users").doc(uid);
       await _firebaseUser.reauthenticateWithCredential(_authCredential);
       _firebaseUser.updatePassword(newPassword).then((value) {
         // docRefUser.update({"password": newPassword});
