@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class Util {
   late SharedPreferences prefs;
 
@@ -22,7 +21,17 @@ class Util {
     return prefs.get(key);
   }
 
-  String generateStepsCount(){
+  void deleteFromPrefs(String key) async {
+    prefs = await SharedPreferences.getInstance();
+    await prefs.remove(key);
+  }
+
+  void printPrefs() async {
+    prefs = await SharedPreferences.getInstance();
+    print(prefs.getKeys());
+  }
+
+  String generateStepsCount() {
     double minVal = 500;
     double maxVal = 1999;
 
@@ -36,7 +45,7 @@ class Util {
       SnackBar(
         content: Text(
           message,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
           ),
         ),
