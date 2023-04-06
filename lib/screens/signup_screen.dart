@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 
 import '../Reusable_widgets/SignInSignOut_widgets.dart';
 import '../widgets/pagecontainer.dart';
@@ -23,12 +22,7 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController _userNameTextController = TextEditingController();
 
   void _createUserDocument(User user) {
-    FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-      'email': user.email,
-      // 'email': "upi@gmail.com",
-      'username': _userNameTextController.text,
-      // 'username': "upi",
-    }).then((value) {
+    FirebaseFirestore.instance.collection('users').doc(user.uid).set({}).then((value) {
       print('User document created successfully!');
     }).catchError((error) {
       print('Failed to create user document: $error');
@@ -90,10 +84,8 @@ class _SignUpState extends State<SignUp> {
                       }
                       FirebaseAuth.instance
                           .createUserWithEmailAndPassword(
-                              // email: _emailTextController.text,
-                              email: "upi@gmail.com",
-                              // password: _passwordTextController.text)
-                              password: "upi123")
+                              email: _emailTextController.text,
+                              password: _passwordTextController.text)
                           .then((value) {
                         _createUserDocument(value.user!);
                         Navigator.push(
