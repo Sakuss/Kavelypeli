@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kavelypeli/screens/friends_screen.dart';
 import 'package:kavelypeli/screens/profile_screen.dart';
 import 'package:kavelypeli/screens/shop_screen.dart';
+import 'package:kavelypeli/screens/inventory_screen.dart';
 
 import '../screens/home_screen.dart';
 import '../screens/settings_screen.dart';
@@ -77,7 +78,8 @@ class _PageContainerState extends State<PageContainer> {
               ),
               title: const Text('Inventory'),
               onTap: () {
-                // Navigator.push(context, MaterialPageRoute(builder: (context) => InventoryPage()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => InventoryPage()));
               },
             ),
             const SizedBox(
