@@ -5,7 +5,7 @@ import 'package:flutter/src/widgets/placeholder.dart';
 import '../Reusable_widgets/SignInSignOut_widgets.dart';
 import '../widgets/pagecontainer.dart';
 import '../util.dart';
-import '../models/app_user_model.dart';
+import '../models/user_model.dart';
 
 import './friends_screen.dart';
 import './signup_screen.dart';

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:kavelypeli/widgets/character_preview.dart';
 import 'package:kavelypeli/widgets/map.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -295,12 +296,14 @@ class _HomeState extends State<Home> {
                   ),
                   Expanded(
                     child: Center(
-                        child: _isMapVisible
-                            ? true
-                                ? const Center(
-                                    child: CircularProgressIndicator())
-                                : MapWidget()
-                            : Text("Character here")),
+                      child: _isMapVisible
+                          ? true
+                              ? const Center(child: CircularProgressIndicator())
+                              : MapWidget()
+                          : CharacterPreview(
+                              items: [],
+                            ),
+                    ),
                   ),
                 ],
               ),
