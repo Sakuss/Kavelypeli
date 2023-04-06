@@ -1,14 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:kavelypeli/Reusable_widgets/SignInSignOut_widgets.dart';
-import 'package:kavelypeli/screens/friends_screen.dart';
-import 'package:kavelypeli/widgets/pagecontainer.dart';
-import 'package:kavelypeli/screens/signup_screen.dart';
+import 'package:flutter/src/widgets/framework.dart';
 
-import 'home_screen.dart';
+import '../Reusable_widgets/SignInSignOut_widgets.dart';
+import '../widgets/pagecontainer.dart';
+import './signup_screen.dart';
 
 class SignIn extends StatefulWidget {
-  const SignIn({super.key});
+  final Function changeTheme;
+
+  const SignIn({super.key, required this.changeTheme});
 
   @override
   State<SignIn> createState() => _SignInState();
@@ -40,13 +41,27 @@ class _SignInState extends State<SignIn> {
                     SignButtons(context, true, () {
                       FirebaseAuth.instance
                           .signInWithEmailAndPassword(
+                              // email: "upi@gmail.com",
                               email: _emailTextController.text,
                               password: _passwordTextController.text)
+                          // password: "upi123")
                           .then((value) {
+                        print("VALUE : $value");
+                        // Util().saveToPrefs("uid", value.user?.uid);
+                        // Util().saveToPrefs(
+                        //   "user",
+                        //   AppUser(
+                        //           username: value.additionalUserInfo?.username,
+                        //           uid: value.user?.uid,
+                        //           email: value.user?.email)
+                        //       .toJson(),
+                        // );
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const PageContainer()));
+                                builder: (context) => PageContainer(
+                                      changeTheme: widget.changeTheme,
+                                    )));
                       }).catchError((error) {
                         showDialog(
                           context: context,
@@ -79,8 +94,11 @@ class _SignInState extends State<SignIn> {
       children: [
         GestureDetector(
             onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const SignUp()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          SignUp(changeTheme: widget.changeTheme)));
             },
             child: const Text(
               "Sign up",

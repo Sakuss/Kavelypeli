@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:kavelypeli/widgets/character_preview.dart';
+import 'package:kavelypeli/widgets/map.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,10 +10,11 @@ import 'dart:async';
 import '../util.dart';
 
 class Home extends StatefulWidget {
-  static const IconData icon = Icons.home;
+  static const Icon icon = Icon(Icons.home);
   static const String name = "Home";
+  final String? stepGoal;
 
-  const Home({Key? key}) : super(key: key);
+  const Home({super.key, this.stepGoal});
 
   @override
   State<Home> createState() => _HomeState();
@@ -21,23 +24,24 @@ class _HomeState extends State<Home> {
   late Stream<StepCount> _stepCountStream;
   late Stream<PedestrianStatus> _pedestrianStatusStream;
   late SharedPreferences prefs;
-  String _status = '?', _steps = "0", _points = "0", _stepGoal = "10000";
+  late String _status = '?',
+      _steps = "0",
+      _points = "0",
+      _stepGoal = widget.stepGoal ?? "10000";
+  late bool _isMapVisible = false;
 
   @override
   void initState() {
     super.initState();
+    print("HOME : initState");
     initPlatformState();
-  }
-
-  void _update() async {
-    _steps = await Util().loadFromPrefs("steps") ?? '0';
-    _stepGoal = await Util().loadFromPrefs("stepGoal") ?? '10000';
-    setState(() {});
   }
 
   void onStepCount(StepCount event) {
     print(event);
-    Util().saveToPrefs("steps", _steps);
+    if (_steps != "Step Count not available") {
+      // Util().saveToPrefs("steps", _steps);
+    }
     setState(() {
       _steps = event.steps.toString();
     });
@@ -66,7 +70,7 @@ class _HomeState extends State<Home> {
   }
 
   void initPlatformState() async {
-    print("initPlatformState");
+    print("HOME : initPlatformState");
     _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
     _pedestrianStatusStream
         .listen(onPedestrianStatusChanged)
@@ -83,8 +87,13 @@ class _HomeState extends State<Home> {
   }
 
   double get _goalPct {
-    double pct = int.parse(_steps) / int.parse(_stepGoal);
-    return pct < 0.0 ? 0.0 : pct;
+    try {
+      double pct = int.parse(_steps) / int.parse(_stepGoal);
+      return pct < 0.0 ? 0.0 : pct;
+    } catch (e) {
+      print(e);
+      return 0.0;
+    }
   }
 
   void _addSteps() {
@@ -107,7 +116,10 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     MediaQueryData mediaQuery = MediaQuery.of(context);
     double boxSize = mediaQuery.size.width / 2 - 40;
-
+    setState(() {
+      _stepGoal = widget.stepGoal ?? _stepGoal;
+    });
+    
     return Padding(
       padding: EdgeInsets.all(5),
       child: Column(
@@ -212,28 +224,30 @@ class _HomeState extends State<Home> {
                         alignment: Alignment.center,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: LinearPercentIndicator(
-                            animation: true,
-                            lineHeight: 20.0,
-                            leading: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              child: Text(_steps),
-                            ),
-                            trailing: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10),
-                              child: Text(_stepGoal),
-                            ),
-                            animationDuration: 500,
-                            percent: _goalPct <= 1 ? _goalPct : 1.0,
-                            center: _goalPct <= 1
-                                ? Text(
-                                    "${(_goalPct * 100).toStringAsFixed(2)} %")
-                                : const Text("Goal achieved!"),
-                            barRadius: const Radius.circular(5),
-                            progressColor: Colors.blueAccent,
-                          ),
+                          child: _steps != "Step Count not available"
+                              ? LinearPercentIndicator(
+                                  animation: true,
+                                  lineHeight: 20.0,
+                                  leading: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
+                                    child: Text(_steps),
+                                  ),
+                                  trailing: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
+                                    child: Text(_stepGoal),
+                                  ),
+                                  animationDuration: 500,
+                                  percent: _goalPct <= 1 ? _goalPct : 1.0,
+                                  center: _goalPct <= 1
+                                      ? Text(
+                                          "${(_goalPct * 100).toStringAsFixed(2)} %")
+                                      : const Text("Goal achieved!"),
+                                  barRadius: const Radius.circular(5),
+                                  progressColor: Colors.blueAccent,
+                                )
+                              : Text(_steps),
                         ),
                       ),
                       Row(
@@ -242,10 +256,6 @@ class _HomeState extends State<Home> {
                           ElevatedButton(
                             onPressed: _addSteps,
                             child: const Text("Add steps"),
-                          ),
-                          ElevatedButton(
-                            onPressed: _update,
-                            child: const Text("Refresh"),
                           ),
                           ElevatedButton(
                             onPressed: _reduceSteps,
@@ -262,8 +272,45 @@ class _HomeState extends State<Home> {
           Expanded(
             child: Card(
               elevation: 3,
-              child: Center(
-                child: Text("Character here"),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        color: _isMapVisible ? null : Colors.blue,
+                        onPressed: () => {
+                          setState(() {
+                            _isMapVisible = false;
+                          })
+                        },
+                        icon: const Icon(Icons.person),
+                        iconSize: 30,
+                      ),
+                      IconButton(
+                        color: _isMapVisible ? Colors.blue : null,
+                        onPressed: () => {
+                          setState(() {
+                            _isMapVisible = true;
+                          })
+                        },
+                        icon: Icon(Icons.map),
+                        iconSize: 30,
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: _isMapVisible
+                          ? true
+                              ? const Center(child: CircularProgressIndicator())
+                              : MapWidget()
+                          : CharacterPreview(
+                              items: [],
+                            ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
