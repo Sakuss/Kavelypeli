@@ -1,16 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
+
 import '../Reusable_widgets/SignInSignOut_widgets.dart';
 import '../widgets/pagecontainer.dart';
-import '../util.dart';
-import '../models/user_model.dart';
-
-import './friends_screen.dart';
 import './signup_screen.dart';
-import './home_screen.dart';
-import './settings_screen.dart';
 
 class SignIn extends StatefulWidget {
   final Function changeTheme;
@@ -47,10 +41,10 @@ class _SignInState extends State<SignIn> {
                     SignButtons(context, true, () {
                       FirebaseAuth.instance
                           .signInWithEmailAndPassword(
-                              email: "upi@gmail.com",
-                              // email: _emailTextController.text,
-                              // password: _passwordTextController.text)
-                              password: "upi123")
+                              // email: "upi@gmail.com",
+                              email: _emailTextController.text,
+                              password: _passwordTextController.text)
+                          // password: "upi123")
                           .then((value) {
                         print("VALUE : $value");
                         // Util().saveToPrefs("uid", value.user?.uid);
@@ -65,13 +59,9 @@ class _SignInState extends State<SignIn> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => PageContainer(children: [
-                                      // FriendsPage(),
-                                      SettingsScreen(
-                                          changeTheme: widget.changeTheme),
-                                      Home(),
-                                      FriendsPage()
-                                    ])));
+                                builder: (context) => PageContainer(
+                                      changeTheme: widget.changeTheme,
+                                    )));
                       }).catchError((error) {
                         showDialog(
                           context: context,

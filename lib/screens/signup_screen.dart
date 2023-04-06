@@ -2,15 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
-import 'package:kavelypeli/Reusable_widgets/SignInSignOut_widgets.dart';
-import 'package:kavelypeli/screens/friends_screen.dart';
-import 'package:kavelypeli/screens/home_screen.dart';
-import 'package:kavelypeli/screens/settings_screen.dart';
-import 'package:kavelypeli/widgets/pagecontainer.dart';
+
+import '../Reusable_widgets/SignInSignOut_widgets.dart';
+import '../widgets/pagecontainer.dart';
 
 class SignUp extends StatefulWidget {
   final Function changeTheme;
+
   const SignUp({super.key, required this.changeTheme});
 
   @override
@@ -26,10 +24,10 @@ class _SignUpState extends State<SignUp> {
 
   void _createUserDocument(User user) {
     FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-      // 'email': user.email,
-      'email': "upi@gmail.com",
-      // 'username': _userNameTextController.text,
-      'username': "upi",
+      'email': user.email,
+      // 'email': "upi@gmail.com",
+      'username': _userNameTextController.text,
+      // 'username': "upi",
     }).then((value) {
       print('User document created successfully!');
     }).catchError((error) {
@@ -102,13 +100,7 @@ class _SignUpState extends State<SignUp> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => PageContainer(
-                                      children: [
-                                        // FriendsPage(),
-                                        SettingsScreen(
-                                            changeTheme: widget.changeTheme),
-                                        Home(),
-                                        FriendsPage()
-                                      ],
+                                      changeTheme: widget.changeTheme,
                                     )));
                       }).onError((error, stackTrace) {
                         if (error is FirebaseAuthException &&

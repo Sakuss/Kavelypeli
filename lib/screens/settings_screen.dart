@@ -111,10 +111,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _authService = AuthService(context: context);
     _stepGoal = await Util().loadFromPrefs("stepGoal") ?? "10000";
     _darkMode = await Util().loadFromPrefs("darkMode") == "true";
-    _elements[5]["element"] = darkModeTile;
-    _darkMode
-        ? widget.changeTheme(ThemeMode.dark)
-        : widget.changeTheme(ThemeMode.light);
+    setState(() {
+      _elements[5]["element"] = darkModeTile;
+    });
+    // _darkMode
+    //     ? widget.changeTheme(ThemeMode.dark)
+    //     : widget.changeTheme(ThemeMode.light);
   }
 
   Future<String?> _showInputDialog(InputDialog inputDialog) async {
@@ -297,26 +299,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(5),
-      child: GroupedListView(
-        elements: _elements,
-        groupBy: (element) => element["group"],
-        groupSeparatorBuilder: (String value) => Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            value,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    return Scaffold(
+      appBar: AppBar(
+          title: const Text("Settings"),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.of(context).pop(),
+          )),
+      body: Padding(
+        padding: const EdgeInsets.all(5),
+        child: GroupedListView(
+          elements: _elements,
+          groupBy: (element) => element["group"],
+          groupSeparatorBuilder: (String value) => Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              value,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
           ),
+          itemBuilder: (c, element) {
+            return Card(
+              elevation: 8,
+              margin:
+                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+              child: element["element"],
+            );
+          },
         ),
-        itemBuilder: (c, element) {
-          return Card(
-            elevation: 8,
-            margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
-            child: element["element"],
-          );
-        },
       ),
     );
   }
