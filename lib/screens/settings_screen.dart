@@ -11,7 +11,8 @@ import '../util.dart';
 class SettingsScreen extends StatefulWidget {
   final Function changeTheme;
 
-  const SettingsScreen({super.key, required this.changeTheme});
+  const SettingsScreen(
+      {super.key, required this.changeTheme});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -304,7 +305,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           title: const Text("Settings"),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.pop(context, _stepGoal),
           )),
       body: Padding(
         padding: const EdgeInsets.all(5),

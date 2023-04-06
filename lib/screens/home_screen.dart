@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:kavelypeli/widgets/character_preview.dart';
 import 'package:kavelypeli/widgets/map.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'dart:async';
 
 import '../util.dart';
 
 class Home extends StatefulWidget {
-  static const IconData icon = Icons.home;
+  static const Icon icon = Icon(Icons.home);
   static const String name = "Home";
+  final String? stepGoal;
 
-  const Home({super.key});
+  const Home({super.key, this.stepGoal});
 
   @override
   State<Home> createState() => _HomeState();
@@ -25,7 +24,10 @@ class _HomeState extends State<Home> {
   late Stream<StepCount> _stepCountStream;
   late Stream<PedestrianStatus> _pedestrianStatusStream;
   late SharedPreferences prefs;
-  late String _status = '?', _steps = "0", _points = "0", _stepGoal = "10000";
+  late String _status = '?',
+      _steps = "0",
+      _points = "0",
+      _stepGoal = widget.stepGoal ?? "10000";
   late bool _isMapVisible = false;
 
   @override
@@ -114,7 +116,10 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     MediaQueryData mediaQuery = MediaQuery.of(context);
     double boxSize = mediaQuery.size.width / 2 - 40;
-
+    setState(() {
+      _stepGoal = widget.stepGoal ?? _stepGoal;
+    });
+    
     return Padding(
       padding: EdgeInsets.all(5),
       child: Column(

@@ -16,6 +16,7 @@ class PageContainer extends StatefulWidget {
 
 class _PageContainerState extends State<PageContainer> {
   int _selectedIndex = 1;
+  String? _stepGoal = null;
   final PageController _pageController = PageController(initialPage: 1);
 
   void _onItemTapped(int index) {
@@ -31,6 +32,7 @@ class _PageContainerState extends State<PageContainer> {
 
   @override
   Widget build(BuildContext context) {
+    print("building pagecontainer");
     return Scaffold(
       drawer: Drawer(
         child: ListView(
@@ -120,10 +122,16 @@ class _PageContainerState extends State<PageContainer> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          SettingsScreen(changeTheme: widget.changeTheme),
+                      builder: (context) => SettingsScreen(
+                        changeTheme: widget.changeTheme,
+                      ),
                       // Text("settings"),
-                    ));
+                    )).then((value) {
+                  // _updateHome(value);
+                  setState(() {
+                    _stepGoal = value;
+                  });
+                });
               },
             ),
             const SizedBox(
@@ -147,9 +155,9 @@ class _PageContainerState extends State<PageContainer> {
       ),
       body: PageView(
         controller: _pageController,
-        children: const <Widget>[
+        children: <Widget>[
           FriendsPage(),
-          Home(),
+          Home(stepGoal: _stepGoal),
           ProfilePage(),
         ],
         onPageChanged: (index) {
@@ -165,7 +173,7 @@ class _PageContainerState extends State<PageContainer> {
             label: 'Leaderboard',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Home.icon),
+            icon: Home.icon,
             label: Home.name,
           ),
           BottomNavigationBarItem(
