@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kavelypeli/screens/friends_screen.dart';
 import 'package:kavelypeli/screens/profile_screen.dart';
+import 'package:kavelypeli/screens/shop_screen.dart';
 
 import '../screens/home_screen.dart';
 import '../screens/settings_screen.dart';
@@ -157,8 +158,7 @@ class _PageContainerState extends State<PageContainer> {
         controller: _pageController,
         children: <Widget>[
           FriendsPage(),
-          Home(stepGoal: _stepGoal),
-          ProfilePage(),
+          ShopPage(),
         ],
         onPageChanged: (index) {
           setState(() {
@@ -177,8 +177,8 @@ class _PageContainerState extends State<PageContainer> {
             label: Home.name,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_basket),
-            label: 'Shop',
+            icon: Icon(ShopPage.icon),
+            label: ShopPage.name,
           ),
         ],
         currentIndex: _selectedIndex,
