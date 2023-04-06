@@ -7,6 +7,7 @@ import 'package:kavelypeli/screens/signin_screen.dart';
 
 import '../models/user_model.dart';
 import '../screens/home_screen.dart';
+import '../screens/leaderboard_screen.dart';
 import '../screens/settings_screen.dart';
 
 class PageContainer extends StatefulWidget {
@@ -72,8 +73,7 @@ class _PageContainerState extends State<PageContainer> {
                 ),
                 title: const Text('Profile'),
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => ProfilePage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage()));
                 }),
             const SizedBox(
               height: 20,
@@ -176,7 +176,7 @@ class _PageContainerState extends State<PageContainer> {
       ),
       body: PageView(
         controller: _pageController,
-        children: <Widget>[Text("Leaderboard"), Home(), ShopPage()],
+        children: <Widget>[Leaderboard(user: widget.user), Home(), ShopPage()],
         onPageChanged: (index) {
           setState(() {
             _selectedIndex = index;

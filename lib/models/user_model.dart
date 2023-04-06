@@ -4,7 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 class AppUser {
   String uid;
   String? username, email;
-  int steps, points, currency;
+  int steps, points;
+  int? currency;
   DateTime? joinDate;
   String? photoUrl;
 
@@ -16,7 +17,7 @@ class AppUser {
     required this.uid,
     required this.steps,
     required this.points,
-    required this.currency,
+    this.currency,
   });
 
   static Future<AppUser?> createUserOnSignup(
