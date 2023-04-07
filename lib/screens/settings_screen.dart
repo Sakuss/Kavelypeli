@@ -282,6 +282,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _clearCache() {
     Util().clearPrefs();
     setState(() {
+      _stepGoal = "10000";
       _darkMode = false;
       _elements[5]["element"] = darkModeTile;
       widget.changeTheme(ThemeMode.light);

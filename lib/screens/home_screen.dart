@@ -5,6 +5,7 @@ import 'package:pedometer/pedometer.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:async';
 
 import '../util.dart';
@@ -21,6 +22,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  final _storage = FirebaseStorage.instance.ref();
   late Stream<StepCount> _stepCountStream;
   late Stream<PedestrianStatus> _pedestrianStatusStream;
   late SharedPreferences prefs;
@@ -35,6 +37,23 @@ class _HomeState extends State<Home> {
     super.initState();
     print("HOME : initState");
     initPlatformState();
+  }
+
+  void initPlatformState() async {
+    print("HOME : initPlatformState");
+    _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
+    _pedestrianStatusStream
+        .listen(onPedestrianStatusChanged)
+        .onError(onPedestrianStatusError);
+
+    _stepCountStream = Pedometer.stepCountStream;
+    _stepCountStream.listen(onStepCount).onError(onStepCountError);
+
+    _steps = await Util().loadFromPrefs("steps") ?? '0';
+    _stepGoal = await Util().loadFromPrefs("stepGoal") ?? '10000';
+    _points = Util().generateStepsCount();
+
+    if (!mounted) return;
   }
 
   void onStepCount(StepCount event) {
@@ -67,23 +86,6 @@ class _HomeState extends State<Home> {
     setState(() {
       // _steps = 'Step Count not available';
     });
-  }
-
-  void initPlatformState() async {
-    print("HOME : initPlatformState");
-    _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
-    _pedestrianStatusStream
-        .listen(onPedestrianStatusChanged)
-        .onError(onPedestrianStatusError);
-
-    _stepCountStream = Pedometer.stepCountStream;
-    _stepCountStream.listen(onStepCount).onError(onStepCountError);
-
-    _steps = await Util().loadFromPrefs("steps") ?? '0';
-    _stepGoal = await Util().loadFromPrefs("stepGoal") ?? '10000';
-    _points = Util().generateStepsCount();
-
-    if (!mounted) return;
   }
 
   double get _goalPct {
@@ -119,7 +121,7 @@ class _HomeState extends State<Home> {
     setState(() {
       _stepGoal = widget.stepGoal ?? _stepGoal;
     });
-    
+
     return Padding(
       padding: EdgeInsets.all(5),
       child: Column(
@@ -305,9 +307,7 @@ class _HomeState extends State<Home> {
                           ? true
                               ? const Center(child: CircularProgressIndicator())
                               : MapWidget()
-                          : CharacterPreview(
-                              items: [],
-                            ),
+                          : CharacterPreview(),
                     ),
                   ),
                 ],

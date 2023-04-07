@@ -41,10 +41,10 @@ class _SignInState extends State<SignIn> {
                     SignButtons(context, true, () {
                       FirebaseAuth.instance
                           .signInWithEmailAndPassword(
-                              // email: "upi@gmail.com",
-                              email: _emailTextController.text,
-                              password: _passwordTextController.text)
-                          // password: "upi123")
+                              email: "upi@gmail.com",
+                              // email: _emailTextController.text,
+                              // password: _passwordTextController.text)
+                          password: "upi123")
                           .then((value) {
                         print("VALUE : $value");
                         // Util().saveToPrefs("uid", value.user?.uid);
