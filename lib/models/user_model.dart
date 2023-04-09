@@ -25,6 +25,7 @@ class AppUser {
     String email,
   ) async {
     try {
+      // await user.updateDisplayName(username);
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         'username': username,
         'email': email,
