@@ -48,24 +48,7 @@ class _SignInState extends State<SignIn> {
                             MaterialPageRoute(
                                 builder: (context) => const PageContainer()));
                       }).catchError((error) {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text("Error"),
-                              content:
-                                  const Text("Incorrect email or password"),
-                              actions: <Widget>[
-                                TextButton(
-                                  child: const Text("OK"),
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
+                        showAlertDialog(context, "Incorrect email or password");
                       });
                     }),
                     SignupOption()
