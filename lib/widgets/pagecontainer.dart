@@ -2,13 +2,21 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:kavelypeli/screens/friends_screen.dart';
 import 'package:kavelypeli/screens/profile_screen.dart';
-import 'package:kavelypeli/screens/signin_screen.dart';
+import 'package:kavelypeli/screens/shop_screen.dart';
 
+import '../models/user_model.dart';
 import '../screens/home_screen.dart';
 import '../screens/settings_screen.dart';
 
 class PageContainer extends StatefulWidget {
-  const PageContainer({super.key});
+  final Function changeTheme;
+  final AppUser user;
+
+  const PageContainer({
+    super.key,
+    required this.changeTheme,
+    required this.user,
+  });
 
   @override
   State<PageContainer> createState() => _PageContainerState();
@@ -16,6 +24,7 @@ class PageContainer extends StatefulWidget {
 
 class _PageContainerState extends State<PageContainer> {
   int _selectedIndex = 1;
+  String? _stepGoal = null;
   final PageController _pageController = PageController(initialPage: 1);
 
   void _onItemTapped(int index) {
@@ -31,19 +40,20 @@ class _PageContainerState extends State<PageContainer> {
 
   @override
   Widget build(BuildContext context) {
+    print("building pagecontainer");
     return Scaffold(
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const UserAccountsDrawerHeader(
-              currentAccountPicture: Icon(
+            UserAccountsDrawerHeader(
+              currentAccountPicture: const Icon(
                 Icons.account_circle_sharp,
                 size: 48.0,
                 color: Colors.white,
               ),
-              accountName: Text('Username'),
-              accountEmail: Text('test@gmail.com'),
+              accountName: Text(widget.user.username ?? "no username"),
+              accountEmail: Text(widget.user.email ?? "no email"),
             ),
             IconButton(
               onPressed: () {
@@ -61,7 +71,8 @@ class _PageContainerState extends State<PageContainer> {
                 ),
                 title: const Text('Profile'),
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage()));
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => ProfilePage()));
                 }),
             const SizedBox(
               height: 20,
@@ -86,7 +97,8 @@ class _PageContainerState extends State<PageContainer> {
               ),
               title: const Text('Friends'),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => FriendsPage()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => FriendsPage()));
               },
             ),
             const SizedBox(
@@ -114,7 +126,20 @@ class _PageContainerState extends State<PageContainer> {
               ),
               title: const Text('Settings'),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => SettingsScreen(changeTheme: () => {})));
+                Navigator.pop(context);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SettingsScreen(
+                        changeTheme: widget.changeTheme,
+                      ),
+                      // Text("settings"),
+                    )).then((value) {
+                  // _updateHome(value);
+                  setState(() {
+                    _stepGoal = value;
+                  });
+                });
               },
             ),
             const SizedBox(
@@ -124,22 +149,22 @@ class _PageContainerState extends State<PageContainer> {
               onTap: () {
                 FirebaseAuth.instance.signOut().then((value) {
                   Navigator.pushAndRemoveUntil(
-                    context, 
-                    MaterialPageRoute(builder: (context) => SignIn()),
-                    (route) => false);
+                      context,
+                      MaterialPageRoute(builder: (context) => SignIn()),
+                      (route) => false);
                 }).catchError((error) {
                   print('Failed to sign out: $error');
                 });
               },
-            child: const ListTile(
-              leading: Icon(
-                Icons.logout_rounded,
-                color: Color(0xFF13C0E3),
+              child: const ListTile(
+                leading: Icon(
+                  Icons.logout_rounded,
+                  color: Color(0xFF13C0E3),
+                ),
+                title: Text('Log out'),
               ),
-              title: Text('Log out')
-              ,
-            ),
-          )],
+            )
+          ],
         ),
       ),
       appBar: AppBar(
@@ -147,11 +172,7 @@ class _PageContainerState extends State<PageContainer> {
       ),
       body: PageView(
         controller: _pageController,
-        children: const <Widget>[
-          FriendsPage(),
-          Home(),
-          ProfilePage(),
-        ],
+        children: <Widget>[Text("Leaderboard"), Home(), Text("Shop")],
         onPageChanged: (index) {
           setState(() {
             _selectedIndex = index;
@@ -165,12 +186,12 @@ class _PageContainerState extends State<PageContainer> {
             label: 'Leaderboard',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Home.icon),
+            icon: Home.icon,
             label: Home.name,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_basket),
-            label: 'Shop',
+            icon: Icon(ShopPage.icon),
+            label: ShopPage.name,
           ),
         ],
         currentIndex: _selectedIndex,

@@ -40,11 +40,14 @@ class _FriendsPageState extends State<FriendsPage> {
       appBar: AppBar(
         title: const Text('Friends'),
         actions: [
-          IconButton(
-            onPressed: () {
-              showSearch(context: context, delegate: FriendsSearchDelegate());
-            },
-            icon: const Icon(Icons.add),
+          Tooltip(
+            message: 'Add a friend',
+            child: IconButton(
+              onPressed: () {
+                showSearch(context: context, delegate: FriendsSearchDelegate());
+              },
+              icon: const Icon(Icons.add),
+            ),
           ),
         ],
       ),
@@ -72,25 +75,17 @@ class _FriendsPageState extends State<FriendsPage> {
                               onTap: () => showDialog(
                                 context: context,
                                 builder: (context) {
-                                  return Dialog(
-                                      child: Column(
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
-                                        children: [
-                                          CloseButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                        ],
+                                  return const Dialog(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(15),
                                       ),
-                                      const Profile(
-                                        name: 'test',
-                                        title: 'Novice walker',
-                                      ),
-                                    ],
-                                  ));
+                                    ),
+                                    child: Profile(
+                                      name: 'test',
+                                      title: 'Novice walker',
+                                    ),
+                                  );
                                 },
                               ),
                               child: Center(
