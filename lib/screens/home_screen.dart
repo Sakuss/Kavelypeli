@@ -22,7 +22,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final _storage = FirebaseStorage.instance.ref();
   late Stream<StepCount> _stepCountStream;
   late Stream<PedestrianStatus> _pedestrianStatusStream;
   late SharedPreferences prefs;
@@ -49,6 +48,7 @@ class _HomeState extends State<Home> {
     _stepCountStream = Pedometer.stepCountStream;
     _stepCountStream.listen(onStepCount).onError(onStepCountError);
 
+    // _steps = "Step Count not available";
     _steps = await Util().loadFromPrefs("steps") ?? '0';
     _stepGoal = await Util().loadFromPrefs("stepGoal") ?? '10000';
     _points = Util().generateStepsCount();
@@ -123,152 +123,192 @@ class _HomeState extends State<Home> {
     });
 
     return Padding(
-      padding: EdgeInsets.all(5),
+      padding: const EdgeInsets.all(5),
       child: Column(
         children: <Widget>[
-          Container(
-            child: Card(
-              elevation: 3,
-              child: Column(
-                children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Container(
-                        margin: const EdgeInsets.all(10),
-                        height: boxSize,
-                        width: boxSize,
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(25),
-                          ),
-                          border: Border.all(
-                            width: 5,
-                            color: Colors.green,
-                            style: BorderStyle.solid,
-                          ),
+          Card(
+            elevation: 3,
+            child: Column(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      margin: const EdgeInsets.all(10),
+                      height: boxSize,
+                      width: boxSize,
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(15),
                         ),
-                        child: Column(
-                          children: <Widget>[
-                            Expanded(
-                              flex: 1,
-                              child: Container(
-                                margin: EdgeInsets.all(5),
-                                child: const FaIcon(FontAwesomeIcons.shoePrints,
-                                    size: 30),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: Text(
-                                _steps,
-                                style: _steps == "Step Count not available"
-                                    ? const TextStyle(fontSize: 20)
-                                    : const TextStyle(fontSize: 40),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: Icon(
-                                _status == 'walking'
-                                    ? Icons.directions_walk
-                                    : _status == 'stopped'
-                                        ? Icons.accessibility_new
-                                        : Icons.error,
-                                size: 40,
-                              ),
-                            ),
-                          ],
+                        border: Border.all(
+                          width: 5,
+                          color: Colors.green,
+                          style: BorderStyle.solid,
                         ),
                       ),
-                      Container(
-                        margin: const EdgeInsets.all(10),
-                        height: boxSize,
-                        width: boxSize,
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(25),
-                          ),
-                          border: Border.all(
-                            width: 5,
-                            color: Colors.yellow,
-                            style: BorderStyle.solid,
-                          ),
-                        ),
-                        child: Column(
-                          children: <Widget>[
-                            Expanded(
-                              flex: 1,
-                              child: Container(
-                                margin: const EdgeInsets.all(5),
-                                child: const FaIcon(FontAwesomeIcons.solidStar,
-                                    size: 30),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 2,
-                              child: Text(
-                                _points,
-                                style: const TextStyle(fontSize: 40),
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: <Widget>[
-                      Container(
-                        width: mediaQuery.size.width,
-                        alignment: Alignment.center,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: _steps != "Step Count not available"
-                              ? LinearPercentIndicator(
-                                  animation: true,
-                                  lineHeight: 20.0,
-                                  leading: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10),
-                                    child: Text(_steps),
-                                  ),
-                                  trailing: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10),
-                                    child: Text(_stepGoal),
-                                  ),
-                                  animationDuration: 500,
-                                  percent: _goalPct <= 1 ? _goalPct : 1.0,
-                                  center: _goalPct <= 1
-                                      ? Text(
-                                          "${(_goalPct * 100).toStringAsFixed(2)} %")
-                                      : const Text("Goal achieved!"),
-                                  barRadius: const Radius.circular(5),
-                                  progressColor: Colors.blueAccent,
-                                )
-                              : Text(_steps),
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      child: Column(
                         children: <Widget>[
-                          ElevatedButton(
-                            onPressed: _addSteps,
-                            child: const Text("Add steps"),
+                          Expanded(
+                            flex: 1,
+                            child: Container(
+                              margin: const EdgeInsets.all(5),
+                              child: const FaIcon(FontAwesomeIcons.shoePrints,
+                                  size: 30),
+                            ),
                           ),
-                          ElevatedButton(
-                            onPressed: _reduceSteps,
-                            child: const Text("Reduce steps"),
+                          Expanded(
+                            flex: 1,
+                            child: Text(
+                              _steps,
+                              style: _steps == "Step Count not available"
+                                  ? const TextStyle(fontSize: 20)
+                                  : const TextStyle(fontSize: 40),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Icon(
+                              _status == 'walking'
+                                  ? Icons.directions_walk
+                                  : _status == 'stopped'
+                                      ? Icons.accessibility_new
+                                      : Icons.error,
+                              size: 40,
+                            ),
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.all(10),
+                      height: boxSize,
+                      width: boxSize,
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(15),
+                        ),
+                        border: Border.all(
+                          width: 5,
+                          color: Colors.yellow,
+                          style: BorderStyle.solid,
+                        ),
+                      ),
+                      child: Column(
+                        children: <Widget>[
+                          Expanded(
+                            flex: 1,
+                            child: Container(
+                              margin: const EdgeInsets.all(5),
+                              child: const FaIcon(FontAwesomeIcons.solidStar,
+                                  size: 30),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              _points,
+                              style: const TextStyle(fontSize: 40),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  children: <Widget>[
+                    Container(
+                      width: mediaQuery.size.width,
+                      alignment: Alignment.center,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20.0,
+                          vertical: 10.0,
+                        ),
+                        child: Container(
+                          width: mediaQuery.size.width,
+                          decoration: BoxDecoration(
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(15),
+                            ),
+                            border: Border.all(
+                              width: 5,
+                              color: Colors.blue,
+                              style: BorderStyle.solid,
+                            ),
+                          ),
+                          child: _steps != "Step Count not available"
+                              ? Column(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        top: 5.0,
+                                      ),
+                                      child: Text(
+                                        "$_steps / $_stepGoal",
+                                        style: const TextStyle(fontSize: 20),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        top: 5.0,
+                                        bottom: 10.0,
+                                      ),
+                                      child: LinearPercentIndicator(
+                                        animation: true,
+                                        lineHeight: 20.0,
+                                        animationDuration: 500,
+                                        percent: _goalPct <= 1 ? _goalPct : 1.0,
+                                        center: _goalPct <= 1
+                                            ? Text(
+                                                "${(_goalPct * 100).toStringAsFixed(2)} %",
+                                                style: const TextStyle(
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              )
+                                            : const Text("Goal achieved!"),
+                                        barRadius: const Radius.circular(5),
+                                        progressColor: Colors.blueAccent,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10.0),
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      _steps,
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                        ),
+                      ),
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.center,
+                      //   children: <Widget>[
+                      //     ElevatedButton(
+                      //       onPressed: _addSteps,
+                      //       child: const Text("Add steps"),
+                      //     ),
+                      //     ElevatedButton(
+                      //       onPressed: _reduceSteps,
+                      //       child: const Text("Reduce steps"),
+                      //     ),
+                      //   ],
+                      // ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
           Expanded(
@@ -314,9 +354,6 @@ class _HomeState extends State<Home> {
               ),
             ),
           ),
-          // Expanded(
-          //   child: CharacterRender(),
-          // ),
         ],
       ),
     );
