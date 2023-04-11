@@ -75,23 +75,7 @@ class _SignInState extends State<SignIn> {
                     },
                   ).catchError(
                     (error) {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text("Error"),
-                            content: const Text("Incorrect email or password"),
-                            actions: <Widget>[
-                              TextButton(
-                                child: const Text("OK"),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
+                      showAlertDialog(context, "Incorrect email or password");
                     },
                   );
                 },

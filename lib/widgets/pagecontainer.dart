@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:kavelypeli/screens/friends_screen.dart';
 import 'package:kavelypeli/screens/profile_screen.dart';
 import 'package:kavelypeli/screens/shop_screen.dart';
+import 'package:kavelypeli/screens/signin_screen.dart';
 
 import '../models/user_model.dart';
 import '../screens/home_screen.dart';
@@ -145,24 +146,21 @@ class _PageContainerState extends State<PageContainer> {
             const SizedBox(
               height: 10,
             ),
-            GestureDetector(
-              onTap: () {
-                FirebaseAuth.instance.signOut().then((value) {
-                  Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => SignIn()),
-                      (route) => false);
-                }).catchError((error) {
-                  print('Failed to sign out: $error');
-                });
-              },
-              child: const ListTile(
-                leading: Icon(
-                  Icons.logout_rounded,
-                  color: Color(0xFF13C0E3),
-                ),
-                title: Text('Log out'),
+            ListTile(
+              leading: const Icon(
+                Icons.logout_rounded,
+                color: Color(0xFF13C0E3),
               ),
+              title: const Text('Log out'),
+              onTap: () {
+                FirebaseAuth.instance.signOut();
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => SignIn(
+                              changeTheme: widget.changeTheme,
+                            )));
+              },
             )
           ],
         ),

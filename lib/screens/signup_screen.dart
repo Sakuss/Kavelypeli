@@ -58,25 +58,12 @@ class _SignUpState extends State<SignUp> {
               ),
               SignButtons(
                 context,
-                true,
+                false,
                 () {
                   if (_passwordTextController.text !=
                       _passwordConfirmationTextController.text) {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text("Passwords do not match"),
-                        content: const Text(
-                            "Please enter matching passwords to continue."),
-                        actions: <Widget>[
-                          TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Text("OK"))
-                        ],
-                      ),
-                    );
+                    showAlertDialog(
+                        context, "Please enter matching passwords to continue");
                     return;
                   }
                   FirebaseAuth.instance
@@ -106,25 +93,15 @@ class _SignUpState extends State<SignUp> {
                     },
                   ).onError(
                     (error, stackTrace) {
-                      if (error is FirebaseAuthException &&
-                          error.code == 'email-already-in-use') {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text("Email is already in use"),
-                            content: const Text("Please enter another email"),
-                            actions: <Widget>[
-                              TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text("OK"))
-                            ],
-                          ),
-                        );
-                        return;
-                      } else {
-                        //print("Error ${error.toString()}");
+                      if (error is FirebaseAuthException) {
+                        if (error.code == 'weak-password') {
+                          showAlertDialog(
+                            context,
+                            'Password too weak. Provide password with at least 6 characters',
+                          );
+                        } else if (error.code == 'email-already-in-use') {
+                          showAlertDialog(context, 'Email is already in use');
+                        }
                       }
                     },
                   );

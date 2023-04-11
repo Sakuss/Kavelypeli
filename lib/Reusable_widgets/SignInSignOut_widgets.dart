@@ -37,7 +37,7 @@ Container SignButtons(BuildContext context, bool isLogin, Function onTap) {
           },
           // ignore: sort_child_properties_last
           child: Text(
-            isLogin ? 'Login' : 'Signup',
+            isLogin ? 'Login' : 'Sign up',
             style: const TextStyle(
                 color: Colors.black87,
                 fontWeight: FontWeight.bold,
