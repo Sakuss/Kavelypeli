@@ -3,13 +3,19 @@ import 'package:kavelypeli/screens/friends_screen.dart';
 import 'package:kavelypeli/screens/profile_screen.dart';
 import 'package:kavelypeli/screens/shop_screen.dart';
 
+import '../models/user_model.dart';
 import '../screens/home_screen.dart';
 import '../screens/settings_screen.dart';
 
 class PageContainer extends StatefulWidget {
   final Function changeTheme;
+  final AppUser user;
 
-  const PageContainer({super.key, required this.changeTheme});
+  const PageContainer({
+    super.key,
+    required this.changeTheme,
+    required this.user,
+  });
 
   @override
   State<PageContainer> createState() => _PageContainerState();
@@ -39,14 +45,14 @@ class _PageContainerState extends State<PageContainer> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const UserAccountsDrawerHeader(
-              currentAccountPicture: Icon(
+            UserAccountsDrawerHeader(
+              currentAccountPicture: const Icon(
                 Icons.account_circle_sharp,
                 size: 48.0,
                 color: Colors.white,
               ),
-              accountName: Text('Username'),
-              accountEmail: Text('test@gmail.com'),
+              accountName: Text(widget.user.username ?? "no username"),
+              accountEmail: Text(widget.user.email ?? "no email"),
             ),
             IconButton(
               onPressed: () {
@@ -64,8 +70,7 @@ class _PageContainerState extends State<PageContainer> {
                 ),
                 title: const Text('Profile'),
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => ProfilePage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage()));
                 }),
             const SizedBox(
               height: 20,
@@ -90,8 +95,7 @@ class _PageContainerState extends State<PageContainer> {
               ),
               title: const Text('Friends'),
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => FriendsPage()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => FriendsPage()));
               },
             ),
             const SizedBox(
@@ -156,11 +160,7 @@ class _PageContainerState extends State<PageContainer> {
       ),
       body: PageView(
         controller: _pageController,
-        children: <Widget>[
-          FriendsPage(),
-          Home(stepGoal: _stepGoal),
-          ShopPage(),
-        ],
+        children: <Widget>[Text("Leaderboard"), Home(), Text("Shop")],
         onPageChanged: (index) {
           setState(() {
             _selectedIndex = index;

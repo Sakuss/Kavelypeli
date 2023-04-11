@@ -9,19 +9,14 @@ class AuthService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   late AuthCredential _authCredential;
   final User _firebaseUser = FirebaseAuth.instance.currentUser!;
-  final Map<String, dynamic> updates = {
-    "email": FieldValue.delete(),
-    "username": FieldValue.delete(),
-    "password": FieldValue.delete(),
-    "ingame_currency": FieldValue.delete(),
-  };
+  late DocumentReference userDocRef;
 
-  AuthService({required this.context});
+  AuthService({required this.context}) {
+    userDocRef = _db.collection("users").doc(uid);
+  }
 
   String? get uid => _firebaseUser.uid;
-
   String? get username => _firebaseUser.displayName;
-
   String? get email => _firebaseUser.email;
 
   Future<String?> reAuthenticate() async {
@@ -40,14 +35,12 @@ class AuthService {
 
   Future<Map<String, dynamic>> deleteUser(String password) async {
     try {
-      final docRefUser = _db.collection("users").doc(uid);
-      _authCredential = EmailAuthProvider.credential(
-          email: _firebaseUser.email!, password: password);
+      _authCredential = EmailAuthProvider.credential(email: _firebaseUser.email!, password: password);
       await _firebaseUser.reauthenticateWithCredential(_authCredential);
-      // docRefUser.update(updates);
-      // docRefUser.delete().then((doc) {
-      //   _firebaseUser.delete();
-      // });
+      await userDocRef.delete();
+      //need to also delete all other data related to user (user_statistics, user_items, user_achievements...)
+      await _firebaseUser.delete();
+      //need to sign out
       return {"result": true, "message": "User deleted."};
     } on FirebaseAuthException catch (e) {
       if (e.code == "wrong-password") {
@@ -57,14 +50,10 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> changeUsername(
-      String reAuthPassword, String newUsername) async {
+  Future<Map<String, dynamic>> changeUsername(String reAuthPassword, String newUsername) async {
     try {
-      final docRefUser = _db.collection("users").doc(uid);
-      _authCredential = EmailAuthProvider.credential(
-          email: _firebaseUser.email!, password: reAuthPassword);
+      _authCredential = EmailAuthProvider.credential(email: _firebaseUser.email!, password: reAuthPassword);
       await _firebaseUser.reauthenticateWithCredential(_authCredential);
-      // docRefUser.update({"username": newUsername});
       return {"result": true, "message": "Username changed."};
     } on FirebaseAuthException catch (e) {
       if (e.code == "wrong-password") {
@@ -76,16 +65,11 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> changeEmail(
-      String reAuthPassword, String newEmail) async {
+  Future<Map<String, dynamic>> changeEmail(String reAuthPassword, String newEmail) async {
     try {
-      final docRefUser = _db.collection("users").doc(uid);
-      _authCredential = EmailAuthProvider.credential(
-          email: _firebaseUser.email!, password: reAuthPassword);
+      _authCredential = EmailAuthProvider.credential(email: _firebaseUser.email!, password: reAuthPassword);
       await _firebaseUser.reauthenticateWithCredential(_authCredential);
-      _firebaseUser.updateEmail(newEmail).then((value) {
-        // docRefUser.update({"email": newEmail});
-      });
+      await _firebaseUser.updateEmail(newEmail);
       return {"result": true, "message": "Email changed"};
     } on FirebaseAuthException catch (e) {
       if (e.code == "wrong-password") {
@@ -97,16 +81,11 @@ class AuthService {
     }
   }
 
-  Future<Map<String, dynamic>> changePassword(
-      String reAuthPassword, String newPassword) async {
+  Future<Map<String, dynamic>> changePassword(String reAuthPassword, String newPassword) async {
     try {
-      final docRefUser = _db.collection("users").doc(uid);
-      _authCredential = EmailAuthProvider.credential(
-          email: _firebaseUser.email!, password: reAuthPassword);
+      _authCredential = EmailAuthProvider.credential(email: _firebaseUser.email!, password: reAuthPassword);
       await _firebaseUser.reauthenticateWithCredential(_authCredential);
-      _firebaseUser.updatePassword(newPassword).then((value) {
-        // docRefUser.update({"password": newPassword});
-      });
+      await _firebaseUser.updatePassword(newPassword);
       return {"result": true, "message": "Password changed."};
     } on FirebaseAuthException catch (e) {
       if (e.code == "wrong-password") {
