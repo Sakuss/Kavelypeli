@@ -56,7 +56,7 @@ class _MyAppState extends State<MyApp> {
       home: widget._firebaseUser == null
           ? SignIn(changeTheme: changeTheme)
           : FutureBuilder(
-              future: AppUser.createUserOnLogin(widget._firebaseUser!),
+              future: AppUser.createUser(widget._firebaseUser!.uid),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return PageContainer(
