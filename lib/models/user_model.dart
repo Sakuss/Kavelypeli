@@ -49,10 +49,10 @@ class AppUser {
     }
   }
 
-  static Future<AppUser?> createUserOnLogin(User user) async {
+  static Future<AppUser?> createUser(String uid) async {
     try {
       final FirebaseFirestore db = FirebaseFirestore.instance;
-      final DocumentReference userDocument = db.collection('users').doc(user.uid);
+      final DocumentReference userDocument = db.collection('users').doc(uid);
 
       var userDocumentSnapshot = await userDocument.get();
       var firestoreUser = userDocumentSnapshot.data() as Map<String, dynamic>;
