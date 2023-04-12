@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:kavelypeli/screens/achievements_screen.dart';
 import 'package:kavelypeli/screens/friends_screen.dart';
 import 'package:kavelypeli/screens/profile_screen.dart';
 import 'package:kavelypeli/screens/shop_screen.dart';
@@ -86,6 +87,20 @@ class _PageContainerState extends State<PageContainer> {
               title: const Text('Inventory'),
               onTap: () {
                 // Navigator.push(context, MaterialPageRoute(builder: (context) => InventoryPage()));
+              },
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.star,
+                color: Color(0xFF13C0E3),
+              ),
+              title: const Text('Achievements'),
+              onTap: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => AchievementPage()));
               },
             ),
             const SizedBox(
