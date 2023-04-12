@@ -12,7 +12,11 @@ class FriendsSearchDelegate extends SearchDelegate<Map<String, dynamic>> {
   Future<List?> findUsers() async {
     List users = [];
     try {
-      var querySnapshot = await db.collection('users').where('username', isEqualTo: query).get();
+      var querySnapshot = await db
+          .collection('users')
+          .where('username', isGreaterThanOrEqualTo: query)
+          .where('username', isLessThanOrEqualTo: '$query\uf8ff')
+          .get();
       for (var docSnapshot in querySnapshot.docs) {
         var userData = docSnapshot.data();
         userData['uid'] = docSnapshot.id;
@@ -53,7 +57,7 @@ class FriendsSearchDelegate extends SearchDelegate<Map<String, dynamic>> {
   @override
   Widget buildResults(BuildContext context) {
     return FutureBuilder(
-      future: query.isNotEmpty ? findUsers() : Future<List?>.value([]),
+      future: query.length >= 2 ? findUsers() : Future<List?>.value([]),
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data!.isNotEmpty) {
           return ListView.builder(
