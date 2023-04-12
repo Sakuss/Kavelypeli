@@ -40,7 +40,9 @@ class _MapState extends State<MapWidget> {
 
   Future<Position> _getUserCurrentLocation() async {
     await Geolocator.requestPermission()
-        .then((value) {})
+        .then((value) {
+          print(value);
+    })
         .onError((error, stackTrace) async {
       await Geolocator.requestPermission();
       print("ERROR $error");

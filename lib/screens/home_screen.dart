@@ -344,9 +344,7 @@ class _HomeState extends State<Home> {
                   Expanded(
                     child: Center(
                       child: _isMapVisible
-                          ? true
-                              ? const Center(child: CircularProgressIndicator())
-                              : MapWidget()
+                              ? MapWidget()
                           : CharacterPreview(),
                     ),
                   ),
