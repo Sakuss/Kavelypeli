@@ -36,41 +36,65 @@ class _CharacterPreviewState extends State<CharacterPreview> {
   }
 
   void _getUserAvatar() {
-    usersDocRef.doc(uid).get().then((doc) {
-      final data = doc.data() as Map<String, dynamic>;
-      final avatarName = data["avatar"].toString();
-      _storage.child(avatarName).getDownloadURL().then(
-        (avatarUrl) {
+    try {
+      usersDocRef.doc(uid).get().then((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        final avatarName = data["avatar"];
+        if (avatarName == null) {
           setState(() {
-            _avatar = Image.network(avatarUrl);
             _isAvatarLoaded = true;
           });
-        },
-      );
-    });
+        } else {
+          _storage.child(avatarName).getDownloadURL().then(
+            (avatarUrl) {
+              setState(() {
+                _avatar = Image.network(avatarUrl);
+                _isAvatarLoaded = true;
+              });
+            },
+          );
+        }
+      });
+    } catch (e) {
+      setState(() {
+        _isAvatarLoaded = true;
+      });
+    }
   }
 
   void _getUserAvatarItems() {
-    usersDocRef.doc(uid).get().then((doc) {
-      final data = doc.data() as Map<String, dynamic>;
-      final itemDoc = data["itemdoc"].toString();
-      userItemsDocRef.doc(itemDoc).get().then((doc) {
-        final itemData = doc.data() as Map<String, dynamic>;
-        final itemList = itemData["items"] as List;
-        List<String> urls = [];
-        for (String itemName in itemList) {
-          _storage.child(itemName).getDownloadURL().then((itemUrl) {
-            urls.add(itemUrl);
-            if (urls.length == itemList.length) {
-              setState(() {
-                _items = urls;
-                _areItemsLoaded = true;
+    try {
+      usersDocRef.doc(uid).get().then((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        final itemDoc = data["itemdoc"];
+        if (itemDoc == null) {
+          setState(() {
+            _areItemsLoaded = true;
+          });
+        } else {
+          userItemsDocRef.doc(itemDoc).get().then((doc) {
+            final itemData = doc.data() as Map<String, dynamic>;
+            final itemList = itemData["items"] as List;
+            List<String> urls = [];
+            for (String itemName in itemList) {
+              _storage.child(itemName).getDownloadURL().then((itemUrl) {
+                urls.add(itemUrl);
+                if (urls.length == itemList.length) {
+                  setState(() {
+                    _items = urls;
+                    _areItemsLoaded = true;
+                  });
+                }
               });
             }
           });
         }
       });
-    });
+    } catch (e) {
+      setState(() {
+        _areItemsLoaded = true;
+      });
+    }
   }
 
   Widget get _loadingAvatar {
