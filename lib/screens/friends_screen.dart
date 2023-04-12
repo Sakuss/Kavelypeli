@@ -1,37 +1,80 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:kavelypeli/widgets/friends_search_delegate.dart';
 
+import '../models/user_model.dart';
 import '../widgets/profile.dart';
 
 class FriendsPage extends StatefulWidget {
-  const FriendsPage({super.key});
+  final AppUser user;
+
+  const FriendsPage({super.key, required this.user});
 
   @override
-  State<FriendsPage> createState() => _FriendsPageState();
+  State<FriendsPage> createState() => _FriendsPageState(user: user);
 }
 
 class _FriendsPageState extends State<FriendsPage> {
+  final AppUser user;
+  late Future<List<AppUser>?> friends;
   final db = FirebaseFirestore.instance;
 
-  Future<List> loadFriends() async {
-    // const user = firebase.auth().currentUser;
-    // var userId = user.uid;
-    var userId = 'testid';
-    var friends = [];
+  _FriendsPageState({required this.user});
 
+  @override
+  void initState() {
+    super.initState();
+    friends = loadFriends();
+  }
+
+  Future<List<AppUser>?> loadFriends() async {
     try {
-      var querySnapshot = await db.collection('friends').where('user_id', isEqualTo: userId).get();
+      List<AppUser> friendsList = [];
+      var querySnapshot = await db.collection('friends').where('user_id', isEqualTo: widget.user.uid).get();
       for (var docSnapshot in querySnapshot.docs) {
         var friendId = docSnapshot.get('friend_id');
-        var friend = await db.collection('users').doc(friendId).get();
-        friends.add(friend.data());
+        var friend = await AppUser.createUser(friendId);
+        if (friend != null) {
+          friendsList.add(friend);
+        }
       }
+      return friendsList;
     } catch (e) {
       print("Error: $e");
-      return [];
+      return null;
     }
-    return friends;
+  }
+
+  Future<List<AppUser>?> appendFriendToFutureFriendsList(AppUser friend) async {
+    var friendsList = await friends;
+    if (friendsList != null) {
+      friendsList.add(friend);
+    }
+    return friendsList;
+  }
+
+  void addFriend(Map<String, dynamic> newFriend) async {
+    try {
+      setState(() {
+        friends = appendFriendToFutureFriendsList(AppUser(
+          uid: newFriend['uid'],
+          username: newFriend['username'],
+          photoUrl: newFriend['photoUrl'],
+          joinDate: newFriend['joinDate'].toDate(),
+          steps: newFriend['steps'],
+          points: newFriend['points'],
+          currency: newFriend['currency'],
+        ));
+      });
+      await db.collection('friends').add({
+        'user_id': user.uid,
+        'friend_id': newFriend['uid'],
+      });
+    } catch (e) {
+      print("Error: $e");
+    }
   }
 
   @override
@@ -43,8 +86,14 @@ class _FriendsPageState extends State<FriendsPage> {
           Tooltip(
             message: 'Add a friend',
             child: IconButton(
-              onPressed: () {
-                showSearch(context: context, delegate: FriendsSearchDelegate());
+              onPressed: () async {
+                var newFriend = await showSearch(
+                  context: context,
+                  delegate: FriendsSearchDelegate(user: user),
+                );
+                if (newFriend != null && newFriend.isNotEmpty) {
+                  addFriend(newFriend);
+                }
               },
               icon: const Icon(Icons.add),
             ),
@@ -52,9 +101,9 @@ class _FriendsPageState extends State<FriendsPage> {
         ],
       ),
       body: FutureBuilder(
-        future: loadFriends(),
+        future: friends,
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
+          if (snapshot.hasData && snapshot.data!.isNotEmpty) {
             return Column(
               children: [
                 Expanded(
@@ -75,21 +124,22 @@ class _FriendsPageState extends State<FriendsPage> {
                               onTap: () => showDialog(
                                 context: context,
                                 builder: (context) {
-                                  return const Dialog(
-                                    shape: RoundedRectangleBorder(
+                                  return Dialog(
+                                    shape: const RoundedRectangleBorder(
                                       borderRadius: BorderRadius.all(
                                         Radius.circular(15),
                                       ),
                                     ),
                                     child: Profile(
-                                      name: 'test',
-                                      title: 'Novice walker',
+                                      name: friend.username!,
+                                      title: '???',
+                                      profilePictureUrl: friend.photoUrl,
                                     ),
                                   );
                                 },
                               ),
                               child: Center(
-                                child: Text(friend['username']),
+                                child: Text(friend.username!),
                               ),
                             ),
                           ),
@@ -98,6 +148,10 @@ class _FriendsPageState extends State<FriendsPage> {
                   ),
                 ),
               ],
+            );
+          } else if (snapshot.hasData && snapshot.data!.isEmpty) {
+            return const Center(
+              child: Text('You have no friends :('),
             );
           } else {
             return const Center(
