@@ -28,11 +28,13 @@ class _SignInState extends State<SignIn> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              retextfield("Email", Icons.person_outline, false, _emailTextController),
+              retextfield(
+                  "Email", Icons.person_outline, false, _emailTextController),
               const SizedBox(
                 height: 30,
               ),
-              retextfield("Password", Icons.lock_outline, true, _passwordTextController),
+              retextfield("Password", Icons.lock_outline, true,
+                  _passwordTextController),
               const SizedBox(
                 height: 30,
               ),
@@ -42,7 +44,8 @@ class _SignInState extends State<SignIn> {
                 () {
                   FirebaseAuth.instance
                       .signInWithEmailAndPassword(
-                          email: _emailTextController.text, password: _passwordTextController.text)
+                          email: _emailTextController.text,
+                          password: _passwordTextController.text)
                       .then(
                     (responseData) async {
                       print("VALUE : $responseData");
@@ -71,23 +74,7 @@ class _SignInState extends State<SignIn> {
                     },
                   ).catchError(
                     (error) {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text("Error"),
-                            content: const Text("Incorrect email or password"),
-                            actions: <Widget>[
-                              TextButton(
-                                child: const Text("OK"),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
+                      showAlertDialog(context, "Incorrect email or password");
                     },
                   );
                 },
@@ -106,11 +93,16 @@ class _SignInState extends State<SignIn> {
       children: [
         GestureDetector(
             onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => SignUp(changeTheme: widget.changeTheme)));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          SignUp(changeTheme: widget.changeTheme)));
             },
             child: const Text(
               "Sign up",
-              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+              style:
+                  TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
             ))
       ],
     );
