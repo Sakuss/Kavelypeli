@@ -62,47 +62,67 @@ class FriendsSearchDelegate extends SearchDelegate<Map<String, dynamic>> {
               return ListTile(
                 title: Text(snapshot.data![index]['username']),
                 onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text("Add friend"),
-                        content: Text.rich(
-                          TextSpan(
-                            children: [
-                              const TextSpan(
-                                text: 'Add ',
-                              ),
-                              TextSpan(
-                                text: snapshot.data![index]['username'],
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
+                  if (snapshot.data![index]['uid'] != user.uid) {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text("Add friend"),
+                          content: Text.rich(
+                            TextSpan(
+                              children: [
+                                const TextSpan(
+                                  text: 'Add ',
                                 ),
-                              ),
-                              const TextSpan(
-                                text: ' as a friend?',
-                              ),
-                            ],
+                                TextSpan(
+                                  text: snapshot.data![index]['username'],
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const TextSpan(
+                                  text: ' as a friend?',
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        actions: <Widget>[
-                          TextButton(
-                            child: const Text("Cancel"),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                          TextButton(
-                            child: const Text("Add"),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              close(context, snapshot.data![index]);
-                            },
-                          ),
-                        ],
-                      );
-                    },
-                  );
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text("Cancel"),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            TextButton(
+                              child: const Text("Add"),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                close(context, snapshot.data![index]);
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text("Add friend"),
+                          content: const Text("You can't add yourself as a friend"),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text("OK"),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
                 },
               );
             },
