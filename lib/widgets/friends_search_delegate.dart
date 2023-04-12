@@ -96,7 +96,6 @@ class FriendsSearchDelegate extends SearchDelegate<Map<String, dynamic>> {
                             child: const Text("Add"),
                             onPressed: () {
                               Navigator.of(context).pop();
-                              print(snapshot.data![index]);
                               close(context, snapshot.data![index]);
                             },
                           ),
