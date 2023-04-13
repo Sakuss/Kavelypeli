@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:kavelypeli/screens/friends_screen.dart';
 import 'package:kavelypeli/screens/profile_screen.dart';
 import 'package:kavelypeli/screens/shop_screen.dart';
+import 'package:kavelypeli/screens/signin_screen.dart';
 
 import '../models/user_model.dart';
 import '../screens/home_screen.dart';
@@ -70,7 +72,8 @@ class _PageContainerState extends State<PageContainer> {
                 ),
                 title: const Text('Profile'),
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage()));
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => ProfilePage()));
                 }),
             const SizedBox(
               height: 20,
@@ -156,9 +159,15 @@ class _PageContainerState extends State<PageContainer> {
               ),
               title: const Text('Log out'),
               onTap: () {
-                Navigator.pop(context);
+                FirebaseAuth.instance.signOut();
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => SignIn(
+                              changeTheme: widget.changeTheme,
+                            )));
               },
-            ),
+            )
           ],
         ),
       ),
