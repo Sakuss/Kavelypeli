@@ -98,8 +98,14 @@ class _PageContainerState extends State<PageContainer> {
               ),
               title: const Text('Friends'),
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => FriendsPage()));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => FriendsPage(
+                      user: widget.user,
+                    ),
+                  ),
+                );
               },
             ),
             const SizedBox(
@@ -170,7 +176,7 @@ class _PageContainerState extends State<PageContainer> {
       ),
       body: PageView(
         controller: _pageController,
-        children: <Widget>[Text("Leaderboard"), Home(), Text("Shop")],
+        children: <Widget>[Text("Leaderboard"), Home(), ShopPage()],
         onPageChanged: (index) {
           setState(() {
             _selectedIndex = index;
