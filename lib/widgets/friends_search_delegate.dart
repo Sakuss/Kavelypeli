@@ -60,83 +60,87 @@ class FriendsSearchDelegate extends SearchDelegate<Map<String, dynamic>> {
       future: query.length >= 2 ? findUsers() : Future<List?>.value([]),
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-          return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              return Card(
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(
-                      snapshot.data![index]['photoUrl'] ?? 'https://via.placeholder.com/150',
+          return Padding(
+            padding: const EdgeInsets.only(top: 5, bottom: 5),
+            child: ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundImage: NetworkImage(
+                        snapshot.data![index]['photoUrl'] ?? 'https://via.placeholder.com/150',
+                      ),
                     ),
-                  ),
-                  title: Text(snapshot.data![index]['username']),
-                  onTap: () {
-                    if (snapshot.data![index]['uid'] != user.uid) {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text("Add friend"),
-                            content: Text.rich(
-                              TextSpan(
-                                children: [
-                                  const TextSpan(
-                                    text: 'Add ',
-                                  ),
-                                  TextSpan(
-                                    text: snapshot.data![index]['username'],
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
+                    title: Text(snapshot.data![index]['username']),
+                    onTap: () {
+                      if (snapshot.data![index]['uid'] != user.uid) {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text("Add friend"),
+                              content: Text.rich(
+                                TextSpan(
+                                  children: [
+                                    const TextSpan(
+                                      text: 'Add ',
                                     ),
-                                  ),
-                                  const TextSpan(
-                                    text: ' as a friend?',
-                                  ),
-                                ],
+                                    TextSpan(
+                                      text: snapshot.data![index]['username'],
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const TextSpan(
+                                      text: ' as a friend?',
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            actions: <Widget>[
-                              TextButton(
-                                child: const Text("Cancel"),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                              TextButton(
-                                child: const Text("Add"),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                  close(context, snapshot.data![index]);
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    } else {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text("Add friend"),
-                            content: const Text("You can't add yourself as a friend"),
-                            actions: <Widget>[
-                              TextButton(
-                                child: const Text("OK"),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    }
-                  },
-                ),
-              );
-            },
+                              actions: <Widget>[
+                                TextButton(
+                                  child: const Text("Cancel"),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                TextButton(
+                                  child: const Text("Add"),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    close(context, snapshot.data![index]);
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      } else {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text("Add friend"),
+                              content: const Text("You can't add yourself as a friend"),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: const Text("OK"),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
+                    },
+                  ),
+                );
+              },
+            ),
           );
         } else if (snapshot.hasData && snapshot.data!.isEmpty) {
           return const Center(
