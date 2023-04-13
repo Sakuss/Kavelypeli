@@ -17,7 +17,8 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   final TextEditingController _passwordTextController = TextEditingController();
-  final TextEditingController _passwordConfirmationTextController = TextEditingController();
+  final TextEditingController _passwordConfirmationTextController =
+      TextEditingController();
   final TextEditingController _emailTextController = TextEditingController();
   final TextEditingController _userNameTextController = TextEditingController();
 
@@ -35,46 +36,40 @@ class _SignUpState extends State<SignUp> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              retextfield("Username", Icons.person_outline, false, _userNameTextController),
+              retextfield("Username", Icons.person_outline, false,
+                  _userNameTextController),
               const SizedBox(
                 height: 25,
               ),
-              retextfield("Email", Icons.mail_outline, false, _emailTextController),
+              retextfield(
+                  "Email", Icons.mail_outline, false, _emailTextController),
               const SizedBox(
                 height: 25,
               ),
-              retextfield("Password", Icons.lock_outline, true, _passwordTextController),
+              retextfield("Password", Icons.lock_outline, true,
+                  _passwordTextController),
               const SizedBox(
                 height: 25,
               ),
-              retextfield("Confirm Password", Icons.lock_outline, true, _passwordConfirmationTextController),
+              retextfield("Confirm Password", Icons.lock_outline, true,
+                  _passwordConfirmationTextController),
               const SizedBox(
                 height: 25,
               ),
               SignButtons(
                 context,
-                true,
+                false,
                 () {
-                  if (_passwordTextController.text != _passwordConfirmationTextController.text) {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text("Passwords do not match"),
-                        content: const Text("Please enter matching passwords to continue."),
-                        actions: <Widget>[
-                          TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Text("OK"))
-                        ],
-                      ),
-                    );
+                  if (_passwordTextController.text !=
+                      _passwordConfirmationTextController.text) {
+                    showAlertDialog(
+                        context, "Please enter matching passwords to continue");
                     return;
                   }
                   FirebaseAuth.instance
                       .createUserWithEmailAndPassword(
-                          email: _emailTextController.text, password: _passwordTextController.text)
+                          email: _emailTextController.text,
+                          password: _passwordTextController.text)
                       .then(
                     (responseData) async {
                       var user = await AppUser.createUserOnSignup(
@@ -98,24 +93,15 @@ class _SignUpState extends State<SignUp> {
                     },
                   ).onError(
                     (error, stackTrace) {
-                      if (error is FirebaseAuthException && error.code == 'email-already-in-use') {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text("Email is already in use"),
-                            content: const Text("Please enter another email"),
-                            actions: <Widget>[
-                              TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text("OK"))
-                            ],
-                          ),
-                        );
-                        return;
-                      } else {
-                        //print("Error ${error.toString()}");
+                      if (error is FirebaseAuthException) {
+                        if (error.code == 'weak-password') {
+                          showAlertDialog(
+                            context,
+                            'Password too weak. Provide password with at least 6 characters',
+                          );
+                        } else if (error.code == 'email-already-in-use') {
+                          showAlertDialog(context, 'Email is already in use');
+                        }
                       }
                     },
                   );
