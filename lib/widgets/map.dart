@@ -19,22 +19,30 @@ class _MapState extends State<MapWidget> {
   @override
   void initState() {
     super.initState();
-    // await _getUserCurrentLocation().then((value) {
-    //   print(value);
-    //   setState(() {
-    //     // _currentLatLng = LatLng(value.latitude, value.longitude);
-    //     _currentLatLng = LatLng(65.0610535, 25.4675335);
-    //     _currentPosition = CameraPosition(
-    //       target: _currentLatLng!,
-    //       zoom: 14,
-    //     );
-    //   });
-    //   _updateCamera(_currentPosition!);
-    // });
+    _initPlatformState();
   }
 
-  static const CameraPosition _kGoogle = CameraPosition(
-    target: LatLng(20.42796133580664, 80.885749655962),
+  void _initPlatformState() async {
+    _getUserCurrentLocation().then((value) {
+      print(value);
+      setState(() {
+        // _currentLatLng = LatLng(value.latitude, value.longitude);
+        // _currentLatLng = LatLng(65.0610535, 25.4675335);
+        // final _currentPosition = CameraPosition(
+        //   target: LatLng(65.0610535, 25.4675335),
+        //   zoom: 14,
+        // );
+        _currentPosition = CameraPosition(
+          target: LatLng(value.latitude, value.longitude),
+          zoom: 14,
+        );
+      });
+      _updateCamera(_currentPosition!);
+    });
+  }
+
+  static const CameraPosition _kOamk = CameraPosition(
+    target: LatLng(65.0610535, 25.4675335),
     zoom: 14.4746,
   );
 
@@ -61,11 +69,11 @@ class _MapState extends State<MapWidget> {
       mapType: MapType.normal,
       myLocationEnabled: true,
       compassEnabled: true,
-      initialCameraPosition: _kGoogle,
+      initialCameraPosition: _kOamk,
       onMapCreated: (GoogleMapController controller) {
         _controller.complete(controller);
       },
-      onCameraMove: null,
+      // onCameraMove: null,
     );
   }
 }
