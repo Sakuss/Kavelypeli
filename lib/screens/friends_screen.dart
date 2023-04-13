@@ -97,7 +97,7 @@ class _FriendsPageState extends State<FriendsPage> {
               onPressed: () async {
                 var newFriend = await showSearch(
                   context: context,
-                  delegate: FriendsSearchDelegate(user: user),
+                  delegate: FriendsSearchDelegate(user: user, friends: friends),
                 );
                 if (newFriend != null && newFriend.isNotEmpty) {
                   addFriend(newFriend);
