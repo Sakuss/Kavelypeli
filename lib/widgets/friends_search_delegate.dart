@@ -33,6 +33,9 @@ class FriendsSearchDelegate extends SearchDelegate<Map<String, dynamic>> {
   Future<bool?> checkIfIsFriend(String uid) async {
     var friends = await this.friends;
     if (friends != null) {
+      if (friends.isEmpty) {
+        return false;
+      }
       for (var friend in friends) {
         return friend.uid == uid;
       }
@@ -62,7 +65,25 @@ class FriendsSearchDelegate extends SearchDelegate<Map<String, dynamic>> {
           );
         },
       );
-    } else if (snapshot.data![index]['uid'] != user.uid) {
+    } else if (snapshot.data![index]['uid'] == user.uid) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text("Add friend"),
+            content: const Text("You can't add yourself as a friend"),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("OK"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } else {
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -98,24 +119,6 @@ class FriendsSearchDelegate extends SearchDelegate<Map<String, dynamic>> {
                 onPressed: () {
                   Navigator.of(context).pop();
                   close(context, snapshot.data![index]);
-                },
-              ),
-            ],
-          );
-        },
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text("Add friend"),
-            content: const Text("You can't add yourself as a friend"),
-            actions: <Widget>[
-              TextButton(
-                child: const Text("OK"),
-                onPressed: () {
-                  Navigator.of(context).pop();
                 },
               ),
             ],

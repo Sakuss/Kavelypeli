@@ -199,6 +199,7 @@ class _FriendsPageState extends State<FriendsPage> {
               ),
             );
           } else if (snapshot.hasData && snapshot.data!.isEmpty) {
+            print(snapshot.data);
             return const Center(
               child: Text('You have no friends :('),
             );
