@@ -99,7 +99,7 @@ class _PageContainerState extends State<PageContainer> {
               title: const Text('Friends'),
               onTap: () {
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => FriendsPage()));
+                    MaterialPageRoute(builder: (context) => FriendsPage(user: widget.user,)));
               },
             ),
             const SizedBox(
@@ -170,7 +170,7 @@ class _PageContainerState extends State<PageContainer> {
       body: PageView(
         controller: _pageController,
         children: <Widget>[
-          FriendsPage(),
+          FriendsPage(user: widget.user),
           Home(stepGoal: _stepGoal),
           ShopPage(),
         ],
