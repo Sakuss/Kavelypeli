@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kavelypeli/models/user_model.dart';
 import 'package:kavelypeli/widgets/character_preview.dart';
 import 'package:kavelypeli/widgets/map.dart';
 import 'package:pedometer/pedometer.dart';
@@ -14,8 +15,9 @@ class Home extends StatefulWidget {
   static const Icon icon = Icon(Icons.home);
   static const String name = "Home";
   final String? stepGoal;
+  final AppUser user;
 
-  const Home({super.key, this.stepGoal});
+  const Home({super.key, required this.user, this.stepGoal});
 
   @override
   State<Home> createState() => _HomeState();
@@ -49,8 +51,10 @@ class _HomeState extends State<Home> {
     _stepCountStream.listen(onStepCount).onError(onStepCountError);
 
     // _steps = "Step Count not available";
-    _steps = await Util().loadFromPrefs("steps") ?? '0';
-    _stepGoal = await Util().loadFromPrefs("stepGoal") ?? '10000';
+    _steps = '0';
+    // _steps = await Util().loadFromPrefs("steps") ?? '0';
+    _stepGoal = '10000';
+    // _stepGoal = await Util().loadFromPrefs("stepGoal") ?? '10000';
     _points = Util().generateStepsCount();
 
     if (!mounted) return;
@@ -119,6 +123,7 @@ class _HomeState extends State<Home> {
     MediaQueryData mediaQuery = MediaQuery.of(context);
     double boxSize = mediaQuery.size.width / 2 - 40;
     setState(() {
+      _steps = widget.user.steps.toString();
       _stepGoal = widget.stepGoal ?? _stepGoal;
     });
 
@@ -327,6 +332,12 @@ class _HomeState extends State<Home> {
                           })
                         },
                         icon: const Icon(Icons.person),
+                        iconSize: 30,
+                      ),
+                      IconButton(
+                        onPressed: () => {
+                        },
+                        icon: const Icon(Icons.refresh),
                         iconSize: 30,
                       ),
                       IconButton(

@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AppUser {
-  String uid;
+  String uid, itemDoc;
   String? username, email;
   int steps, points, currency;
   DateTime? joinDate;
@@ -17,6 +17,7 @@ class AppUser {
     required this.steps,
     required this.points,
     required this.currency,
+    required this.itemDoc,
   });
 
   static Future<AppUser?> createUserOnSignup(
@@ -26,6 +27,7 @@ class AppUser {
   ) async {
     try {
       // await user.updateDisplayName(username);
+      final userItemsSnapshot = await FirebaseFirestore.instance.collection('user_items').add({"items": []});
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         'username': username,
         'email': email,
@@ -33,6 +35,7 @@ class AppUser {
         'steps': 0,
         'points': 0,
         'currency': 0,
+        'itemDoc': userItemsSnapshot.id,
       });
       return AppUser(
         username: username,
@@ -42,6 +45,7 @@ class AppUser {
         steps: 0,
         points: 0,
         currency: 0,
+        itemDoc: userItemsSnapshot.id,
       );
     } catch (e) {
       print(e);
@@ -66,6 +70,7 @@ class AppUser {
         steps: firestoreUser['steps'],
         points: firestoreUser['points'],
         currency: firestoreUser['currency'],
+        itemDoc: firestoreUser["itemDoc"],
       );
     } catch (e) {
       print(e);

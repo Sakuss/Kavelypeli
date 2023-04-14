@@ -171,8 +171,8 @@ class _PageContainerState extends State<PageContainer> {
         controller: _pageController,
         children: <Widget>[
           FriendsPage(user: widget.user),
-          Home(stepGoal: _stepGoal),
-          ShopPage(),
+          Home(user: widget.user, stepGoal: _stepGoal),
+          ShopPage(user: widget.user,),
         ],
         onPageChanged: (index) {
           setState(() {

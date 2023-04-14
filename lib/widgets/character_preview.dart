@@ -16,7 +16,7 @@ class _CharacterPreviewState extends State<CharacterPreview> {
   final uid = FirebaseAuth.instance.currentUser!.uid;
   final usersDocRef = FirebaseFirestore.instance.collection("users");
   final userItemsDocRef = FirebaseFirestore.instance.collection("user_items");
-  final _storage = FirebaseStorage.instance.ref();
+  final _storage = FirebaseStorage.instance.ref("character_item_pics");
   Image? _avatar = null;
   final Image _localDefaultAvatar =
       Image.asset("assets/images/default_avatar.png");
@@ -66,16 +66,22 @@ class _CharacterPreviewState extends State<CharacterPreview> {
     try {
       usersDocRef.doc(uid).get().then((doc) {
         final data = doc.data() as Map<String, dynamic>;
-        final itemDoc = data["itemdoc"];
-        if (itemDoc == null) {
-          setState(() {
-            _areItemsLoaded = true;
-          });
-        } else {
-          userItemsDocRef.doc(itemDoc).get().then((doc) {
-            final itemData = doc.data() as Map<String, dynamic>;
-            final itemList = itemData["items"] as List;
-            List<String> urls = [];
+        final itemDoc = data["itemDoc"];
+        // if (itemDoc == null) {
+        //   setState(() {
+        //     _areItemsLoaded = true;
+        //   });
+        // } else {
+        userItemsDocRef.doc(itemDoc).get().then((doc) {
+          final itemData = doc.data() as Map<String, dynamic>;
+          final itemList = itemData["items"] as List;
+          // print(itemList);
+          List<String> urls = [];
+          if (itemList.isEmpty) {
+            setState(() {
+              _areItemsLoaded = true;
+            });
+          } else {
             for (String itemName in itemList) {
               _storage.child(itemName).getDownloadURL().then((itemUrl) {
                 urls.add(itemUrl);
@@ -87,8 +93,11 @@ class _CharacterPreviewState extends State<CharacterPreview> {
                 }
               });
             }
-          });
-        }
+          }
+          print(_isAvatarLoaded);
+          print(_areItemsLoaded);
+        });
+        // }
       });
     } catch (e) {
       setState(() {
@@ -135,6 +144,7 @@ class _CharacterPreviewState extends State<CharacterPreview> {
 
   @override
   Widget build(BuildContext context) {
+    print("building character_preview");
     return !_isAvatarLoaded
         ? _loadingAvatar
         : !_areItemsLoaded
