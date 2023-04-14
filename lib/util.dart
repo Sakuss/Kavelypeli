@@ -41,7 +41,10 @@ class Util {
   }
 
   void showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    final messenger = ScaffoldMessenger.of(context);
+
+    messenger.clearSnackBars();
+    messenger.showSnackBar(
       SnackBar(
         content: Text(
           message,
