@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:kavelypeli/models/item_model.dart';
 
 class AppUser {
   String uid, itemDoc;
@@ -78,13 +79,22 @@ class AppUser {
     }
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      "username": username,
-      "uid": uid,
-      "email": email,
-      "steps": steps,
-      "points": points,
-    };
+  Future<List<AppItem>> getUserItems() async {
+    final FirebaseFirestore db = FirebaseFirestore.instance;
+    final DocumentReference userItemsDocRef = db.collection('user_items').doc(itemDoc);
+
+    try {
+      return userItemsDocRef.get().then((itemsSnapshot) {
+        final Map<String, dynamic> data = (itemsSnapshot.data() as Map<String, dynamic>);
+        List<AppItem> items = [];
+        for (final item in data["items"]) {
+          items.add(AppItem.createItem(item));
+        }
+        return items;
+      });
+    } catch (e) {
+      print(e);
+      return [];
+    }
   }
 }

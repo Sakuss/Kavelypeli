@@ -4,9 +4,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:kavelypeli/models/item_model.dart';
+import 'package:kavelypeli/models/user_model.dart';
 
 class CharacterPreview extends StatefulWidget {
-  const CharacterPreview({Key? key}) : super(key: key);
+  final AppUser user;
+
+  const CharacterPreview({Key? key, required this.user}) : super(key: key);
 
   @override
   State<CharacterPreview> createState() => _CharacterPreviewState();
@@ -23,6 +27,7 @@ class _CharacterPreviewState extends State<CharacterPreview> {
   bool _isAvatarLoaded = false;
   bool _areItemsLoaded = false;
   List<String> _items = [];
+  List<AppItem> _userItems = [];
 
   @override
   void initState() {
@@ -33,6 +38,20 @@ class _CharacterPreviewState extends State<CharacterPreview> {
   void _initPlatformState() {
     _getUserAvatar();
     _getUserAvatarItems();
+  }
+
+  void _getUserAvatarItems() {
+    widget.user.getUserItems().then((value) {
+      for (AppItem item in value) {
+        _storage.child(item.characterImage).getDownloadURL().then((itemUrl) {
+          item.itemUrl = itemUrl;
+        }).whenComplete(() {
+          setState(() {
+            _userItems.add(item);
+          });
+        });
+      }
+    });
   }
 
   void _getUserAvatar() {
@@ -62,49 +81,47 @@ class _CharacterPreviewState extends State<CharacterPreview> {
     }
   }
 
-  void _getUserAvatarItems() {
-    try {
-      usersDocRef.doc(uid).get().then((doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        final itemDoc = data["itemDoc"];
-        // if (itemDoc == null) {
-        //   setState(() {
-        //     _areItemsLoaded = true;
-        //   });
-        // } else {
-        userItemsDocRef.doc(itemDoc).get().then((doc) {
-          final itemData = doc.data() as Map<String, dynamic>;
-          final itemList = itemData["items"] as List;
-          // print(itemList);
-          List<String> urls = [];
-          if (itemList.isEmpty) {
-            setState(() {
-              _areItemsLoaded = true;
-            });
-          } else {
-            for (String itemName in itemList) {
-              _storage.child(itemName).getDownloadURL().then((itemUrl) {
-                urls.add(itemUrl);
-                if (urls.length == itemList.length) {
-                  setState(() {
-                    _items = urls;
-                    _areItemsLoaded = true;
-                  });
-                }
-              });
-            }
-          }
-          print(_isAvatarLoaded);
-          print(_areItemsLoaded);
-        });
-        // }
-      });
-    } catch (e) {
-      setState(() {
-        _areItemsLoaded = true;
-      });
-    }
-  }
+  // void _getUserAvatarItems() {
+  //   try {
+  //     usersDocRef.doc(uid).get().then((doc) {
+  //       final data = doc.data() as Map<String, dynamic>;
+  //       final itemDoc = data["itemDoc"];
+  //       // if (itemDoc == null) {
+  //       //   setState(() {
+  //       //     _areItemsLoaded = true;
+  //       //   });
+  //       // } else {
+  //       userItemsDocRef.doc(itemDoc).get().then((doc) {
+  //         final itemData = doc.data() as Map<String, dynamic>;
+  //         final itemList = itemData["items"] as List;
+  //         // print(itemList);
+  //         List<String> urls = [];
+  //         if (itemList.isEmpty) {
+  //           setState(() {
+  //             _areItemsLoaded = true;
+  //           });
+  //         } else {
+  //           for (String itemName in itemList) {
+  //             _storage.child(itemName).getDownloadURL().then((itemUrl) {
+  //               urls.add(itemUrl);
+  //               if (urls.length == itemList.length) {
+  //                 setState(() {
+  //                   _items = urls;
+  //                   _areItemsLoaded = true;
+  //                 });
+  //               }
+  //             });
+  //           }
+  //         }
+  //       });
+  //       // }
+  //     });
+  //   } catch (e) {
+  //     setState(() {
+  //       _areItemsLoaded = true;
+  //     });
+  //   }
+  // }
 
   Widget get _loadingAvatar {
     return Center(
@@ -147,12 +164,12 @@ class _CharacterPreviewState extends State<CharacterPreview> {
     print("building character_preview");
     return !_isAvatarLoaded
         ? _loadingAvatar
-        : !_areItemsLoaded
+        : _areItemsLoaded
             ? _loadingItems
             : Stack(
                 children: [
                   _avatar ?? _localDefaultAvatar,
-                  ..._items.map((url) => Image.network(url)),
+                  ..._userItems.map((item) => Image.network(item.itemUrl!)),
                 ],
               );
   }

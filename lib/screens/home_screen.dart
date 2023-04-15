@@ -335,8 +335,7 @@ class _HomeState extends State<Home> {
                         iconSize: 30,
                       ),
                       IconButton(
-                        onPressed: () => {
-                        },
+                        onPressed: () => {},
                         icon: const Icon(Icons.refresh),
                         iconSize: 30,
                       ),
@@ -355,8 +354,8 @@ class _HomeState extends State<Home> {
                   Expanded(
                     child: Center(
                       child: _isMapVisible
-                              ? MapWidget()
-                          : CharacterPreview(),
+                          ? MapWidget()
+                          : CharacterPreview(user: widget.user),
                     ),
                   ),
                 ],

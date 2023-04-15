@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:kavelypeli/models/item_model.dart';
 import 'package:kavelypeli/models/user_model.dart';
 import 'dart:convert';
 
 import 'package:kavelypeli/util.dart';
 
-enum MoneyType {
+enum PurchaseType {
   realMoney,
   points,
 }
@@ -24,11 +25,15 @@ class ShopPage extends StatefulWidget {
 
 class _ShopPageState extends State<ShopPage> {
   final _db = FirebaseFirestore.instance;
-  final _storage = FirebaseStorage.instance.ref("shop_item_pics");
+
+  // final _storage = FirebaseStorage.instance.ref("shop_item_pics");
   final _itemsCollRef = FirebaseFirestore.instance.collection("items");
   final _userItemsCollRef = FirebaseFirestore.instance.collection("user_items");
   final _userCollRef = FirebaseFirestore.instance.collection("users");
-  List<Map<String, dynamic>>? _buyableItems = null;
+
+  // List<Map<String, dynamic>>? _buyableItems = null;
+  List<AppItem> _buyableItems = [];
+  List<AppItem> _userItems = [];
 
   @override
   void initState() {
@@ -38,6 +43,11 @@ class _ShopPageState extends State<ShopPage> {
 
   void _initPlatformState() {
     _getData();
+    widget.user.getUserItems().then((value) {
+      setState(() {
+        _userItems = value;
+      });
+    });
   }
 
   void _getData() {
@@ -46,61 +56,104 @@ class _ShopPageState extends State<ShopPage> {
         final List<Map<String, dynamic>> allData =
             querySnapshot.docs.map((doc) => doc.data()).toList();
 
+        // print(allData);
         for (final item in allData) {
-          _storage.child(item["shop_image"]).getDownloadURL().then((itemUrl) {
-            item["itemUrl"] = itemUrl;
-            allData.add(item);
-            allData.add(item);
-            allData.add(item);
-          }).whenComplete(() => setState(() => _buyableItems = allData));
+          AppItem.createShopItem(item).then((value) {
+            setState(() {
+              _buyableItems.add(value!);
+            });
+          });
         }
       });
     } catch (_) {}
   }
 
-  void _addItem(String itemName) {
+  // void _getData() {
+  //   try {
+  //     _itemsCollRef.get().then((querySnapshot) {
+  //       final List<Map<String, dynamic>> allData =
+  //           querySnapshot.docs.map((doc) => doc.data()).toList();
+  //
+  //       for (final item in allData) {
+  //         _storage.child(item["shop_image"]).getDownloadURL().then((itemUrl) {
+  //           item["itemUrl"] = itemUrl;
+  //           allData.add(item);
+  //           allData.add(item);
+  //           allData.add(item);
+  //         }).whenComplete(() => setState(() => _buyableItems = allData));
+  //       }
+  //     });
+  //   } catch (_) {}
+  // }
+
+  // void _addItem(String itemName) {
+  //   try {
+  //     final userDocRef = _userCollRef.doc(widget.user.uid);
+  //
+  //     _db.runTransaction((transaction) async {
+  //       final userSnapshot = await transaction.get(userDocRef);
+  //       final String userItemsDocName = userSnapshot.get("itemDoc");
+  //       print(userItemsDocName);
+  //       final userItemDocRef = _userItemsCollRef.doc(userItemsDocName);
+  //       final userItemsSnapshot = await transaction.get(userItemDocRef);
+  //       List items = userItemsSnapshot.get("items");
+  //       print(items);
+  //
+  //       items.add(itemName);
+  //       transaction.update(userItemDocRef, {"items": items});
+  //     }).then((value) {
+  //       print("_additem");
+  //     }).onError((error, stackTrace) {
+  //       print(error);
+  //       print("_additem error");
+  //     });
+  //   } catch (_) {}
+  // }
+
+  void _updateUserItems(AppItem appItem) {
     try {
-      final userDocRef = _userCollRef.doc(widget.user.uid);
-
-      _db.runTransaction((transaction) async {
-        final userSnapshot = await transaction.get(userDocRef);
-        final String userItemsDocName = userSnapshot.get("itemDoc");
-        print(userItemsDocName);
-        final userItemDocRef = _userItemsCollRef.doc(userItemsDocName);
-        final userItemsSnapshot = await transaction.get(userItemDocRef);
-        List items = userItemsSnapshot.get("items");
-        print(items);
-
-        items.add(itemName);
-        transaction.update(userItemDocRef, {"items": items});
-      }).then((value) {
-        print("_additem");
-      }).onError((error, stackTrace) {
-        print(error);
-        print("_additem error");
+      widget.user.getUserItems().then((itemList) {
+        _db.runTransaction((transaction) async {
+          final userItemDocRef = _userItemsCollRef.doc(widget.user.itemDoc);
+          itemList.add(appItem);
+          List<Map<String, dynamic>> json =
+              itemList.map((item) => item.toJson()).toList();
+          transaction.update(userItemDocRef, {"items": json});
+        }).whenComplete(() {
+          print("User items updated");
+        }).onError((error, stackTrace) {
+          print(error);
+          print("_updateUserItems error");
+        });
       });
-    } catch (_) {}
+    } catch (e) {
+      print(e);
+    }
   }
 
   void _buyItem(
-      final Map<String, dynamic> item, int amount, MoneyType currency) {
+      // final Map<String, dynamic> item, int amount, PurchaseType currency) {
+      AppItem item,
+      PurchaseType currency) {
     try {
       final userDocRef = _userCollRef.doc(widget.user.uid);
       _db.runTransaction((transaction) async {
         final snapshot = await transaction.get(userDocRef);
 
-        if (currency == MoneyType.realMoney) {
+        if (currency == PurchaseType.realMoney) {
           final int balance = snapshot.get("currency");
-          final int newBalance = balance - amount;
+          // final int newBalance = balance - amount;
+          final newBalance = balance - item.moneyPrice;
 
           if (newBalance < 0) {
             throw {"error": "insufficient-balance", "balance": balance};
           } else {
             transaction.update(userDocRef, {"currency": newBalance});
           }
-        } else if (currency == MoneyType.points) {
+        } else if (currency == PurchaseType.points) {
           final balance = snapshot.get("points");
-          final newBalance = balance - amount;
+          // final newBalance = balance - amount;
+          final newBalance = balance - item.pointsPrice;
 
           if (newBalance < 0) {
             throw {"error": "insufficient-balance", "balance": balance};
@@ -110,23 +163,31 @@ class _ShopPageState extends State<ShopPage> {
         }
       }).then(
         (_) {
-          if (currency == MoneyType.realMoney) {
+          if (currency == PurchaseType.realMoney) {
             Util().showSnackBar(
-                context, "You bought ${item["name"]} for $amount €");
-          } else if (currency == MoneyType.points) {
+                // context, "You bought ${item["name"]} for $amount €");
+                context,
+                "You bought ${item.name} for ${item.moneyPrice} €");
+          } else if (currency == PurchaseType.points) {
             Util().showSnackBar(
-                context, "You bought ${item["name"]} for $amount points");
+                // context, "You bought ${item["name"]} for $amount points");
+                context,
+                "You bought ${item.name} for ${item.pointsPrice} points");
           }
-          _addItem(item["character_image"]);
+          // _addItem(item["character_image"]);
+          _updateUserItems(item);
           print("UserDocument successfully updated!");
         },
         onError: (e) {
-          final diff = amount - e["balance"] as int;
+          // final diff = amount - e["balance"] as int;
+          final diff = currency == PurchaseType.realMoney
+              ? item.moneyPrice - e["balance"] as int
+              : item.pointsPrice - e["balance"] as int;
 
-          if (currency == MoneyType.realMoney) {
+          if (currency == PurchaseType.realMoney) {
             Util().showSnackBar(
                 context, "Insufficient balance, you need $diff € more");
-          } else if (currency == MoneyType.points) {
+          } else if (currency == PurchaseType.points) {
             Util().showSnackBar(
                 context, "Insufficient balance, you need $diff @ more");
           }
@@ -166,7 +227,7 @@ class _ShopPageState extends State<ShopPage> {
 
   @override
   Widget build(BuildContext context) {
-    return _buyableItems == null
+    return _buyableItems == []
         ? _loadingStore
         : CustomScrollView(
             physics: const BouncingScrollPhysics(),
@@ -178,9 +239,10 @@ class _ShopPageState extends State<ShopPage> {
                   mainAxisSpacing: 10,
                   crossAxisCount: 2,
                   children: [
-                    ..._buyableItems!.map(
+                    ..._buyableItems.map(
                       (item) {
-                        return item["itemUrl"] == null
+                        // return item["itemUrl"] == null
+                        return item.itemUrl == null
                             ? _placeholderItem
                             : Container(
                                 decoration: BoxDecoration(
@@ -188,7 +250,8 @@ class _ShopPageState extends State<ShopPage> {
                                     Radius.circular(5.0),
                                   ),
                                   image: DecorationImage(
-                                      image: NetworkImage(item["itemUrl"]),
+                                      // image: NetworkImage(item["itemUrl"]),
+                                      image: NetworkImage(item.itemUrl!),
                                       fit: BoxFit.cover),
                                 ),
                                 child: Row(
@@ -198,8 +261,8 @@ class _ShopPageState extends State<ShopPage> {
                                     ElevatedButton(
                                       onPressed: () => _buyItem(
                                         item,
-                                        item["ingame_currency_price"] as int,
-                                        MoneyType.points,
+                                        // item["ingame_currency_price"] as int,
+                                        PurchaseType.points,
                                       ),
                                       style: ButtonStyle(
                                         shape: MaterialStateProperty.all<
@@ -213,13 +276,14 @@ class _ShopPageState extends State<ShopPage> {
                                         ),
                                       ),
                                       child: Text(
-                                          "${item["ingame_currency_price"]} @"),
+                                          // "${item["ingame_currency_price"]} @"),
+                                          "${item.pointsPrice} @"),
                                     ),
                                     ElevatedButton(
                                       onPressed: () => _buyItem(
                                         item,
-                                        item["money_price"] as int,
-                                        MoneyType.realMoney,
+                                        // item["money_price"] as int,
+                                        PurchaseType.realMoney,
                                       ),
                                       style: ButtonStyle(
                                         shape: MaterialStateProperty.all<
@@ -232,7 +296,8 @@ class _ShopPageState extends State<ShopPage> {
                                           ),
                                         ),
                                       ),
-                                      child: Text("${item["money_price"]} €"),
+                                      // child: Text("${item["money_price"]} €"),
+                                      child: Text("${item.moneyPrice} €"),
                                     ),
                                   ],
                                 ),
