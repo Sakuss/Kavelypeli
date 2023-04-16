@@ -7,12 +7,12 @@ class AppUser {
   String? username, email;
   int steps, points, currency;
   DateTime? joinDate;
-  String photoUrl;
+  String photoURL;
 
   AppUser({
     this.username,
     this.email,
-    required this.photoUrl,
+    required this.photoURL,
     required this.joinDate,
     required this.uid,
     required this.steps,
@@ -35,10 +35,11 @@ class AppUser {
         'points': 0,
         'currency': 0,
       });
+      var photoURL = await getPhotoURL(user.uid);
       return AppUser(
         username: username,
         email: email,
-        photoUrl: 'https://i.imgur.com/BoN9kdC.png',
+        photoURL: photoURL,
         joinDate: user.metadata.creationTime,
         uid: user.uid,
         steps: 0,
@@ -76,7 +77,7 @@ class AppUser {
       return AppUser(
         username: firestoreUser['username'],
         email: firestoreUser['email'],
-        photoUrl: photoURL,
+        photoURL: photoURL,
         joinDate: firestoreUser['joinDate'].toDate(),
         uid: userDocumentSnapshot.id,
         steps: firestoreUser['steps'],

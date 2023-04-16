@@ -49,7 +49,7 @@ class _PageContainerState extends State<PageContainer> {
           children: [
             UserAccountsDrawerHeader(
               currentAccountPicture: CircleAvatar(
-                backgroundImage: NetworkImage(widget.user.photoUrl),
+                backgroundImage: NetworkImage(widget.user.photoURL),
               ),
               accountName: Text(widget.user.username ?? "no username"),
               accountEmail: Text(widget.user.email ?? "no email"),

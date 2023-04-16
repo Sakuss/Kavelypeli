@@ -122,7 +122,7 @@ class _FriendsPageState extends State<FriendsPage> {
                     margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     child: ListTile(
                       leading: CircleAvatar(
-                        backgroundImage: NetworkImage(friend.photoUrl),
+                        backgroundImage: NetworkImage(friend.photoURL),
                       ),
                       title: Text(friend.username!),
                       onTap: () => showDialog(
@@ -136,7 +136,7 @@ class _FriendsPageState extends State<FriendsPage> {
                             ),
                             child: Profile(
                               uid: friend.uid,
-                              photoURL: friend.photoUrl,
+                              photoURL: friend.photoURL,
                               name: friend.username!,
                               title: '???',
                             ),

@@ -7,14 +7,41 @@ import 'package:firebase_storage/firebase_storage.dart';
 import '../models/user_model.dart';
 import '../widgets/profile.dart';
 
-class ProfilePage extends StatelessWidget {
-  final AppUser user;
+class ProfilePage extends StatefulWidget {
+  AppUser user;
+  ProfilePage({super.key, required this.user});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  late AppUser user;
   final ImagePicker imagePicker = ImagePicker();
   final storageRef = FirebaseStorage.instance.ref();
 
-  ProfilePage({super.key, required this.user});
+  @override
+  initState() {
+    super.initState();
+    user = widget.user;
+  }
 
-  void changeProfilePicture() async {}
+  void changeProfilePicture() async {
+    final XFile? image = await imagePicker.pickImage(source: ImageSource.gallery);
+    if (image == null) return;
+    File file = File(image.path);
+    var userImageRef = storageRef.child('profilepics/${user.uid}');
+    try {
+      await userImageRef.putFile(file);
+      var photoURL = await AppUser.getPhotoURL(user.uid);
+      setState(() {
+        user.photoURL = photoURL;
+      });
+      print('Image uploaded successfully!');
+    } catch (e) {
+      print('Error uploading image: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +51,7 @@ class ProfilePage extends StatelessWidget {
       ),
       body: Profile(
         uid: user.uid,
-        photoURL: user.photoUrl,
+        photoURL: user.photoURL,
         name: 'testname',
         title: 'Novice walker',
         changeProfilePicture: changeProfilePicture,
