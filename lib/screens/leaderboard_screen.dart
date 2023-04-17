@@ -37,6 +37,7 @@ class _LeaderboardState extends State<Leaderboard> {
     for (final document in documents) {
       AppUser user = AppUser(
         uid: document.id,
+        photoURL: await AppUser.getPhotoURL(document.id),
         joinDate: document['joinDate'].toDate(),
         username: document['username'],
         points: document['points'],
@@ -70,8 +71,8 @@ class _LeaderboardState extends State<Leaderboard> {
               leading: Text('${index + 1}.'),
               title: Row(
                 children: [
-                  const CircleAvatar(
-                    backgroundImage: NetworkImage("https://via.placeholder.com/150"),
+                  CircleAvatar(
+                    backgroundImage: NetworkImage(user.photoURL),
                   ),
                   const SizedBox(width: 8),
                   isAppUser
@@ -103,7 +104,7 @@ class _LeaderboardState extends State<Leaderboard> {
                             child: Profile(
                               name: user.username!,
                               title: '???',
-                              profilePictureUrl: user.photoUrl,
+                              photoURL: user.photoURL,
                             ),
                           );
                         },

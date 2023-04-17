@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class Profile extends StatelessWidget {
-  final String uid;
   final String name;
   final String title;
   final String photoURL;
@@ -20,7 +19,6 @@ class Profile extends StatelessWidget {
   //walking data (steps/distance per day / week / month)
 
   const Profile({
-    required this.uid,
     required this.name,
     required this.title,
     required this.photoURL,

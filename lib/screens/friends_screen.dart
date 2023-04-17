@@ -135,7 +135,6 @@ class _FriendsPageState extends State<FriendsPage> {
                               ),
                             ),
                             child: Profile(
-                              uid: friend.uid,
                               photoURL: friend.photoURL,
                               name: friend.username!,
                               title: '???',

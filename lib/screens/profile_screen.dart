@@ -8,8 +8,9 @@ import '../models/user_model.dart';
 import '../widgets/profile.dart';
 
 class ProfilePage extends StatefulWidget {
-  AppUser user;
-  ProfilePage({super.key, required this.user});
+  final AppUser user;
+
+  const ProfilePage({super.key, required this.user});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -50,7 +51,6 @@ class _ProfilePageState extends State<ProfilePage> {
         title: const Text('Profile'),
       ),
       body: Profile(
-        uid: user.uid,
         photoURL: user.photoURL,
         name: 'testname',
         title: 'Novice walker',
