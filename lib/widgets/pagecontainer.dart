@@ -49,10 +49,8 @@ class _PageContainerState extends State<PageContainer> {
           padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
-              currentAccountPicture: const Icon(
-                Icons.account_circle_sharp,
-                size: 48.0,
-                color: Colors.white,
+              currentAccountPicture: CircleAvatar(
+                backgroundImage: NetworkImage(widget.user.photoURL),
               ),
               accountName: Text(widget.user.username ?? "no username"),
               accountEmail: Text(widget.user.email ?? "no email"),
@@ -73,7 +71,7 @@ class _PageContainerState extends State<PageContainer> {
                 ),
                 title: const Text('Profile'),
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(user: widget.user)));
                 }),
             const SizedBox(
               height: 20,
