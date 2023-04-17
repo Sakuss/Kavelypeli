@@ -7,6 +7,7 @@ import 'package:kavelypeli/screens/signin_screen.dart';
 
 import '../models/user_model.dart';
 import '../screens/home_screen.dart';
+import '../screens/leaderboard_screen.dart';
 import '../screens/settings_screen.dart';
 
 class PageContainer extends StatefulWidget {
@@ -48,10 +49,8 @@ class _PageContainerState extends State<PageContainer> {
           padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
-              currentAccountPicture: const Icon(
-                Icons.account_circle_sharp,
-                size: 48.0,
-                color: Colors.white,
+              currentAccountPicture: CircleAvatar(
+                backgroundImage: NetworkImage(widget.user.photoURL),
               ),
               accountName: Text(widget.user.username ?? "no username"),
               accountEmail: Text(widget.user.email ?? "no email"),
@@ -72,8 +71,7 @@ class _PageContainerState extends State<PageContainer> {
                 ),
                 title: const Text('Profile'),
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => ProfilePage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(user: widget.user)));
                 }),
             const SizedBox(
               height: 20,
@@ -175,6 +173,7 @@ class _PageContainerState extends State<PageContainer> {
           Home(user: widget.user, stepGoal: _stepGoal,),
           ShopPage(user: widget.user,),
         ],
+        children: <Widget>[Leaderboard(user: widget.user), Home(), ShopPage()],
         onPageChanged: (index) {
           setState(() {
             _selectedIndex = index;

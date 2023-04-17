@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 class Profile extends StatelessWidget {
   final String name;
   final String title;
-  final String? profilePictureUrl;
+  final String photoURL;
+
+  final VoidCallback? changeProfilePicture;
+
   // final DateTime joinedDate;
   // final String? bio;
 
@@ -18,8 +21,9 @@ class Profile extends StatelessWidget {
   const Profile({
     required this.name,
     required this.title,
+    required this.photoURL,
     // required this.joinedDate,
-    this.profilePictureUrl,
+    this.changeProfilePicture,
     super.key,
   });
 
@@ -33,9 +37,13 @@ class Profile extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundImage: NetworkImage(profilePictureUrl ?? 'https://i.imgur.com/BoN9kdC.png'),
+                InkWell(
+                  borderRadius: BorderRadius.circular(30),
+                  onTap: changeProfilePicture,
+                  child: CircleAvatar(
+                    radius: 30,
+                    backgroundImage: NetworkImage(photoURL),
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 20),

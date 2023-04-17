@@ -45,6 +45,7 @@ dependencies:
   grouped_list: ^5.1.2
   google_maps_flutter: ^2.2.5
   geolocator: ^9.0.2
+  image_picker: ^0.8.7+2
   firebase_storage: ^11.1.0
 
 dev_dependencies:
