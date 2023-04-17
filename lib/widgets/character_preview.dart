@@ -25,9 +25,7 @@ class _CharacterPreviewState extends State<CharacterPreview> {
   final Image _localDefaultAvatar =
       Image.asset("assets/images/default_avatar.png");
   bool _isAvatarLoaded = false;
-  bool _areItemsLoaded = false;
-  List<String> _items = [];
-  List<AppItem> _userItems = [];
+  late List<AppItem> _userItems = [];
 
   @override
   void initState() {
@@ -49,6 +47,7 @@ class _CharacterPreviewState extends State<CharacterPreview> {
           setState(() {
             _userItems.add(item);
           });
+          print(_userItems);
         });
       }
     });
@@ -68,10 +67,13 @@ class _CharacterPreviewState extends State<CharacterPreview> {
             (avatarUrl) {
               setState(() {
                 _avatar = Image.network(avatarUrl);
-                _isAvatarLoaded = true;
               });
             },
-          );
+          ).whenComplete(() {
+            setState(() {
+              _isAvatarLoaded = true;
+            });
+          });
         }
       });
     } catch (e) {
@@ -80,48 +82,6 @@ class _CharacterPreviewState extends State<CharacterPreview> {
       });
     }
   }
-
-  // void _getUserAvatarItems() {
-  //   try {
-  //     usersDocRef.doc(uid).get().then((doc) {
-  //       final data = doc.data() as Map<String, dynamic>;
-  //       final itemDoc = data["itemDoc"];
-  //       // if (itemDoc == null) {
-  //       //   setState(() {
-  //       //     _areItemsLoaded = true;
-  //       //   });
-  //       // } else {
-  //       userItemsDocRef.doc(itemDoc).get().then((doc) {
-  //         final itemData = doc.data() as Map<String, dynamic>;
-  //         final itemList = itemData["items"] as List;
-  //         // print(itemList);
-  //         List<String> urls = [];
-  //         if (itemList.isEmpty) {
-  //           setState(() {
-  //             _areItemsLoaded = true;
-  //           });
-  //         } else {
-  //           for (String itemName in itemList) {
-  //             _storage.child(itemName).getDownloadURL().then((itemUrl) {
-  //               urls.add(itemUrl);
-  //               if (urls.length == itemList.length) {
-  //                 setState(() {
-  //                   _items = urls;
-  //                   _areItemsLoaded = true;
-  //                 });
-  //               }
-  //             });
-  //           }
-  //         }
-  //       });
-  //       // }
-  //     });
-  //   } catch (e) {
-  //     setState(() {
-  //       _areItemsLoaded = true;
-  //     });
-  //   }
-  // }
 
   Widget get _loadingAvatar {
     return Center(
@@ -164,13 +124,11 @@ class _CharacterPreviewState extends State<CharacterPreview> {
     print("building character_preview");
     return !_isAvatarLoaded
         ? _loadingAvatar
-        : _areItemsLoaded
-            ? _loadingItems
-            : Stack(
-                children: [
-                  _avatar ?? _localDefaultAvatar,
-                  ..._userItems.map((item) => Image.network(item.itemUrl!)),
-                ],
-              );
+        : Stack(
+            children: [
+              _avatar ?? _localDefaultAvatar,
+              ..._userItems.map((item) => Image.network(item.itemUrl!)),
+            ],
+          );
   }
 }

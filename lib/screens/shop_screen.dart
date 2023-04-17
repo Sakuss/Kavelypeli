@@ -34,9 +34,11 @@ class _ShopPageState extends State<ShopPage> {
   // List<Map<String, dynamic>>? _buyableItems = null;
   List<AppItem> _buyableItems = [];
   List<AppItem> _userItems = [];
+  bool _storeLoaded = false;
 
   @override
   void initState() {
+    print("SHOP INITSTATE");
     super.initState();
     _initPlatformState();
   }
@@ -56,59 +58,22 @@ class _ShopPageState extends State<ShopPage> {
         final List<Map<String, dynamic>> allData =
             querySnapshot.docs.map((doc) => doc.data()).toList();
 
-        // print(allData);
         for (final item in allData) {
           AppItem.createShopItem(item).then((value) {
             setState(() {
               _buyableItems.add(value!);
+              _buyableItems
+                  .sort((a, b) => a.moneyPrice.compareTo(b.moneyPrice));
             });
           });
         }
+      }).whenComplete(() {
+        setState(() {
+          _storeLoaded = true;
+        });
       });
     } catch (_) {}
   }
-
-  // void _getData() {
-  //   try {
-  //     _itemsCollRef.get().then((querySnapshot) {
-  //       final List<Map<String, dynamic>> allData =
-  //           querySnapshot.docs.map((doc) => doc.data()).toList();
-  //
-  //       for (final item in allData) {
-  //         _storage.child(item["shop_image"]).getDownloadURL().then((itemUrl) {
-  //           item["itemUrl"] = itemUrl;
-  //           allData.add(item);
-  //           allData.add(item);
-  //           allData.add(item);
-  //         }).whenComplete(() => setState(() => _buyableItems = allData));
-  //       }
-  //     });
-  //   } catch (_) {}
-  // }
-
-  // void _addItem(String itemName) {
-  //   try {
-  //     final userDocRef = _userCollRef.doc(widget.user.uid);
-  //
-  //     _db.runTransaction((transaction) async {
-  //       final userSnapshot = await transaction.get(userDocRef);
-  //       final String userItemsDocName = userSnapshot.get("itemDoc");
-  //       print(userItemsDocName);
-  //       final userItemDocRef = _userItemsCollRef.doc(userItemsDocName);
-  //       final userItemsSnapshot = await transaction.get(userItemDocRef);
-  //       List items = userItemsSnapshot.get("items");
-  //       print(items);
-  //
-  //       items.add(itemName);
-  //       transaction.update(userItemDocRef, {"items": items});
-  //     }).then((value) {
-  //       print("_additem");
-  //     }).onError((error, stackTrace) {
-  //       print(error);
-  //       print("_additem error");
-  //     });
-  //   } catch (_) {}
-  // }
 
   void _updateUserItems(AppItem appItem) {
     try {
@@ -131,11 +96,26 @@ class _ShopPageState extends State<ShopPage> {
     }
   }
 
+  bool _doesAlreadyOwn(AppItem item) {
+    for (AppItem i in _userItems) {
+      if (item.name == i.name) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   void _buyItem(
       // final Map<String, dynamic> item, int amount, PurchaseType currency) {
       AppItem item,
       PurchaseType currency) {
     try {
+      final doesOwn = _doesAlreadyOwn(item);
+      if (!doesOwn) {
+        setState(() {
+          _userItems.add(item);
+        });
+      }
       final userDocRef = _userCollRef.doc(widget.user.uid);
       _db.runTransaction((transaction) async {
         final snapshot = await transaction.get(userDocRef);
@@ -227,7 +207,8 @@ class _ShopPageState extends State<ShopPage> {
 
   @override
   Widget build(BuildContext context) {
-    return _buyableItems == []
+    // return _buyableItems == []
+    return !_storeLoaded
         ? _loadingStore
         : CustomScrollView(
             physics: const BouncingScrollPhysics(),
@@ -241,7 +222,6 @@ class _ShopPageState extends State<ShopPage> {
                   children: [
                     ..._buyableItems.map(
                       (item) {
-                        // return item["itemUrl"] == null
                         return item.itemUrl == null
                             ? _placeholderItem
                             : Container(
@@ -259,11 +239,12 @@ class _ShopPageState extends State<ShopPage> {
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: <Widget>[
                                     ElevatedButton(
-                                      onPressed: () => _buyItem(
-                                        item,
-                                        // item["ingame_currency_price"] as int,
-                                        PurchaseType.points,
-                                      ),
+                                      onPressed: _doesAlreadyOwn(item)
+                                          ? null
+                                          : () => _buyItem(
+                                                item,
+                                                PurchaseType.points,
+                                              ),
                                       style: ButtonStyle(
                                         shape: MaterialStateProperty.all<
                                             RoundedRectangleBorder>(
@@ -274,17 +255,20 @@ class _ShopPageState extends State<ShopPage> {
                                                     Radius.circular(15.0)),
                                           ),
                                         ),
+                                        backgroundColor: _doesAlreadyOwn(item)
+                                            ? MaterialStateProperty.all(
+                                                Colors.grey)
+                                            : null,
                                       ),
-                                      child: Text(
-                                          // "${item["ingame_currency_price"]} @"),
-                                          "${item.pointsPrice} @"),
+                                      child: Text("${item.pointsPrice} @"),
                                     ),
                                     ElevatedButton(
-                                      onPressed: () => _buyItem(
-                                        item,
-                                        // item["money_price"] as int,
-                                        PurchaseType.realMoney,
-                                      ),
+                                      onPressed: _doesAlreadyOwn(item)
+                                          ? null
+                                          : () => _buyItem(
+                                                item,
+                                                PurchaseType.realMoney,
+                                              ),
                                       style: ButtonStyle(
                                         shape: MaterialStateProperty.all<
                                             RoundedRectangleBorder>(
@@ -295,6 +279,10 @@ class _ShopPageState extends State<ShopPage> {
                                                     Radius.circular(15.0)),
                                           ),
                                         ),
+                                        backgroundColor: _doesAlreadyOwn(item)
+                                            ? MaterialStateProperty.all(
+                                                Colors.grey)
+                                            : null,
                                       ),
                                       // child: Text("${item["money_price"]} €"),
                                       child: Text("${item.moneyPrice} €"),

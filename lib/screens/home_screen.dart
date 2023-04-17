@@ -12,12 +12,13 @@ import 'dart:async';
 import '../util.dart';
 
 class Home extends StatefulWidget {
-  static const Icon icon = Icon(Icons.home);
+  static const IconData icon = Icons.home;
   static const String name = "Home";
   final String? stepGoal;
   final AppUser user;
 
-  const Home({super.key, required this.user, this.stepGoal});
+  const Home({Key? key, required this.user, required this.stepGoal})
+      : super(key: key);
 
   @override
   State<Home> createState() => _HomeState();
@@ -27,21 +28,17 @@ class _HomeState extends State<Home> {
   late Stream<StepCount> _stepCountStream;
   late Stream<PedestrianStatus> _pedestrianStatusStream;
   late SharedPreferences prefs;
-  late String _status = '?',
-      _steps = "0",
-      _points = "0",
-      _stepGoal = widget.stepGoal ?? "10000";
-  late bool _isMapVisible = false;
+  late String _status = '?', _steps = "0", _points = "0", _stepGoal = "10000";
+  bool _isMapVisible = false;
 
   @override
   void initState() {
-    super.initState();
     print("HOME : initState");
-    initPlatformState();
+    super.initState();
+    _initPlatformState();
   }
 
-  void initPlatformState() async {
-    print("HOME : initPlatformState");
+  void _initPlatformState() async {
     _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
     _pedestrianStatusStream
         .listen(onPedestrianStatusChanged)
@@ -51,11 +48,15 @@ class _HomeState extends State<Home> {
     _stepCountStream.listen(onStepCount).onError(onStepCountError);
 
     // _steps = "Step Count not available";
-    _steps = '0';
+    // _steps = '0';
     // _steps = await Util().loadFromPrefs("steps") ?? '0';
-    _stepGoal = '10000';
+    // _stepGoal = '10000';
     // _stepGoal = await Util().loadFromPrefs("stepGoal") ?? '10000';
-    _points = Util().generateStepsCount();
+    setState(() {
+      _points = Util().generateStepsCount();
+      _steps = widget.user.steps.toString();
+      _stepGoal = widget.stepGoal ?? _stepGoal;
+    });
 
     if (!mounted) return;
   }
@@ -335,27 +336,29 @@ class _HomeState extends State<Home> {
                         iconSize: 30,
                       ),
                       IconButton(
-                        onPressed: () => {},
+                        color: Colors.green,
+                        onPressed: () => {setState(() {})},
                         icon: const Icon(Icons.refresh),
                         iconSize: 30,
                       ),
-                      IconButton(
-                        color: _isMapVisible ? Colors.blue : null,
-                        onPressed: () => {
-                          setState(() {
-                            _isMapVisible = true;
-                          })
-                        },
-                        icon: Icon(Icons.map),
-                        iconSize: 30,
-                      ),
+                      // IconButton(
+                      //   color: _isMapVisible ? Colors.blue : null,
+                      //   onPressed: () => {
+                      //     setState(() {
+                      //       _isMapVisible = true;
+                      //     })
+                      //   },
+                      //   icon: const Icon(Icons.map),
+                      //   iconSize: 30,
+                      // ),
                     ],
                   ),
                   Expanded(
                     child: Center(
-                      child: _isMapVisible
-                          ? MapWidget()
-                          : CharacterPreview(user: widget.user),
+                      child: CharacterPreview(user: widget.user),
+                      // child: _isMapVisible
+                      //     ? MapWidget()
+                      //     : CharacterPreview(user: widget.user),
                     ),
                   ),
                 ],

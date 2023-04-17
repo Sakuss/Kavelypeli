@@ -135,7 +135,6 @@ class _PageContainerState extends State<PageContainer> {
                         changeTheme: widget.changeTheme,
                       ),
                     )).then((value) {
-                  // _updateHome(value);
                   setState(() {
                     _stepGoal = value;
                   });
@@ -187,7 +186,7 @@ class _PageContainerState extends State<PageContainer> {
             label: 'Leaderboard',
           ),
           BottomNavigationBarItem(
-            icon: Home.icon,
+            icon: Icon(Home.icon),
             label: Home.name,
           ),
           BottomNavigationBarItem(
