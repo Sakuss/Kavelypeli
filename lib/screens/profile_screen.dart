@@ -52,6 +52,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: Profile(
         user: user,
+        showTooltip: true,
         changeProfilePicture: changeProfilePicture,
       ),
     );

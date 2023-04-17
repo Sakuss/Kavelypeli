@@ -5,7 +5,7 @@ import '../models/user_model.dart';
 
 class Profile extends StatelessWidget {
   final AppUser user;
-
+  final bool showTooltip;
   final VoidCallback? changeProfilePicture;
 
   // final DateTime joinedDate;
@@ -23,6 +23,7 @@ class Profile extends StatelessWidget {
     required this.user,
     this.changeProfilePicture,
     super.key,
+    this.showTooltip = false,
   });
 
   @override
@@ -38,10 +39,18 @@ class Profile extends StatelessWidget {
                 InkWell(
                   borderRadius: BorderRadius.circular(30),
                   onTap: changeProfilePicture,
-                  child: CircleAvatar(
-                    radius: 30,
-                    backgroundImage: NetworkImage(user.photoURL),
-                  ),
+                  child: showTooltip
+                      ? Tooltip(
+                          message: 'Tap to change profile picture',
+                          child: CircleAvatar(
+                            radius: 30,
+                            backgroundImage: NetworkImage(user.photoURL),
+                          ),
+                        )
+                      : CircleAvatar(
+                          radius: 30,
+                          backgroundImage: NetworkImage(user.photoURL),
+                        ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 20),
