@@ -5,7 +5,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 class AppUser {
   String uid;
   String? username, email;
-  int steps, points, currency;
+  int steps, points;
+  int? currency;
   DateTime? joinDate;
   String photoURL;
 
@@ -17,7 +18,7 @@ class AppUser {
     required this.uid,
     required this.steps,
     required this.points,
-    required this.currency,
+    this.currency,
   });
 
   static Future<AppUser?> createUserOnSignup(
