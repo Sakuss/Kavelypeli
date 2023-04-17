@@ -133,6 +133,7 @@ class _PageContainerState extends State<PageContainer> {
                     MaterialPageRoute(
                       builder: (context) => SettingsScreen(
                         changeTheme: widget.changeTheme,
+                        user: widget.user,
                       ),
                     )).then((value) {
                   setState(() {

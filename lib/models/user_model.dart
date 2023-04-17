@@ -3,9 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:kavelypeli/models/item_model.dart';
 
 class AppUser {
-  String uid, itemDoc;
+  String uid;
   String? username, email;
-  int steps, points, currency;
+  int steps, points, currency, stepGoal;
   DateTime? joinDate;
   String? photoUrl;
 
@@ -18,7 +18,8 @@ class AppUser {
     required this.steps,
     required this.points,
     required this.currency,
-    required this.itemDoc,
+    // required this.itemDoc,
+    required this.stepGoal,
   });
 
   static Future<AppUser?> createUserOnSignup(
@@ -28,7 +29,7 @@ class AppUser {
   ) async {
     try {
       // await user.updateDisplayName(username);
-      final userItemsSnapshot = await FirebaseFirestore.instance.collection('user_items').add({"items": []});
+      final userItemsSnapshot = await FirebaseFirestore.instance.collection('user_items').doc(user.uid).set({"items": []});
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         'username': username,
         'email': email,
@@ -36,7 +37,8 @@ class AppUser {
         'steps': 0,
         'points': 0,
         'currency': 0,
-        'itemDoc': userItemsSnapshot.id,
+        // 'itemDoc': userItemsSnapshot.id,
+        'stepGoal': 10000,
       });
       return AppUser(
         username: username,
@@ -46,7 +48,8 @@ class AppUser {
         steps: 0,
         points: 0,
         currency: 0,
-        itemDoc: userItemsSnapshot.id,
+        // itemDoc: userItemsSnapshot.id,
+        stepGoal: 10000,
       );
     } catch (e) {
       print(e);
@@ -71,7 +74,8 @@ class AppUser {
         steps: firestoreUser['steps'],
         points: firestoreUser['points'],
         currency: firestoreUser['currency'],
-        itemDoc: firestoreUser["itemDoc"],
+        // itemDoc: firestoreUser["itemDoc"],
+        stepGoal: firestoreUser["stepGoal"],
       );
     } catch (e) {
       print(e);
@@ -79,9 +83,10 @@ class AppUser {
     }
   }
 
-  Future<List<AppItem>> getUserItems() async {
+  Future<List<AppItem>> getUserItems(String uid) async {
     final FirebaseFirestore db = FirebaseFirestore.instance;
-    final DocumentReference userItemsDocRef = db.collection('user_items').doc(itemDoc);
+    // final DocumentReference userItemsDocRef = db.collection('user_items').doc(itemDoc);
+    final DocumentReference userItemsDocRef = db.collection('user_items').doc(uid);
 
     try {
       return userItemsDocRef.get().then((itemsSnapshot) {

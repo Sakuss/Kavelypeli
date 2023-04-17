@@ -31,13 +31,8 @@ class Util {
     print(prefs.getKeys());
   }
 
-  String generateStepsCount() {
-    double minVal = 500;
-    double maxVal = 1999;
-
-    Random rand = Random();
-
-    return (rand.nextDouble() * (maxVal - minVal) + minVal).round().toString();
+  int generateStepsCount() {
+    return (Random().nextDouble() * 2500).round();
   }
 
   void showSnackBar(BuildContext context, String message) {

@@ -28,7 +28,8 @@ class _HomeState extends State<Home> {
   late Stream<StepCount> _stepCountStream;
   late Stream<PedestrianStatus> _pedestrianStatusStream;
   late SharedPreferences prefs;
-  late String _status = '?', _steps = "0", _points = "0", _stepGoal = "10000";
+  String _status = "Unavailable";
+  late int _steps, _points, _stepGoal;
   bool _isMapVisible = false;
 
   @override
@@ -54,8 +55,8 @@ class _HomeState extends State<Home> {
     // _stepGoal = await Util().loadFromPrefs("stepGoal") ?? '10000';
     setState(() {
       _points = Util().generateStepsCount();
-      _steps = widget.user.steps.toString();
-      _stepGoal = widget.stepGoal ?? _stepGoal;
+      _steps = widget.user.steps;
+      _stepGoal = widget.user.stepGoal;
     });
 
     if (!mounted) return;
@@ -64,11 +65,11 @@ class _HomeState extends State<Home> {
   void onStepCount(StepCount event) {
     print(event);
     if (_steps != "Step Count not available") {
-      // Util().saveToPrefs("steps", _steps);
+      setState(() {
+        _steps = event.steps;
+      });
+      Util().saveToPrefs("steps", _steps);
     }
-    setState(() {
-      _steps = event.steps.toString();
-    });
   }
 
   void onPedestrianStatusChanged(PedestrianStatus event) {
@@ -95,8 +96,13 @@ class _HomeState extends State<Home> {
 
   double get _goalPct {
     try {
-      double pct = int.parse(_steps) / int.parse(_stepGoal);
-      return pct < 0.0 ? 0.0 : pct;
+      // double pct = int.parse(_steps) / int.parse(_stepGoal);
+      double pct = _steps / _stepGoal;
+      return pct < 0.0
+          ? 0.0
+          : pct > 1.0
+              ? 1.0
+              : pct;
     } catch (e) {
       print(e);
       return 0.0;
@@ -105,16 +111,14 @@ class _HomeState extends State<Home> {
 
   void _addSteps() {
     setState(() {
-      _steps = (int.parse(_steps) + int.parse(Util().generateStepsCount()))
-          .toString();
+      _steps = _steps + Util().generateStepsCount();
     });
     Util().saveToPrefs("steps", _steps);
   }
 
   void _reduceSteps() {
     setState(() {
-      _steps = (int.parse(_steps) - int.parse(Util().generateStepsCount()))
-          .toString();
+      _steps = _steps - Util().generateStepsCount();
     });
     Util().saveToPrefs("steps", _steps);
   }
@@ -123,10 +127,10 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     MediaQueryData mediaQuery = MediaQuery.of(context);
     double boxSize = mediaQuery.size.width / 2 - 40;
-    setState(() {
-      _steps = widget.user.steps.toString();
-      _stepGoal = widget.stepGoal ?? _stepGoal;
-    });
+    // setState(() {
+    //   _steps = widget.user.steps.toString();
+    //   _stepGoal = widget.stepGoal ?? _stepGoal;
+    // });
 
     return Padding(
       padding: const EdgeInsets.all(5),
@@ -166,7 +170,7 @@ class _HomeState extends State<Home> {
                           Expanded(
                             flex: 1,
                             child: Text(
-                              _steps,
+                              "$_steps",
                               style: _steps == "Step Count not available"
                                   ? const TextStyle(fontSize: 20)
                                   : const TextStyle(fontSize: 40),
@@ -214,7 +218,7 @@ class _HomeState extends State<Home> {
                           Expanded(
                             flex: 2,
                             child: Text(
-                              _points,
+                              "$_points",
                               style: const TextStyle(fontSize: 40),
                               textAlign: TextAlign.center,
                             ),
@@ -251,8 +255,7 @@ class _HomeState extends State<Home> {
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.only(
-                                        top: 5.0,
-                                      ),
+                                          top: 5.0, bottom: 5.0),
                                       child: Text(
                                         "$_steps / $_stepGoal",
                                         style: const TextStyle(fontSize: 20),
@@ -260,25 +263,25 @@ class _HomeState extends State<Home> {
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.only(
-                                        top: 5.0,
                                         bottom: 10.0,
                                       ),
                                       child: LinearPercentIndicator(
                                         animation: true,
                                         lineHeight: 20.0,
                                         animationDuration: 500,
-                                        percent: _goalPct <= 1 ? _goalPct : 1.0,
-                                        center: _goalPct <= 1
-                                            ? Text(
-                                                "${(_goalPct * 100).toStringAsFixed(2)} %",
-                                                style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              )
-                                            : const Text("Goal achieved!"),
+                                        percent: _goalPct,
+                                        center: Text(
+                                          _goalPct <= 1.0
+                                              ? "${(_goalPct * 100).toStringAsFixed(2)} %"
+                                              : "Goal achieved!",
+                                          style: const TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                         barRadius: const Radius.circular(5),
                                         progressColor: Colors.blueAccent,
+                                        addAutomaticKeepAlive: false,
                                       ),
                                     ),
                                   ],
@@ -289,7 +292,7 @@ class _HomeState extends State<Home> {
                                   child: Container(
                                     alignment: Alignment.center,
                                     child: Text(
-                                      _steps,
+                                      "$_steps",
                                       style: const TextStyle(
                                         fontSize: 20,
                                       ),
@@ -336,29 +339,24 @@ class _HomeState extends State<Home> {
                         iconSize: 30,
                       ),
                       IconButton(
-                        color: Colors.green,
-                        onPressed: () => {setState(() {})},
-                        icon: const Icon(Icons.refresh),
+                        color: _isMapVisible ? Colors.blue : null,
+                        onPressed: null,
+                        // onPressed: () => {
+                        //   setState(() {
+                        //     _isMapVisible = true;
+                        //   })
+                        // },
+                        icon: const Icon(Icons.map),
                         iconSize: 30,
                       ),
-                      // IconButton(
-                      //   color: _isMapVisible ? Colors.blue : null,
-                      //   onPressed: () => {
-                      //     setState(() {
-                      //       _isMapVisible = true;
-                      //     })
-                      //   },
-                      //   icon: const Icon(Icons.map),
-                      //   iconSize: 30,
-                      // ),
                     ],
                   ),
                   Expanded(
                     child: Center(
-                      child: CharacterPreview(user: widget.user),
-                      // child: _isMapVisible
-                      //     ? MapWidget()
-                      //     : CharacterPreview(user: widget.user),
+                      // child: CharacterPreview(user: widget.user),
+                      child: _isMapVisible
+                          ? const MapWidget()
+                          : CharacterPreview(user: widget.user),
                     ),
                   ),
                 ],

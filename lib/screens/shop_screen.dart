@@ -45,7 +45,7 @@ class _ShopPageState extends State<ShopPage> {
 
   void _initPlatformState() {
     _getData();
-    widget.user.getUserItems().then((value) {
+    widget.user.getUserItems(widget.user.uid).then((value) {
       setState(() {
         _userItems = value;
       });
@@ -77,9 +77,9 @@ class _ShopPageState extends State<ShopPage> {
 
   void _updateUserItems(AppItem appItem) {
     try {
-      widget.user.getUserItems().then((itemList) {
+      widget.user.getUserItems(widget.user.uid).then((itemList) {
         _db.runTransaction((transaction) async {
-          final userItemDocRef = _userItemsCollRef.doc(widget.user.itemDoc);
+          final userItemDocRef = _userItemsCollRef.doc(widget.user.uid);
           itemList.add(appItem);
           List<Map<String, dynamic>> json =
               itemList.map((item) => item.toJson()).toList();
@@ -105,61 +105,54 @@ class _ShopPageState extends State<ShopPage> {
     return false;
   }
 
-  void _buyItem(
-      // final Map<String, dynamic> item, int amount, PurchaseType currency) {
-      AppItem item,
-      PurchaseType currency) {
+  void _buyItem(AppItem item, PurchaseType currency) {
     try {
-      final doesOwn = _doesAlreadyOwn(item);
-      if (!doesOwn) {
-        setState(() {
-          _userItems.add(item);
-        });
-      }
+      if (_doesAlreadyOwn(item)) return;
+
       final userDocRef = _userCollRef.doc(widget.user.uid);
       _db.runTransaction((transaction) async {
         final snapshot = await transaction.get(userDocRef);
 
         if (currency == PurchaseType.realMoney) {
           final int balance = snapshot.get("currency");
-          // final int newBalance = balance - amount;
-          final newBalance = balance - item.moneyPrice;
+          final int newBalance = balance - item.moneyPrice;
 
           if (newBalance < 0) {
             throw {"error": "insufficient-balance", "balance": balance};
           } else {
             transaction.update(userDocRef, {"currency": newBalance});
+            widget.user.currency = newBalance;
+            setState(() {
+              _userItems.add(item);
+            });
           }
         } else if (currency == PurchaseType.points) {
-          final balance = snapshot.get("points");
-          // final newBalance = balance - amount;
-          final newBalance = balance - item.pointsPrice;
+          final int balance = snapshot.get("points");
+          final int newBalance = balance - item.pointsPrice;
 
           if (newBalance < 0) {
             throw {"error": "insufficient-balance", "balance": balance};
           } else {
             transaction.update(userDocRef, {"points": newBalance});
+            widget.user.points = newBalance;
+            setState(() {
+              _userItems.add(item);
+            });
           }
         }
       }).then(
         (_) {
           if (currency == PurchaseType.realMoney) {
             Util().showSnackBar(
-                // context, "You bought ${item["name"]} for $amount €");
-                context,
-                "You bought ${item.name} for ${item.moneyPrice} €");
+                context, "You bought ${item.name} for ${item.moneyPrice} €");
           } else if (currency == PurchaseType.points) {
-            Util().showSnackBar(
-                // context, "You bought ${item["name"]} for $amount points");
-                context,
+            Util().showSnackBar(context,
                 "You bought ${item.name} for ${item.pointsPrice} points");
           }
-          // _addItem(item["character_image"]);
           _updateUserItems(item);
           print("UserDocument successfully updated!");
         },
         onError: (e) {
-          // final diff = amount - e["balance"] as int;
           final diff = currency == PurchaseType.realMoney
               ? item.moneyPrice - e["balance"] as int
               : item.pointsPrice - e["balance"] as int;
@@ -207,7 +200,6 @@ class _ShopPageState extends State<ShopPage> {
 
   @override
   Widget build(BuildContext context) {
-    // return _buyableItems == []
     return !_storeLoaded
         ? _loadingStore
         : CustomScrollView(
@@ -293,50 +285,6 @@ class _ShopPageState extends State<ShopPage> {
                       },
                     )
                   ],
-                  // children: [
-                  //   for (int i = 0; i < 10; i++)
-                  //     Container(
-                  //       decoration: BoxDecoration(
-                  //           image: DecorationImage(
-                  //               image: NetworkImage(
-                  //                   "https://picsum.photos/250?image=$i"),
-                  //               fit: BoxFit.cover)),
-                  //       child: Row(
-                  //         mainAxisAlignment: MainAxisAlignment.center,
-                  //         crossAxisAlignment: CrossAxisAlignment.end,
-                  //         children: <Widget>[
-                  //           ElevatedButton(
-                  //             onPressed: buyItem,
-                  //             style: ButtonStyle(
-                  //               shape: MaterialStateProperty.all<
-                  //                   RoundedRectangleBorder>(
-                  //                 const RoundedRectangleBorder(
-                  //                   borderRadius: BorderRadius.only(
-                  //                       topLeft: Radius.circular(15.0),
-                  //                       bottomLeft: Radius.circular(15.0)),
-                  //                 ),
-                  //               ),
-                  //             ),
-                  //             child: const Text("100 @"),
-                  //           ),
-                  //           ElevatedButton(
-                  //             onPressed: buyItem,
-                  //             style: ButtonStyle(
-                  //               shape: MaterialStateProperty.all<
-                  //                   RoundedRectangleBorder>(
-                  //                 const RoundedRectangleBorder(
-                  //                   borderRadius: BorderRadius.only(
-                  //                       topRight: Radius.circular(15.0),
-                  //                       bottomRight: Radius.circular(15.0)),
-                  //                 ),
-                  //               ),
-                  //             ),
-                  //             child: const Text("1 €"),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ),
-                  // ],
                 ),
               ),
             ],

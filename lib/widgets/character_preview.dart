@@ -17,7 +17,6 @@ class CharacterPreview extends StatefulWidget {
 }
 
 class _CharacterPreviewState extends State<CharacterPreview> {
-  final uid = FirebaseAuth.instance.currentUser!.uid;
   final usersDocRef = FirebaseFirestore.instance.collection("users");
   final userItemsDocRef = FirebaseFirestore.instance.collection("user_items");
   final _storage = FirebaseStorage.instance.ref("character_item_pics");
@@ -39,7 +38,7 @@ class _CharacterPreviewState extends State<CharacterPreview> {
   }
 
   void _getUserAvatarItems() {
-    widget.user.getUserItems().then((value) {
+    widget.user.getUserItems(widget.user.uid).then((value) {
       for (AppItem item in value) {
         _storage.child(item.characterImage).getDownloadURL().then((itemUrl) {
           item.itemUrl = itemUrl;
@@ -47,7 +46,7 @@ class _CharacterPreviewState extends State<CharacterPreview> {
           setState(() {
             _userItems.add(item);
           });
-          print(_userItems);
+          // print(_userItems);
         });
       }
     });
@@ -55,7 +54,7 @@ class _CharacterPreviewState extends State<CharacterPreview> {
 
   void _getUserAvatar() {
     try {
-      usersDocRef.doc(uid).get().then((doc) {
+      usersDocRef.doc(widget.user.uid).get().then((doc) {
         final data = doc.data() as Map<String, dynamic>;
         final avatarName = data["avatar"];
         if (avatarName == null) {

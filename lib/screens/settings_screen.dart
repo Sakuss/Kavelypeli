@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:kavelypeli/models/user_model.dart';
 import 'package:kavelypeli/widgets/dark_mode_list_tile.dart';
 import '../services/auth_service.dart';
 import 'package:grouped_list/grouped_list.dart';
@@ -10,9 +11,10 @@ import '../util.dart';
 
 class SettingsScreen extends StatefulWidget {
   final Function changeTheme;
+  final AppUser user;
 
   const SettingsScreen(
-      {super.key, required this.changeTheme});
+      {super.key, required this.changeTheme, required this.user});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -265,7 +267,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               setState(() {
                 _stepGoal = value;
               });
-              Util().saveToPrefs("stepGoal", _stepGoal);
+              // Util().saveToPrefs("stepGoal", _stepGoal);
               Util().showSnackBar(context, "New step goal is $value");
             } else {
               Util().showSnackBar(context, "Step goal could not be set.");
