@@ -57,7 +57,7 @@ class _HomeState extends State<Home> {
     setState(() {
       _points = widget.user.points;
       _steps = widget.user.steps;
-      _stepGoal = widget.user.stepGoal;
+      _stepGoal = widget.user.stepGoal ?? 10000;
       print(_stepGoal);
     });
 

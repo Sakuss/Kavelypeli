@@ -24,7 +24,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   late final DocumentReference userDocument =
       FirebaseFirestore.instance.collection('users').doc(widget.user.uid);
-  late int _stepGoal = widget.user.stepGoal;
+  late int _stepGoal = widget.user.stepGoal ?? 10000;
   bool _darkMode = false;
   late AuthService _authService;
   late final List<Map<String, dynamic>> _elements = [

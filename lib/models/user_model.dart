@@ -6,21 +6,21 @@ import 'package:firebase_storage/firebase_storage.dart';
 class AppUser {
   String uid;
   String? username, email;
-  int steps, points, currency, stepGoal;
+  int steps, points;
+  int? currency, stepGoal;
   DateTime? joinDate;
   String photoURL;
 
   AppUser({
     this.username,
     this.email,
+    this.currency,
+    this.stepGoal,
     required this.photoURL,
     required this.joinDate,
     required this.uid,
     required this.steps,
     required this.points,
-    required this.currency,
-    // required this.itemDoc,
-    required this.stepGoal,
   });
 
   static Future<AppUser?> createUserOnSignup(
@@ -30,7 +30,7 @@ class AppUser {
   ) async {
     try {
       // await user.updateDisplayName(username);
-      final userItemsSnapshot = await FirebaseFirestore.instance
+      await FirebaseFirestore.instance
           .collection('user_items')
           .doc(user.uid)
           .set({"items": []});
