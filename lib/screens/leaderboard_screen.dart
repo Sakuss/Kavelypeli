@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../models/user_model.dart';
+import '../widgets/profile.dart';
 
 class Leaderboard extends StatefulWidget {
   final AppUser user;
@@ -13,7 +14,7 @@ class Leaderboard extends StatefulWidget {
 
 class _LeaderboardState extends State<Leaderboard> {
   late Query _query;
-  final List<DocumentSnapshot> _data = [];
+  final List<AppUser> _users = [];
   final int _perPage = 10;
   DocumentSnapshot? _lastDocument;
   bool _isLoading = false;
@@ -33,11 +34,18 @@ class _LeaderboardState extends State<Leaderboard> {
     });
     final snapshot = _lastDocument == null ? await _query.get() : await _query.startAfterDocument(_lastDocument!).get();
     final documents = snapshot.docs;
+    for (final document in documents) {
+      AppUser user = AppUser(
+        uid: document.id,
+        joinDate: document['joinDate'].toDate(),
+        username: document['username'],
+        points: document['points'],
+        steps: document['steps'],
+      );
+      _users.add(user);
+    }
     setState(() {
-      _data.addAll(documents);
       _lastDocument = documents.isNotEmpty ? documents.last : null;
-    });
-    setState(() {
       _isLoading = false;
     });
   }
@@ -47,17 +55,61 @@ class _LeaderboardState extends State<Leaderboard> {
     return NotificationListener(
       child: ListView.builder(
         controller: _scrollController,
-        itemCount: _data.length,
+        itemCount: _users.length,
         itemBuilder: (context, index) {
-          if (_isLoading && index == _data.length - 1) {
+          if (_isLoading && index == _users.length - 1) {
             return const Center(
               child: CircularProgressIndicator(),
             );
           }
-          final data = _data[index];
-          return ListTile(
-            title: Text(data['username']),
-            subtitle: Text(data['points'].toString()),
+          final user = _users[index];
+          bool isAppUser = user.username == widget.user.username;
+          return Card(
+            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+            child: ListTile(
+              leading: Text('${index + 1}.'),
+              title: Row(
+                children: [
+                  const CircleAvatar(
+                    backgroundImage: NetworkImage("https://via.placeholder.com/150"),
+                  ),
+                  const SizedBox(width: 8),
+                  isAppUser
+                      ? Text(
+                          user.username!,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
+                      : Text(user.username!),
+                  if (isAppUser)
+                    const Icon(
+                      Icons.star,
+                      color: Colors.yellow,
+                    ),
+                ],
+              ),
+              onTap: isAppUser
+                  ? null
+                  : () => showDialog(
+                        context: context,
+                        builder: (context) {
+                          return Dialog(
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(15),
+                              ),
+                            ),
+                            child: Profile(
+                              name: user.username!,
+                              title: '???',
+                              profilePictureUrl: user.photoUrl,
+                            ),
+                          );
+                        },
+                      ),
+              trailing: Text(user.points.toString()),
+            ),
           );
         },
       ),
