@@ -38,14 +38,14 @@ class _ShopPageState extends State<ShopPage> {
 
   @override
   void initState() {
-    print("SHOP INITSTATE");
+    // print("SHOP INITSTATE");
     super.initState();
     _initPlatformState();
   }
 
   void _initPlatformState() {
     _getData();
-    widget.user.getUserItems(widget.user.uid).then((value) {
+    widget.user.getUserItems().then((value) {
       setState(() {
         _userItems = value;
       });
@@ -77,7 +77,7 @@ class _ShopPageState extends State<ShopPage> {
 
   void _updateUserItems(AppItem appItem) {
     try {
-      widget.user.getUserItems(widget.user.uid).then((itemList) {
+      widget.user.getUserItems().then((itemList) {
         _db.runTransaction((transaction) async {
           final userItemDocRef = _userItemsCollRef.doc(widget.user.uid);
           itemList.add(appItem);

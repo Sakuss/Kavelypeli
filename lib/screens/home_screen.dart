@@ -14,8 +14,8 @@ import '../util.dart';
 class Home extends StatefulWidget {
   static const IconData icon = Icons.home;
   static const String name = "Home";
-  final String? stepGoal;
   final AppUser user;
+  final int? stepGoal;
 
   const Home({Key? key, required this.user, required this.stepGoal})
       : super(key: key);
@@ -40,6 +40,7 @@ class _HomeState extends State<Home> {
   }
 
   void _initPlatformState() async {
+    widget.user.updateLocalUser();
     _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
     _pedestrianStatusStream
         .listen(onPedestrianStatusChanged)
@@ -54,9 +55,10 @@ class _HomeState extends State<Home> {
     // _stepGoal = '10000';
     // _stepGoal = await Util().loadFromPrefs("stepGoal") ?? '10000';
     setState(() {
-      _points = Util().generateStepsCount();
+      _points = widget.user.points;
       _steps = widget.user.steps;
       _stepGoal = widget.user.stepGoal;
+      print(_stepGoal);
     });
 
     if (!mounted) return;
@@ -96,7 +98,6 @@ class _HomeState extends State<Home> {
 
   double get _goalPct {
     try {
-      // double pct = int.parse(_steps) / int.parse(_stepGoal);
       double pct = _steps / _stepGoal;
       return pct < 0.0
           ? 0.0
@@ -127,10 +128,10 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     MediaQueryData mediaQuery = MediaQuery.of(context);
     double boxSize = mediaQuery.size.width / 2 - 40;
-    // setState(() {
+    setState(() {
     //   _steps = widget.user.steps.toString();
-    //   _stepGoal = widget.stepGoal ?? _stepGoal;
-    // });
+      _stepGoal = widget.stepGoal ?? _stepGoal;
+    });
 
     return Padding(
       padding: const EdgeInsets.all(5),

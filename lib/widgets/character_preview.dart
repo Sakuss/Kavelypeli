@@ -38,7 +38,7 @@ class _CharacterPreviewState extends State<CharacterPreview> {
   }
 
   void _getUserAvatarItems() {
-    widget.user.getUserItems(widget.user.uid).then((value) {
+    widget.user.getUserItems().then((value) {
       for (AppItem item in value) {
         _storage.child(item.characterImage).getDownloadURL().then((itemUrl) {
           item.itemUrl = itemUrl;
@@ -120,7 +120,7 @@ class _CharacterPreviewState extends State<CharacterPreview> {
 
   @override
   Widget build(BuildContext context) {
-    print("building character_preview");
+    // print("building character_preview");
     return !_isAvatarLoaded
         ? _loadingAvatar
         : Stack(

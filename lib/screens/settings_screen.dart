@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -21,7 +22,9 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  String _stepGoal = "10000";
+  late final DocumentReference userDocument =
+      FirebaseFirestore.instance.collection('users').doc(widget.user.uid);
+  late int _stepGoal = widget.user.stepGoal;
   bool _darkMode = false;
   late AuthService _authService;
   late final List<Map<String, dynamic>> _elements = [
@@ -112,7 +115,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void initPlatformState() async {
     _authService = AuthService(context: context);
-    _stepGoal = await Util().loadFromPrefs("stepGoal") ?? "10000";
+    // _stepGoal = await Util().loadFromPrefs("stepGoal") ?? "10000";
     _darkMode = await Util().loadFromPrefs("darkMode") == "true";
     setState(() {
       _elements[5]["element"] = darkModeTile;
@@ -258,16 +261,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     ).then(
       (value) {
-        if (value == null || value == "") {
-          Util().showSnackBar(context, "Step goal could not be set.");
-        } else {
+        if (value != null && value != "") {
           try {
             if (int.parse(value) > 0) {
               print("stepGoal : $value");
               setState(() {
-                _stepGoal = value;
+                _stepGoal = int.parse(value);
               });
               // Util().saveToPrefs("stepGoal", _stepGoal);
+              userDocument.update({"stepGoal": int.parse(value)}).then((_) {
+                widget.user.updateLocalUser();
+              });
               Util().showSnackBar(context, "New step goal is $value");
             } else {
               Util().showSnackBar(context, "Step goal could not be set.");
@@ -284,7 +288,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _clearCache() {
     Util().clearPrefs();
     setState(() {
-      _stepGoal = "10000";
+      // _stepGoal = 10000;
       _darkMode = false;
       _elements[5]["element"] = darkModeTile;
       widget.changeTheme(ThemeMode.light);

@@ -25,7 +25,7 @@ class PageContainer extends StatefulWidget {
 
 class _PageContainerState extends State<PageContainer> {
   int _selectedIndex = 1;
-  String? _stepGoal = null;
+  int? _stepGoal = null;
   final PageController _pageController = PageController(initialPage: 1);
 
   void _onItemTapped(int index) {
@@ -41,7 +41,7 @@ class _PageContainerState extends State<PageContainer> {
 
   @override
   Widget build(BuildContext context) {
-    print("building pagecontainer");
+    // print("building pagecontainer");
     return Scaffold(
       drawer: Drawer(
         child: ListView(
@@ -138,6 +138,7 @@ class _PageContainerState extends State<PageContainer> {
                     )).then((value) {
                   setState(() {
                     _stepGoal = value;
+                    print(_stepGoal);
                   });
                 });
               },
@@ -171,7 +172,7 @@ class _PageContainerState extends State<PageContainer> {
         controller: _pageController,
         children: <Widget>[
           FriendsPage(user: widget.user),
-          Home(user: widget.user, stepGoal: _stepGoal),
+          Home(user: widget.user, stepGoal: _stepGoal,),
           ShopPage(user: widget.user,),
         ],
         onPageChanged: (index) {
