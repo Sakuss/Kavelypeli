@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+import '../models/user_model.dart';
 
 class Profile extends StatelessWidget {
-  final String name;
-  final String title;
-  final String photoURL;
+  final AppUser user;
 
   final VoidCallback? changeProfilePicture;
 
@@ -19,10 +20,7 @@ class Profile extends StatelessWidget {
   //walking data (steps/distance per day / week / month)
 
   const Profile({
-    required this.name,
-    required this.title,
-    required this.photoURL,
-    // required this.joinedDate,
+    required this.user,
     this.changeProfilePicture,
     super.key,
   });
@@ -42,7 +40,7 @@ class Profile extends StatelessWidget {
                   onTap: changeProfilePicture,
                   child: CircleAvatar(
                     radius: 30,
-                    backgroundImage: NetworkImage(photoURL),
+                    backgroundImage: NetworkImage(user.photoURL),
                   ),
                 ),
                 Padding(
@@ -51,14 +49,14 @@ class Profile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        name,
+                        user.username!,
                         style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
-                        title,
+                        "mistä tämä tulee?",
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.normal,
@@ -86,8 +84,8 @@ class Profile extends StatelessWidget {
                 children: <Widget>[
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const <Widget>[
-                      Text(
+                    children: <Widget>[
+                      const Text(
                         'Steps',
                         style: TextStyle(
                           fontSize: 16,
@@ -95,8 +93,8 @@ class Profile extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '0',
-                        style: TextStyle(
+                        user.steps.toString(),
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -105,8 +103,8 @@ class Profile extends StatelessWidget {
                   ),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const <Widget>[
-                      Text(
+                    children: <Widget>[
+                      const Text(
                         'Points',
                         style: TextStyle(
                           fontSize: 16,
@@ -114,8 +112,8 @@ class Profile extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '0',
-                        style: TextStyle(
+                        user.points.toString(),
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -124,8 +122,8 @@ class Profile extends StatelessWidget {
                   ),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const <Widget>[
-                      Text(
+                    children: <Widget>[
+                      const Text(
                         'Date joined',
                         style: TextStyle(
                           fontSize: 16,
@@ -133,27 +131,8 @@ class Profile extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        '0',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const <Widget>[
-                      Text(
-                        'Mutual friends',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                      Text(
-                        '0',
-                        style: TextStyle(
+                        DateFormat('dd.MM.yyyy').format(user.joinDate!),
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
