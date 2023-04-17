@@ -1,17 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class AppUser {
   String uid;
   String? username, email;
   int steps, points, currency;
   DateTime? joinDate;
-  String? photoUrl;
+  String photoURL;
 
   AppUser({
     this.username,
     this.email,
-    this.photoUrl,
+    required this.photoURL,
     required this.joinDate,
     required this.uid,
     required this.steps,
@@ -34,9 +35,11 @@ class AppUser {
         'points': 0,
         'currency': 0,
       });
+      var photoURL = await getPhotoURL(user.uid);
       return AppUser(
         username: username,
         email: email,
+        photoURL: photoURL,
         joinDate: user.metadata.creationTime,
         uid: user.uid,
         steps: 0,
@@ -49,6 +52,19 @@ class AppUser {
     }
   }
 
+  static Future<String> getPhotoURL(String uid) async {
+    final storageRef = FirebaseStorage.instance.ref();
+    String photoURL;
+    try {
+      final pathReference = storageRef.child('profilepics/$uid');
+      photoURL = await pathReference.getDownloadURL();
+    } catch (e) {
+      final pathReference = storageRef.child('profilepics/default.png');
+      photoURL = await pathReference.getDownloadURL();
+    }
+    return photoURL;
+  }
+
   static Future<AppUser?> createUser(String uid) async {
     try {
       final FirebaseFirestore db = FirebaseFirestore.instance;
@@ -56,11 +72,12 @@ class AppUser {
 
       var userDocumentSnapshot = await userDocument.get();
       var firestoreUser = userDocumentSnapshot.data() as Map<String, dynamic>;
+      var photoURL = await getPhotoURL(uid);
 
       return AppUser(
         username: firestoreUser['username'],
         email: firestoreUser['email'],
-        photoUrl: firestoreUser['photoUrl'],
+        photoURL: photoURL,
         joinDate: firestoreUser['joinDate'].toDate(),
         uid: userDocumentSnapshot.id,
         steps: firestoreUser['steps'],

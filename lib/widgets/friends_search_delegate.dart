@@ -21,6 +21,7 @@ class FriendsSearchDelegate extends SearchDelegate<Map<String, dynamic>> {
       for (var docSnapshot in querySnapshot.docs) {
         var userData = docSnapshot.data();
         userData['uid'] = docSnapshot.id;
+        userData['photoURL'] = await AppUser.getPhotoURL(docSnapshot.id);
         users.add(userData);
       }
       return users;
@@ -169,7 +170,7 @@ class FriendsSearchDelegate extends SearchDelegate<Map<String, dynamic>> {
                   child: ListTile(
                     leading: CircleAvatar(
                       backgroundImage: NetworkImage(
-                        snapshot.data![index]['photoUrl'] ?? 'https://via.placeholder.com/150',
+                        snapshot.data![index]['photoURL'],
                       ),
                     ),
                     title: Text(snapshot.data![index]['username']),
