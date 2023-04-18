@@ -86,7 +86,7 @@ class _HomeState extends State<Home> {
     setState(() {
       _status = 'Pedestrian Status not available';
     });
-    print("STATUS : $_status");
+    // print("STATUS : $_status");
   }
 
   void onStepCountError(error) {
@@ -104,8 +104,7 @@ class _HomeState extends State<Home> {
           : pct > 1.0
               ? 1.0
               : pct;
-    } catch (e) {
-      print(e);
+    } catch (_) {
       return 0.0;
     }
   }
