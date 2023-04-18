@@ -25,6 +25,7 @@ class _FriendsPageState extends State<FriendsPage> {
 
   @override
   void initState() {
+    print("FRIENDS INITSTATE");
     super.initState();
     friends = loadFriends();
   }

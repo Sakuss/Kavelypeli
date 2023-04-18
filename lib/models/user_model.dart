@@ -1,24 +1,26 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:kavelypeli/models/item_model.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class AppUser {
   String uid;
   String? username, email;
   int steps, points;
-  int? currency;
+  int? currency, stepGoal;
   DateTime? joinDate;
   String photoURL;
 
   AppUser({
     this.username,
     this.email,
+    this.currency,
+    this.stepGoal,
     required this.photoURL,
     required this.joinDate,
     required this.uid,
     required this.steps,
     required this.points,
-    this.currency,
   });
 
   static Future<AppUser?> createUserOnSignup(
@@ -28,6 +30,10 @@ class AppUser {
   ) async {
     try {
       // await user.updateDisplayName(username);
+      await FirebaseFirestore.instance
+          .collection('user_items')
+          .doc(user.uid)
+          .set({"items": []});
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         'username': username,
         'email': email,
@@ -35,6 +41,7 @@ class AppUser {
         'steps': 0,
         'points': 0,
         'currency': 0,
+        'stepGoal': 10000,
       });
       var photoURL = await getPhotoURL(user.uid);
       return AppUser(
@@ -46,6 +53,7 @@ class AppUser {
         steps: 0,
         points: 0,
         currency: 0,
+        stepGoal: 10000,
       );
     } catch (e) {
       print(e);
@@ -84,6 +92,7 @@ class AppUser {
         steps: firestoreUser['steps'],
         points: firestoreUser['points'],
         currency: firestoreUser['currency'],
+        stepGoal: firestoreUser["stepGoal"],
       );
     } catch (e) {
       print(e);
@@ -91,13 +100,46 @@ class AppUser {
     }
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      "username": username,
-      "uid": uid,
-      "email": email,
-      "steps": steps,
-      "points": points,
-    };
+  Future<List<AppItem>> getUserItems() async {
+    final FirebaseFirestore db = FirebaseFirestore.instance;
+    final DocumentReference userItemsDocRef =
+        db.collection('user_items').doc(uid);
+
+    try {
+      return userItemsDocRef.get().then((itemsSnapshot) {
+        final Map<String, dynamic> data =
+            (itemsSnapshot.data() as Map<String, dynamic>);
+        List<AppItem> items = [];
+        for (final item in data["items"]) {
+          items.add(AppItem.createItem(item));
+        }
+        return items;
+      });
+    } catch (e) {
+      print(e);
+      return [];
+    }
+  }
+
+  void updateLocalUser() {
+    final FirebaseFirestore db = FirebaseFirestore.instance;
+    final DocumentReference userDocRef = db.collection('users').doc(uid);
+
+    try {
+      userDocRef.get().then((userSnapshot) {
+        final Map<String, dynamic> data =
+            userSnapshot.data() as Map<String, dynamic>;
+
+        currency = data["currency"];
+        email = data["email"];
+        joinDate = data["joinDate"].toDate();
+        points = data["points"];
+        stepGoal = data["stepGoal"];
+        steps = data["steps"];
+        username = data["username"];
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 }

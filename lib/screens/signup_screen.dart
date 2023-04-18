@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:kavelypeli/util.dart';
 
 import '../Reusable_widgets/SignInSignOut_widgets.dart';
 import '../models/user_model.dart';
@@ -81,6 +82,7 @@ class _SignUpState extends State<SignUp> {
                       if (user == null) {
                         //do something
                       }
+                      Util().clearPrefs();
                       Navigator.push(
                         context,
                         MaterialPageRoute(

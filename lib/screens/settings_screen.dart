@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:kavelypeli/models/user_model.dart';
 import 'package:kavelypeli/widgets/dark_mode_list_tile.dart';
 import '../services/auth_service.dart';
 import 'package:grouped_list/grouped_list.dart';
@@ -10,16 +12,19 @@ import '../util.dart';
 
 class SettingsScreen extends StatefulWidget {
   final Function changeTheme;
+  final AppUser user;
 
   const SettingsScreen(
-      {super.key, required this.changeTheme});
+      {super.key, required this.changeTheme, required this.user});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  String _stepGoal = "10000";
+  late final DocumentReference userDocument =
+      FirebaseFirestore.instance.collection('users').doc(widget.user.uid);
+  late int _stepGoal = widget.user.stepGoal ?? 10000;
   bool _darkMode = false;
   late AuthService _authService;
   late final List<Map<String, dynamic>> _elements = [
@@ -110,7 +115,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void initPlatformState() async {
     _authService = AuthService(context: context);
-    _stepGoal = await Util().loadFromPrefs("stepGoal") ?? "10000";
+    // _stepGoal = await Util().loadFromPrefs("stepGoal") ?? "10000";
     _darkMode = await Util().loadFromPrefs("darkMode") == "true";
     setState(() {
       _elements[5]["element"] = darkModeTile;
@@ -256,16 +261,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     ).then(
       (value) {
-        if (value == null || value == "") {
-          Util().showSnackBar(context, "Step goal could not be set.");
-        } else {
+        if (value != null && value != "") {
           try {
             if (int.parse(value) > 0) {
               print("stepGoal : $value");
               setState(() {
-                _stepGoal = value;
+                _stepGoal = int.parse(value);
               });
-              Util().saveToPrefs("stepGoal", _stepGoal);
+              // Util().saveToPrefs("stepGoal", _stepGoal);
+              userDocument.update({"stepGoal": int.parse(value)}).then((_) {
+                widget.user.updateLocalUser();
+              });
               Util().showSnackBar(context, "New step goal is $value");
             } else {
               Util().showSnackBar(context, "Step goal could not be set.");
@@ -282,6 +288,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _clearCache() {
     Util().clearPrefs();
     setState(() {
+      // _stepGoal = 10000;
       _darkMode = false;
       _elements[5]["element"] = darkModeTile;
       widget.changeTheme(ThemeMode.light);

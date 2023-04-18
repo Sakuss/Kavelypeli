@@ -26,7 +26,7 @@ class PageContainer extends StatefulWidget {
 
 class _PageContainerState extends State<PageContainer> {
   int _selectedIndex = 1;
-  String? _stepGoal = null;
+  int? _stepGoal = null;
   final PageController _pageController = PageController(initialPage: 1);
 
   void _onItemTapped(int index) {
@@ -42,7 +42,7 @@ class _PageContainerState extends State<PageContainer> {
 
   @override
   Widget build(BuildContext context) {
-    print("building pagecontainer");
+    // print("building pagecontainer");
     return Scaffold(
       drawer: Drawer(
         child: ListView(
@@ -71,7 +71,11 @@ class _PageContainerState extends State<PageContainer> {
                 ),
                 title: const Text('Profile'),
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(user: widget.user)));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              ProfilePage(user: widget.user)));
                 }),
             const SizedBox(
               height: 20,
@@ -97,13 +101,11 @@ class _PageContainerState extends State<PageContainer> {
               title: const Text('Friends'),
               onTap: () {
                 Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FriendsPage(
-                      user: widget.user,
-                    ),
-                  ),
-                );
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => FriendsPage(
+                              user: widget.user,
+                            )));
               },
             ),
             const SizedBox(
@@ -137,12 +139,12 @@ class _PageContainerState extends State<PageContainer> {
                     MaterialPageRoute(
                       builder: (context) => SettingsScreen(
                         changeTheme: widget.changeTheme,
+                        user: widget.user,
                       ),
-                      // Text("settings"),
                     )).then((value) {
-                  // _updateHome(value);
                   setState(() {
                     _stepGoal = value;
+                    print(_stepGoal);
                   });
                 });
               },
@@ -174,7 +176,13 @@ class _PageContainerState extends State<PageContainer> {
       ),
       body: PageView(
         controller: _pageController,
-        children: <Widget>[Leaderboard(user: widget.user), Home(), ShopPage()],
+        children: <Widget>[
+          Leaderboard(user: widget.user),
+          Home(user: widget.user, stepGoal: _stepGoal),
+          ShopPage(
+            user: widget.user,
+          )
+        ],
         onPageChanged: (index) {
           setState(() {
             _selectedIndex = index;
@@ -188,7 +196,7 @@ class _PageContainerState extends State<PageContainer> {
             label: 'Leaderboard',
           ),
           BottomNavigationBarItem(
-            icon: Home.icon,
+            icon: Icon(Home.icon),
             label: Home.name,
           ),
           BottomNavigationBarItem(
