@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:kavelypeli/models/user_model.dart';
+import 'package:kavelypeli/models/user_settings_model.dart';
 import 'package:kavelypeli/widgets/dark_mode_list_tile.dart';
 import '../services/auth_service.dart';
 import 'package:grouped_list/grouped_list.dart';
@@ -22,8 +23,12 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  late final DocumentReference userDocument =
+  late final AppUserSettings _appUserSettings;
+  late final DocumentReference _userDocRef =
       FirebaseFirestore.instance.collection('users').doc(widget.user.uid);
+  late final DocumentReference _userSettingsDocRef = FirebaseFirestore.instance
+      .collection('user_settings')
+      .doc(widget.user.uid);
   late int _stepGoal = widget.user.stepGoal ?? 10000;
   bool _darkMode = false;
   late AuthService _authService;
@@ -89,7 +94,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           FontAwesomeIcons.box,
           color: Colors.red,
         ),
-        title: const Text("Clear cache"),
+        title: const Text("Clear settings"),
         onTap: () => _clearCache(),
       ),
     },
@@ -110,19 +115,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     initPlatformState();
-    print("SETTINGS : initState");
+    // print("SETTINGS : initState");
   }
 
   void initPlatformState() async {
     _authService = AuthService(context: context);
-    // _stepGoal = await Util().loadFromPrefs("stepGoal") ?? "10000";
-    _darkMode = await Util().loadFromPrefs("darkMode") == "true";
+    _appUserSettings =
+        (await AppUserSettings.createAppUserSettings(widget.user))!;
     setState(() {
+      // _darkMode = Util().loadFromPrefs("darkMode") == "true";
+      // _darkMode = snapshot["darkMode"];
+      _darkMode = _appUserSettings.darkMode ??
+          Util().loadFromPrefs("darkMode") == "true";
       _elements[5]["element"] = darkModeTile;
     });
-    // _darkMode
-    //     ? widget.changeTheme(ThemeMode.dark)
-    //     : widget.changeTheme(ThemeMode.light);
+    // _userSettingsDocRef.get().then((snapshot) {
+    //   setState(() {
+    //     // _darkMode = Util().loadFromPrefs("darkMode") == "true";
+    //     // _darkMode = snapshot["darkMode"];
+    //     _darkMode = _appUserSettings.darkMode ??
+    //         Util().loadFromPrefs("darkMode") == "true";
+    //     _elements[5]["element"] = darkModeTile;
+    //   });
+    // });
   }
 
   Future<String?> _showInputDialog(InputDialog inputDialog) async {
@@ -237,8 +252,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
     await _authService.deleteUser(pass).then((result) {
       if (result["result"]) {
-        // _clearCache();
+        _clearCache();
         Util().showSnackBar(context, result["message"]);
+        Navigator.pop(context);
         Navigator.pop(context);
       } else {
         Util().showSnackBar(context, result["message"]);
@@ -269,7 +285,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _stepGoal = int.parse(value);
               });
               // Util().saveToPrefs("stepGoal", _stepGoal);
-              userDocument.update({"stepGoal": int.parse(value)}).then((_) {
+              _userDocRef.update({"stepGoal": int.parse(value)}).then((_) {
                 widget.user.updateLocalUser();
               });
               Util().showSnackBar(context, "New step goal is $value");
@@ -288,7 +304,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _clearCache() {
     Util().clearPrefs();
     setState(() {
-      // _stepGoal = 10000;
+      _stepGoal = 10000;
       _darkMode = false;
       _elements[5]["element"] = darkModeTile;
       widget.changeTheme(ThemeMode.light);
@@ -301,6 +317,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _darkMode = !_darkMode;
       _elements[5]["element"] = darkModeTile;
     });
+    _userSettingsDocRef.update({"darkMode": _darkMode});
     Util().saveToPrefs("darkMode", _darkMode);
     widget.changeTheme(_darkMode ? ThemeMode.dark : ThemeMode.light);
   }

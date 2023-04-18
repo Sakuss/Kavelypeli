@@ -34,6 +34,10 @@ class AppUser {
           .collection('user_items')
           .doc(user.uid)
           .set({"items": []});
+      await FirebaseFirestore.instance
+          .collection('user_settings')
+          .doc(user.uid)
+          .set({"darkMode": false});
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         'username': username,
         'email': email,
@@ -121,23 +125,22 @@ class AppUser {
     }
   }
 
-  void updateLocalUser() {
+  void updateLocalUser() async {
     final FirebaseFirestore db = FirebaseFirestore.instance;
     final DocumentReference userDocRef = db.collection('users').doc(uid);
 
     try {
-      userDocRef.get().then((userSnapshot) {
-        final Map<String, dynamic> data =
-            userSnapshot.data() as Map<String, dynamic>;
+      final userSnapshot = await userDocRef.get();
+      final Map<String, dynamic> data =
+          userSnapshot.data() as Map<String, dynamic>;
 
-        currency = data["currency"];
-        email = data["email"];
-        joinDate = data["joinDate"].toDate();
-        points = data["points"];
-        stepGoal = data["stepGoal"];
-        steps = data["steps"];
-        username = data["username"];
-      });
+      currency = data["currency"];
+      email = data["email"];
+      joinDate = data["joinDate"].toDate();
+      points = data["points"];
+      stepGoal = data["stepGoal"];
+      steps = data["steps"];
+      username = data["username"];
     } catch (e) {
       print(e);
     }
