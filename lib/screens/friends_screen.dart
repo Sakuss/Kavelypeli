@@ -13,15 +13,12 @@ class FriendsPage extends StatefulWidget {
   const FriendsPage({super.key, required this.user});
 
   @override
-  State<FriendsPage> createState() => _FriendsPageState(user: user);
+  State<FriendsPage> createState() => _FriendsPageState();
 }
 
 class _FriendsPageState extends State<FriendsPage> {
-  final AppUser user;
   late Future<List<AppUser>?> friends;
   final db = FirebaseFirestore.instance;
-
-  _FriendsPageState({required this.user});
 
   @override
   void initState() {
@@ -51,7 +48,7 @@ class _FriendsPageState extends State<FriendsPage> {
   void addFriend(Map<String, dynamic> newFriend) async {
     try {
       await db.collection('friends').add({
-        'user_id': user.uid,
+        'user_id': widget.user.uid,
         'friend_id': newFriend['uid'],
       });
       setState(() {
@@ -68,7 +65,7 @@ class _FriendsPageState extends State<FriendsPage> {
           .collection('friends')
           .where(
             'user_id',
-            isEqualTo: user.uid,
+            isEqualTo: widget.user.uid,
           )
           .where(
             'friend_id',
@@ -98,7 +95,7 @@ class _FriendsPageState extends State<FriendsPage> {
               onPressed: () async {
                 var newFriend = await showSearch(
                   context: context,
-                  delegate: FriendsSearchDelegate(user: user, friends: friends),
+                  delegate: FriendsSearchDelegate(user: widget.user, friends: friends),
                 );
                 if (newFriend != null && newFriend.isNotEmpty) {
                   addFriend(newFriend);
@@ -136,9 +133,7 @@ class _FriendsPageState extends State<FriendsPage> {
                               ),
                             ),
                             child: Profile(
-                              photoURL: friend.photoURL,
-                              name: friend.username!,
-                              title: '???',
+                              user: friend,
                             ),
                           );
                         },
