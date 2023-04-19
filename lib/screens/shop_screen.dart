@@ -33,7 +33,8 @@ class _ShopPageState extends State<ShopPage> {
 
   // List<Map<String, dynamic>>? _buyableItems = null;
   List<AppItem> _buyableItems = [];
-  List<AppItem> _userItems = [];
+
+  // List<AppItem> _userItems = [];
   bool _storeLoaded = false;
 
   @override
@@ -45,11 +46,11 @@ class _ShopPageState extends State<ShopPage> {
 
   void _initPlatformState() {
     _getData();
-    widget.user.getUserItems().then((value) {
-      setState(() {
-        _userItems = value;
-      });
-    });
+    // widget.user.getUserItems().then((value) {
+    //   setState(() {
+    //     _userItems = value;
+    //   });
+    // });
   }
 
   void _getData() {
@@ -76,21 +77,40 @@ class _ShopPageState extends State<ShopPage> {
     } catch (_) {}
   }
 
+  // void _updateUserItems(AppItem appItem) {
+  //   try {
+  //     widget.user.getUserItems().then((itemList) {
+  //       _db.runTransaction((transaction) async {
+  //         final userItemDocRef = _userItemsCollRef.doc(widget.user.uid);
+  //         itemList.add(appItem);
+  //         List<Map<String, dynamic>> json =
+  //             itemList.map((item) => item.toJson()).toList();
+  //         transaction.update(userItemDocRef, {"items": json});
+  //       }).whenComplete(() {
+  //         print("User items updated");
+  //       }).onError((error, stackTrace) {
+  //         print(error);
+  //         print("_updateUserItems error");
+  //       });
+  //     });
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
+
   void _updateUserItems(AppItem appItem) {
     try {
-      widget.user.getUserItems().then((itemList) {
-        _db.runTransaction((transaction) async {
-          final userItemDocRef = _userItemsCollRef.doc(widget.user.uid);
-          itemList.add(appItem);
-          List<Map<String, dynamic>> json =
-              itemList.map((item) => item.toJson()).toList();
-          transaction.update(userItemDocRef, {"items": json});
-        }).whenComplete(() {
-          print("User items updated");
-        }).onError((error, stackTrace) {
-          print(error);
-          print("_updateUserItems error");
-        });
+      _db.runTransaction((transaction) async {
+        final userItemDocRef = _userItemsCollRef.doc(widget.user.uid);
+        widget.user.userItems!.add(appItem);
+        List<Map<String, dynamic>> json =
+            widget.user.userItems!.map((item) => item.toJson()).toList();
+        transaction.update(userItemDocRef, {"items": json});
+      }).whenComplete(() {
+        print("User items updated");
+      }).onError((error, stackTrace) {
+        print(error);
+        print("_updateUserItems error");
       });
     } catch (e) {
       print(e);
@@ -98,7 +118,8 @@ class _ShopPageState extends State<ShopPage> {
   }
 
   bool _doesAlreadyOwn(AppItem item) {
-    for (AppItem i in _userItems) {
+    // for (AppItem i in _userItems) {
+    for (AppItem i in widget.user.userItems!) {
       if (item.name == i.name) {
         return true;
       }
@@ -124,7 +145,7 @@ class _ShopPageState extends State<ShopPage> {
             transaction.update(userDocRef, {"currency": newBalance});
             widget.user.currency = newBalance;
             setState(() {
-              _userItems.add(item);
+              widget.user.userItems!.add(item);
             });
           }
         } else if (currency == PurchaseType.points) {
@@ -137,7 +158,7 @@ class _ShopPageState extends State<ShopPage> {
             transaction.update(userDocRef, {"points": newBalance});
             widget.user.points = newBalance;
             setState(() {
-              _userItems.add(item);
+              widget.user.userItems!.add(item);
             });
           }
         }

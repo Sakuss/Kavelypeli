@@ -10,12 +10,14 @@ class AppUser {
   int? currency, stepGoal;
   DateTime? joinDate;
   String photoURL;
+  List<AppItem>? userItems;
 
   AppUser({
     this.username,
     this.email,
     this.currency,
     this.stepGoal,
+    this.userItems,
     required this.photoURL,
     required this.joinDate,
     required this.uid,
@@ -58,6 +60,7 @@ class AppUser {
         points: 0,
         currency: 0,
         stepGoal: 10000,
+        userItems: <AppItem>[],
       );
     } catch (e) {
       print(e);
@@ -86,6 +89,7 @@ class AppUser {
       var userDocumentSnapshot = await userDocument.get();
       var firestoreUser = userDocumentSnapshot.data() as Map<String, dynamic>;
       var photoURL = await getPhotoURL(uid);
+      // List<AppItem> items = await _getUserItems();
 
       return AppUser(
         username: firestoreUser['username'],
@@ -97,6 +101,7 @@ class AppUser {
         points: firestoreUser['points'],
         currency: firestoreUser['currency'],
         stepGoal: firestoreUser["stepGoal"],
+        userItems: await _getUserItems(uid),
       );
     } catch (e) {
       print(e);
@@ -104,26 +109,45 @@ class AppUser {
     }
   }
 
-  Future<List<AppItem>> getUserItems() async {
+  static Future<List<AppItem>> _getUserItems(String uid) async {
     final FirebaseFirestore db = FirebaseFirestore.instance;
     final DocumentReference userItemsDocRef =
         db.collection('user_items').doc(uid);
 
+    List<AppItem> items = [];
     try {
       return userItemsDocRef.get().then((itemsSnapshot) {
-        final Map<String, dynamic> data =
-            (itemsSnapshot.data() as Map<String, dynamic>);
-        List<AppItem> items = [];
-        for (final item in data["items"]) {
+        for (final item in itemsSnapshot["items"]) {
           items.add(AppItem.createItem(item));
         }
         return items;
       });
     } catch (e) {
       print(e);
-      return [];
+      return <AppItem>[];
     }
   }
+
+  // Future<List<AppItem>> getUserItems() async {
+  //   final FirebaseFirestore db = FirebaseFirestore.instance;
+  //   final DocumentReference userItemsDocRef =
+  //   db.collection('user_items').doc(uid);
+  //
+  //   try {
+  //     return userItemsDocRef.get().then((itemsSnapshot) {
+  //       final Map<String, dynamic> data =
+  //       (itemsSnapshot.data() as Map<String, dynamic>);
+  //       List<AppItem> items = [];
+  //       for (final item in data["items"]) {
+  //         items.add(AppItem.createItem(item));
+  //       }
+  //       return items;
+  //     });
+  //   } catch (e) {
+  //     print(e);
+  //     return [];
+  //   }
+  // }
 
   void updateLocalUser() async {
     final FirebaseFirestore db = FirebaseFirestore.instance;

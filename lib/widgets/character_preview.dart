@@ -24,34 +24,35 @@ class _CharacterPreviewState extends State<CharacterPreview> {
   final Image _localDefaultAvatar =
       Image.asset("assets/images/default_avatar.png");
   bool _isAvatarLoaded = false;
-  late List<AppItem> _userItems = [];
+  // late List<AppItem> _userItems = [];
 
   @override
   void initState() {
     super.initState();
     _initPlatformState();
+    print("ITEMS : ${widget.user.userItems}");
   }
 
   void _initPlatformState() {
     _getUserAvatar();
-    _getUserAvatarItems();
+    // _getUserAvatarItems();
   }
 
-  void _getUserAvatarItems() {
-    widget.user.getUserItems().then((value) {
-      for (AppItem item in value) {
-        if (!mounted) return;
-        _storage.child(item.characterImage).getDownloadURL().then((itemUrl) {
-          item.itemUrl = itemUrl;
-        }).whenComplete(() {
-          setState(() {
-            _userItems.add(item);
-          });
-          // print(_userItems);
-        });
-      }
-    });
-  }
+  // void _getUserAvatarItems() {
+  //   widget.user.getUserItems().then((value) {
+  //     for (AppItem item in value) {
+  //       if (!mounted) return;
+  //       _storage.child(item.characterImage).getDownloadURL().then((itemUrl) {
+  //         item.itemUrl = itemUrl;
+  //       }).whenComplete(() {
+  //         setState(() {
+  //           _userItems.add(item);
+  //         });
+  //         // print(_userItems);
+  //       });
+  //     }
+  //   });
+  // }
 
   void _getUserAvatar() {
     try {
@@ -127,7 +128,8 @@ class _CharacterPreviewState extends State<CharacterPreview> {
         : Stack(
             children: [
               _avatar ?? _localDefaultAvatar,
-              ..._userItems.map((item) => Image.network(item.itemUrl!)),
+              // ..._userItems.map((item) => Image.network(item.itemUrl!)),
+              ...widget.user.userItems!.map((item) => Image.network(item.itemUrl!)),
             ],
           );
   }
