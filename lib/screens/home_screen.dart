@@ -58,7 +58,7 @@ class _HomeState extends State<Home> {
       _points = widget.user.points;
       _steps = widget.user.steps;
       _stepGoal = widget.user.stepGoal ?? 10000;
-      print(_stepGoal);
+      // print(_stepGoal);
     });
 
     if (!mounted) return;
@@ -70,7 +70,7 @@ class _HomeState extends State<Home> {
       setState(() {
         _steps = event.steps;
       });
-      Util().saveToPrefs("steps", _steps);
+      // Util().saveToPrefs("steps", _steps);
     }
   }
 

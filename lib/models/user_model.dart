@@ -90,9 +90,8 @@ class AppUser {
       var userDocumentSnapshot = await userDocument.get();
       var firestoreUser = userDocumentSnapshot.data() as Map<String, dynamic>;
       var photoURL = await getPhotoURL(uid);
-      List<AppItem> items = await _getUserItems(uid);
-      print(items);
-      // print(await _getUserItems(uid));
+      // List<AppItem> items = await _getUserItems(uid);
+      List<AppItem> items = [];
 
       return AppUser(
         username: firestoreUser['username'],

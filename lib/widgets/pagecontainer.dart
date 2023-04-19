@@ -172,7 +172,7 @@ class _PageContainerState extends State<PageContainer> {
         ),
       ),
       appBar: AppBar(
-        title: const Text("Placeholder text"),
+        title: const Text("Kävelypeli"),
       ),
       body: PageView(
         controller: _pageController,

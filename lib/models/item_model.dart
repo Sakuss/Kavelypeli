@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 // enum ItemType { hat, glasses, shirt, jacket, pants, gloves, shoes }
@@ -25,6 +26,7 @@ class AppItem {
   });
 
   static Future<AppItem> createItem(Map<String, dynamic> item) async {
+    // final token = await FirebaseAuth.instance.currentUser!.getIdToken();
     var storageShopBucketRef = FirebaseStorage.instance.ref("shop_item_pics");
     var storageCharacterBucketRef = FirebaseStorage.instance.ref("character_item_pics");
 
