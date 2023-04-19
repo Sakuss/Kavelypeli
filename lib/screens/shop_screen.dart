@@ -59,6 +59,7 @@ class _ShopPageState extends State<ShopPage> {
             querySnapshot.docs.map((doc) => doc.data()).toList();
 
         for (final item in allData) {
+          if (!mounted) return;
           AppItem.createShopItem(item).then((value) {
             setState(() {
               _buyableItems.add(value!);

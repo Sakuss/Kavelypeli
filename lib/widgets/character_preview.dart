@@ -40,6 +40,7 @@ class _CharacterPreviewState extends State<CharacterPreview> {
   void _getUserAvatarItems() {
     widget.user.getUserItems().then((value) {
       for (AppItem item in value) {
+        if (!mounted) return;
         _storage.child(item.characterImage).getDownloadURL().then((itemUrl) {
           item.itemUrl = itemUrl;
         }).whenComplete(() {
