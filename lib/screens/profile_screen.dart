@@ -51,9 +51,8 @@ class _ProfilePageState extends State<ProfilePage> {
         title: const Text('Profile'),
       ),
       body: Profile(
-        photoURL: user.photoURL,
-        name: 'testname',
-        title: 'Novice walker',
+        user: user,
+        showTooltip: true,
         changeProfilePicture: changeProfilePicture,
       ),
     );

@@ -102,9 +102,7 @@ class _LeaderboardState extends State<Leaderboard> {
                               ),
                             ),
                             child: Profile(
-                              name: user.username!,
-                              title: '???',
-                              photoURL: user.photoURL,
+                              user: user,
                             ),
                           );
                         },
