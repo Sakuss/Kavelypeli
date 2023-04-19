@@ -61,9 +61,10 @@ class _ShopPageState extends State<ShopPage> {
 
         for (final item in allData) {
           if (!mounted) return;
-          AppItem.createShopItem(item).then((value) {
+          // AppItem.createShopItem(item).then((value) {
+          AppItem.createItem(item).then((value) {
             setState(() {
-              _buyableItems.add(value!);
+              _buyableItems.add(value);
               _buyableItems
                   .sort((a, b) => a.moneyPrice.compareTo(b.moneyPrice));
             });
@@ -236,7 +237,7 @@ class _ShopPageState extends State<ShopPage> {
                   children: [
                     ..._buyableItems.map(
                       (item) {
-                        return item.itemUrl == null
+                        return item.shopImageUrl == null
                             ? _placeholderItem
                             : Container(
                                 decoration: BoxDecoration(
@@ -245,7 +246,7 @@ class _ShopPageState extends State<ShopPage> {
                                   ),
                                   image: DecorationImage(
                                       // image: NetworkImage(item["itemUrl"]),
-                                      image: NetworkImage(item.itemUrl!),
+                                      image: NetworkImage(item.shopImageUrl!),
                                       fit: BoxFit.cover),
                                 ),
                                 child: Row(

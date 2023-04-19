@@ -82,6 +82,7 @@ class AppUser {
   }
 
   static Future<AppUser?> createUser(String uid) async {
+    print("CREATING USER ...");
     try {
       final FirebaseFirestore db = FirebaseFirestore.instance;
       final DocumentReference userDocument = db.collection('users').doc(uid);
@@ -89,7 +90,9 @@ class AppUser {
       var userDocumentSnapshot = await userDocument.get();
       var firestoreUser = userDocumentSnapshot.data() as Map<String, dynamic>;
       var photoURL = await getPhotoURL(uid);
-      // List<AppItem> items = await _getUserItems();
+      List<AppItem> items = await _getUserItems(uid);
+      print(items);
+      // print(await _getUserItems(uid));
 
       return AppUser(
         username: firestoreUser['username'],
@@ -116,12 +119,14 @@ class AppUser {
 
     List<AppItem> items = [];
     try {
-      return userItemsDocRef.get().then((itemsSnapshot) {
-        for (final item in itemsSnapshot["items"]) {
-          items.add(AppItem.createItem(item));
-        }
-        return items;
-      });
+      final itemsSnapshot = await userItemsDocRef.get();
+      final Map<String, dynamic> data =
+          itemsSnapshot.data() as Map<String, dynamic>;
+      for (final item in data["items"]) {
+        items.add(await AppItem.createItem(item));
+      }
+      print("item name : ${items[0].shopImage}");
+      return items;
     } catch (e) {
       print(e);
       return <AppItem>[];

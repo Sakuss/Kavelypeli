@@ -30,7 +30,7 @@ class _CharacterPreviewState extends State<CharacterPreview> {
   void initState() {
     super.initState();
     _initPlatformState();
-    print("ITEMS : ${widget.user.userItems}");
+    // print("ITEMS : ${widget.user.userItems}");
   }
 
   void _initPlatformState() {
@@ -129,7 +129,7 @@ class _CharacterPreviewState extends State<CharacterPreview> {
             children: [
               _avatar ?? _localDefaultAvatar,
               // ..._userItems.map((item) => Image.network(item.itemUrl!)),
-              ...widget.user.userItems!.map((item) => Image.network(item.itemUrl!)),
+              ...widget.user.userItems!.map((item) => Image.network(item.characterImageUrl!)),
             ],
           );
   }
