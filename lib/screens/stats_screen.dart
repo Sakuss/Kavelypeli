@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/bar_chart_model.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
-class StatsScreen extends StatefulWidget {
+class StatsScreen extends StatelessWidget {
   StatsScreen({Key? key}) : super(key: key);
   final List<BarChartModel> data = [
     BarChartModel(
@@ -81,7 +81,7 @@ class StatsScreen extends StatefulWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Bar Chart"),
+        title: const Text("Stats"),
         centerTitle: true,
         backgroundColor: Colors.blue[700],
       ),
@@ -92,11 +92,5 @@ class StatsScreen extends StatefulWidget {
             animate: true,
           )),
     );
-  }
-
-  @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    throw UnimplementedError();
   }
 }
