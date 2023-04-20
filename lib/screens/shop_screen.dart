@@ -67,25 +67,25 @@ class _ShopPageState extends State<ShopPage> {
     } catch (_) {}
   }
 
-  void _updateUserItems(AppItem appItem) {
-    try {
-      _db.runTransaction((transaction) async {
-        final userItemDocRef = _userItemsCollRef.doc(widget.user.uid);
-        setState(() {
-          widget.user.userItems!.add(appItem);
-        });
-        List<Map<String, dynamic>> json =
-            widget.user.userItems!.map((item) => item.toJson()).toList();
-        transaction.update(userItemDocRef, {"items": json});
-      }).whenComplete(() {
-        print("User items updated");
-      }).onError((error, stackTrace) {
-        print(error);
-      });
-    } catch (e) {
-      print(e);
-    }
-  }
+  // void _updateUserItems(AppItem appItem) {
+  //   try {
+  //     _db.runTransaction((transaction) async {
+  //       final userItemDocRef = _userItemsCollRef.doc(widget.user.uid);
+  //       setState(() {
+  //         widget.user.userItems!.add(appItem);
+  //       });
+  //       List<Map<String, dynamic>> json =
+  //           widget.user.userItems!.map((item) => item.toJson()).toList();
+  //       transaction.update(userItemDocRef, {"items": json});
+  //     }).whenComplete(() {
+  //       print("User items updated");
+  //     }).onError((error, stackTrace) {
+  //       print(error);
+  //     });
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 
   bool _doesAlreadyOwn(AppItem item) {
     for (AppItem i in widget.user.userItems!) {
@@ -122,7 +122,10 @@ class _ShopPageState extends State<ShopPage> {
             Util().showSnackBar(context,
                 "You bought ${item.name} for ${item.currencyPrice} points");
           }
-          _updateUserItems(item);
+          setState(() {
+            widget.user.userItems!.add(item);
+            widget.user.saveItemsToDb();
+          });
           print("UserDocument successfully updated!");
         },
         onError: (e) {
@@ -223,10 +226,10 @@ class _ShopPageState extends State<ShopPage> {
                                                       BorderRadius.only(
                                                           topLeft:
                                                               Radius.circular(
-                                                                  15.0),
+                                                                  10.0),
                                                           bottomLeft:
                                                               Radius.circular(
-                                                                  15.0)),
+                                                                  10.0)),
                                                 ),
                                               ),
                                               backgroundColor:
@@ -253,10 +256,10 @@ class _ShopPageState extends State<ShopPage> {
                                                       BorderRadius.only(
                                                           topRight:
                                                               Radius.circular(
-                                                                  15.0),
+                                                                  10.0),
                                                           bottomRight:
                                                               Radius.circular(
-                                                                  15.0)),
+                                                                  10.0)),
                                                 ),
                                               ),
                                               backgroundColor:

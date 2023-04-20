@@ -23,6 +23,8 @@ class _CharacterPreviewState extends State<CharacterPreview> {
   Image? _avatar = null;
   final Image _localDefaultAvatar =
       Image.asset("assets/images/default_avatar.png");
+  final Image _placeholderImage =
+      Image.asset("assets/images/placeholder_image.png");
   bool _isAvatarLoaded = false;
   late List<AppItem> _userItems = [];
 
@@ -36,9 +38,9 @@ class _CharacterPreviewState extends State<CharacterPreview> {
   void _initPlatformState() {
     _getUserAvatar();
     // _getUserAvatarItems();
-    setState(() {
-      widget.user.updateLocalUser();
-    });
+    // setState(() {
+    //   widget.user.updateLocalUser();
+    // });
     // widget.user.userItems! = [];
   }
 
@@ -133,7 +135,9 @@ class _CharacterPreviewState extends State<CharacterPreview> {
             children: [
               _avatar ?? _localDefaultAvatar,
               // ..._userItems.map((item) => Image.network(item.itemUrl!)),
-              ...widget.user.userItems!.map((item) => Image.network(item.characterImageUrl!)),
+              ...widget.user.userItems!.map((item) => item.equipped
+                  ? Image.network(item.characterImageUrl!)
+                  : _placeholderImage),
             ],
           );
   }

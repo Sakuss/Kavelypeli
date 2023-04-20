@@ -8,7 +8,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 
 class AppItem {
-  late String? shopImageUrl, characterImageUrl;
+  late final String? shopImageUrl, characterImageUrl;
+  late bool equipped;
   final String name, shopImage, characterImage;
   final int moneyPrice, currencyPrice;
 
@@ -16,8 +17,9 @@ class AppItem {
   // final ItemType type;
 
   AppItem({
-    this.shopImageUrl,
-    this.characterImageUrl,
+    required this.shopImageUrl,
+    required this.characterImageUrl,
+    required this.equipped,
     required this.name,
     required this.shopImage,
     required this.characterImage,
@@ -26,7 +28,6 @@ class AppItem {
   });
 
   static Future<AppItem> createItem(Map<String, dynamic> item) async {
-    // final token = await FirebaseAuth.instance.currentUser!.getIdToken();
     var storageShopBucketRef = FirebaseStorage.instance.ref("shop_item_pics");
     var storageCharacterBucketRef = FirebaseStorage.instance.ref("character_item_pics");
 
@@ -41,6 +42,7 @@ class AppItem {
       currencyPrice: item["currency_price"],
       shopImageUrl: shopUrl,
       characterImageUrl: characterUrl,
+      equipped: item["equipped"] ?? false,
     );
   }
 
@@ -77,6 +79,7 @@ class AppItem {
       "character_image": characterImage,
       "money_price": moneyPrice,
       "currency_price": currencyPrice,
+      "equipped": equipped,
     };
   }
 }

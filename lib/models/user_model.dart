@@ -131,26 +131,23 @@ class AppUser {
     }
   }
 
-  // Future<List<AppItem>> getUserItems() async {
-  //   final FirebaseFirestore db = FirebaseFirestore.instance;
-  //   final DocumentReference userItemsDocRef =
-  //   db.collection('user_items').doc(uid);
-  //
-  //   try {
-  //     return userItemsDocRef.get().then((itemsSnapshot) {
-  //       final Map<String, dynamic> data =
-  //       (itemsSnapshot.data() as Map<String, dynamic>);
-  //       List<AppItem> items = [];
-  //       for (final item in data["items"]) {
-  //         items.add(AppItem.createItem(item));
-  //       }
-  //       return items;
-  //     });
-  //   } catch (e) {
-  //     print(e);
-  //     return [];
-  //   }
-  // }
+  void saveItemsToDb() {
+    final FirebaseFirestore db = FirebaseFirestore.instance;
+    final DocumentReference userItemsDocRef = db.collection('user_items').doc(uid);
+
+    try {
+      db.runTransaction((transaction) async {
+        List<Map<String, dynamic>> json = userItems!.map((item) => item.toJson()).toList();
+        transaction.update(userItemsDocRef, {"items": json});
+      }).whenComplete(() {
+        print("User items updated");
+      }).onError((error, stackTrace) {
+        print(error);
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
 
   void updateLocalUser() async {
     final FirebaseFirestore db = FirebaseFirestore.instance;

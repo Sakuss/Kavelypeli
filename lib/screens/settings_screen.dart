@@ -318,7 +318,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _elements[5]["element"] = darkModeTile;
     });
     _userSettingsDocRef.update({"darkMode": _darkMode});
-    Util().saveToPrefs("darkMode", _darkMode);
+    // Util().saveToPrefs("darkMode", _darkMode);
     widget.changeTheme(_darkMode ? ThemeMode.dark : ThemeMode.light);
   }
 

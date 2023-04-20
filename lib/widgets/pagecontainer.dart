@@ -89,8 +89,11 @@ class _PageContainerState extends State<PageContainer> {
               ),
               title: const Text('Inventory'),
               onTap: () {
+                Navigator.pop(context);
                 Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => InventoryPage()));
+                    MaterialPageRoute(builder: (context) => InventoryPage(user: widget.user,))).then((value) {
+                      setState(() {});
+                });
               },
             ),
             const SizedBox(

@@ -1,9 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:kavelypeli/models/item_model.dart';
 import 'dart:convert';
 
+import 'package:kavelypeli/models/user_model.dart';
+
 class InventoryPage extends StatefulWidget {
-  const InventoryPage({Key? key}) : super(key: key);
+  final AppUser user;
+
+  const InventoryPage({Key? key, required this.user}) : super(key: key);
 
   @override
   State<InventoryPage> createState() => _InventoryPageState();
@@ -12,14 +17,24 @@ class InventoryPage extends StatefulWidget {
 class _InventoryPageState extends State<InventoryPage> {
   final db = FirebaseFirestore.instance;
 
-  void equipItem() {
-    // nothing here yet
+  void equipItem(AppItem appItem) {
+    setState(() {
+      appItem.equipped = !appItem.equipped;
+      widget.user.saveItemsToDb();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // print(widget.user.userItems!.map((e) => print("${e.name}, ${e.equipped}")));
   }
 
   @override
   Widget build(BuildContext context) {
+    print(widget.user.userItems!.map((e) => print("${e.name}, ${e.equipped}")));
     return Scaffold(
-        appBar: AppBar(title: Text('Inventory'), actions: []),
+        appBar: AppBar(title: const Text('Inventory')),
         body: CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: <Widget>[
@@ -30,29 +45,52 @@ class _InventoryPageState extends State<InventoryPage> {
                     mainAxisSpacing: 10,
                     crossAxisCount: 2,
                     children: <Widget>[
-                      for (int i = 0; i < 10; i++)
-                        Container(
-                          decoration: BoxDecoration(
-                              image: DecorationImage(
-                                  image: NetworkImage(
-                                      "https://picsum.photos/250?image=$i"),
-                                  fit: BoxFit.cover)),
-                          child: Row(
+                      ...widget.user.userItems!.map((item) {
+                        print(item.equipped);
+                        return Card(
+                          elevation: item.equipped ? 5 : 0,
+                          shadowColor: item.equipped ? Colors.green : null,
+                          child: Container(
+                            decoration: BoxDecoration(
+                                image: DecorationImage(
+                                    image: NetworkImage(item.shopImageUrl!),
+                                    fit: BoxFit.cover)),
+                            child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: <Widget>[
+                              children: [
+                                Expanded(
+                                  flex: 1,
+                                  child: Container(
+                                      child: item.equipped
+                                          ? const Text(
+                                              "Equipped",
+                                              style: TextStyle(
+                                                  fontSize: 22,
+                                                  fontWeight: FontWeight.bold),
+                                            )
+                                          : const Text("")),
+                                ),
                                 ElevatedButton(
-                                  onPressed: equipItem,
+                                  onPressed: () => equipItem(item),
                                   style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all(
+                                              item.equipped
+                                                  ? Colors.red
+                                                  : Colors.green),
                                       shape: MaterialStateProperty.all<
                                               RoundedRectangleBorder>(
-                                          const RoundedRectangleBorder(
-                                              //borderRadius: BorderRadius.all(15,0),
+                                          RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(7.0),
                                               ))),
-                                  child: const Text("Equip"),
+                                  child: Text(
+                                      item.equipped ? "Un-equip" : "Equip"),
                                 ),
-                              ]),
-                        ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }),
                     ],
                   ))
             ]));
