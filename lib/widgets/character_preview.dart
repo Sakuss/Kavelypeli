@@ -23,6 +23,8 @@ class _CharacterPreviewState extends State<CharacterPreview> {
   Image? _avatar = null;
   final Image _localDefaultAvatar =
       Image.asset("assets/images/default_avatar.png");
+  final Image _placeholderImage =
+      Image.asset("assets/images/placeholder_image.png");
   bool _isAvatarLoaded = false;
   late List<AppItem> _userItems = [];
 
@@ -30,27 +32,33 @@ class _CharacterPreviewState extends State<CharacterPreview> {
   void initState() {
     super.initState();
     _initPlatformState();
+    // print("ITEMS : ${widget.user.userItems}");
   }
 
   void _initPlatformState() {
     _getUserAvatar();
-    _getUserAvatarItems();
+    // _getUserAvatarItems();
+    // setState(() {
+    //   widget.user.updateLocalUser();
+    // });
+    // widget.user.userItems! = [];
   }
 
-  void _getUserAvatarItems() {
-    widget.user.getUserItems().then((value) {
-      for (AppItem item in value) {
-        _storage.child(item.characterImage).getDownloadURL().then((itemUrl) {
-          item.itemUrl = itemUrl;
-        }).whenComplete(() {
-          setState(() {
-            _userItems.add(item);
-          });
-          // print(_userItems);
-        });
-      }
-    });
-  }
+  // void _getUserAvatarItems() {
+  //   widget.user.getUserItems().then((value) {
+  //     for (AppItem item in value) {
+  //       if (!mounted) return;
+  //       _storage.child(item.characterImage).getDownloadURL().then((itemUrl) {
+  //         item.itemUrl = itemUrl;
+  //       }).whenComplete(() {
+  //         setState(() {
+  //           _userItems.add(item);
+  //         });
+  //         // print(_userItems);
+  //       });
+  //     }
+  //   });
+  // }
 
   void _getUserAvatar() {
     try {
@@ -126,7 +134,10 @@ class _CharacterPreviewState extends State<CharacterPreview> {
         : Stack(
             children: [
               _avatar ?? _localDefaultAvatar,
-              ..._userItems.map((item) => Image.network(item.itemUrl!)),
+              // ..._userItems.map((item) => Image.network(item.itemUrl!)),
+              ...widget.user.userItems!.map((item) => item.equipped
+                  ? Image.network(item.characterImageUrl!)
+                  : _placeholderImage),
             ],
           );
   }

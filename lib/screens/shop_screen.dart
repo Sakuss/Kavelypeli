@@ -8,8 +8,8 @@ import 'dart:convert';
 import 'package:kavelypeli/util.dart';
 
 enum PurchaseType {
-  realMoney,
-  points,
+  money,
+  currency,
 }
 
 class ShopPage extends StatefulWidget {
@@ -25,15 +25,11 @@ class ShopPage extends StatefulWidget {
 
 class _ShopPageState extends State<ShopPage> {
   final _db = FirebaseFirestore.instance;
-
-  // final _storage = FirebaseStorage.instance.ref("shop_item_pics");
   final _itemsCollRef = FirebaseFirestore.instance.collection("items");
   final _userItemsCollRef = FirebaseFirestore.instance.collection("user_items");
   final _userCollRef = FirebaseFirestore.instance.collection("users");
 
-  // List<Map<String, dynamic>>? _buyableItems = null;
   List<AppItem> _buyableItems = [];
-  List<AppItem> _userItems = [];
   bool _storeLoaded = false;
 
   @override
@@ -45,11 +41,6 @@ class _ShopPageState extends State<ShopPage> {
 
   void _initPlatformState() {
     _getData();
-    widget.user.getUserItems().then((value) {
-      setState(() {
-        _userItems = value;
-      });
-    });
   }
 
   void _getData() {
@@ -59,9 +50,10 @@ class _ShopPageState extends State<ShopPage> {
             querySnapshot.docs.map((doc) => doc.data()).toList();
 
         for (final item in allData) {
-          AppItem.createShopItem(item).then((value) {
+          if (!mounted) return;
+          AppItem.createItem(item).then((value) {
             setState(() {
-              _buyableItems.add(value!);
+              _buyableItems.add(value);
               _buyableItems
                   .sort((a, b) => a.moneyPrice.compareTo(b.moneyPrice));
             });
@@ -75,29 +67,28 @@ class _ShopPageState extends State<ShopPage> {
     } catch (_) {}
   }
 
-  void _updateUserItems(AppItem appItem) {
-    try {
-      widget.user.getUserItems().then((itemList) {
-        _db.runTransaction((transaction) async {
-          final userItemDocRef = _userItemsCollRef.doc(widget.user.uid);
-          itemList.add(appItem);
-          List<Map<String, dynamic>> json =
-              itemList.map((item) => item.toJson()).toList();
-          transaction.update(userItemDocRef, {"items": json});
-        }).whenComplete(() {
-          print("User items updated");
-        }).onError((error, stackTrace) {
-          print(error);
-          print("_updateUserItems error");
-        });
-      });
-    } catch (e) {
-      print(e);
-    }
-  }
+  // void _updateUserItems(AppItem appItem) {
+  //   try {
+  //     _db.runTransaction((transaction) async {
+  //       final userItemDocRef = _userItemsCollRef.doc(widget.user.uid);
+  //       setState(() {
+  //         widget.user.userItems!.add(appItem);
+  //       });
+  //       List<Map<String, dynamic>> json =
+  //           widget.user.userItems!.map((item) => item.toJson()).toList();
+  //       transaction.update(userItemDocRef, {"items": json});
+  //     }).whenComplete(() {
+  //       print("User items updated");
+  //     }).onError((error, stackTrace) {
+  //       print(error);
+  //     });
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 
   bool _doesAlreadyOwn(AppItem item) {
-    for (AppItem i in _userItems) {
+    for (AppItem i in widget.user.userItems!) {
       if (item.name == i.name) {
         return true;
       }
@@ -105,65 +96,44 @@ class _ShopPageState extends State<ShopPage> {
     return false;
   }
 
-  void _buyItem(AppItem item, PurchaseType currency) {
+  void _buyItem(AppItem item, PurchaseType purchaseType) {
     try {
       if (_doesAlreadyOwn(item)) return;
 
       final userDocRef = _userCollRef.doc(widget.user.uid);
       _db.runTransaction((transaction) async {
-        final snapshot = await transaction.get(userDocRef);
-
-        if (currency == PurchaseType.realMoney) {
-          final int balance = snapshot.get("currency");
-          final int newBalance = balance - item.moneyPrice;
+        if (purchaseType == PurchaseType.currency) {
+          final int balance = widget.user.currency!;
+          final int newBalance = balance - item.currencyPrice;
 
           if (newBalance < 0) {
             throw {"error": "insufficient-balance", "balance": balance};
           } else {
             transaction.update(userDocRef, {"currency": newBalance});
             widget.user.currency = newBalance;
-            setState(() {
-              _userItems.add(item);
-            });
           }
-        } else if (currency == PurchaseType.points) {
-          final int balance = snapshot.get("points");
-          final int newBalance = balance - item.pointsPrice;
-
-          if (newBalance < 0) {
-            throw {"error": "insufficient-balance", "balance": balance};
-          } else {
-            transaction.update(userDocRef, {"points": newBalance});
-            widget.user.points = newBalance;
-            setState(() {
-              _userItems.add(item);
-            });
-          }
-        }
+        } else if (purchaseType == PurchaseType.money) {}
       }).then(
         (_) {
-          if (currency == PurchaseType.realMoney) {
+          if (purchaseType == PurchaseType.money) {
             Util().showSnackBar(
                 context, "You bought ${item.name} for ${item.moneyPrice} €");
-          } else if (currency == PurchaseType.points) {
+          } else if (purchaseType == PurchaseType.currency) {
             Util().showSnackBar(context,
-                "You bought ${item.name} for ${item.pointsPrice} points");
+                "You bought ${item.name} for ${item.currencyPrice} points");
           }
-          _updateUserItems(item);
+          setState(() {
+            widget.user.userItems!.add(item);
+            widget.user.saveItemsToDb();
+          });
           print("UserDocument successfully updated!");
         },
         onError: (e) {
-          final diff = currency == PurchaseType.realMoney
-              ? item.moneyPrice - e["balance"] as int
-              : item.pointsPrice - e["balance"] as int;
+          final diff = item.currencyPrice - e["balance"] as int;
 
-          if (currency == PurchaseType.realMoney) {
-            Util().showSnackBar(
-                context, "Insufficient balance, you need $diff € more");
-          } else if (currency == PurchaseType.points) {
-            Util().showSnackBar(
-                context, "Insufficient balance, you need $diff @ more");
-          }
+          Util().showSnackBar(
+              context, "Insufficient balance, you need $diff @ more");
+
           print("Error updating document $e");
         },
       );
@@ -214,7 +184,7 @@ class _ShopPageState extends State<ShopPage> {
                   children: [
                     ..._buyableItems.map(
                       (item) {
-                        return item.itemUrl == null
+                        return item.shopImageUrl == null
                             ? _placeholderItem
                             : Container(
                                 decoration: BoxDecoration(
@@ -222,62 +192,86 @@ class _ShopPageState extends State<ShopPage> {
                                     Radius.circular(5.0),
                                   ),
                                   image: DecorationImage(
-                                      // image: NetworkImage(item["itemUrl"]),
-                                      image: NetworkImage(item.itemUrl!),
+                                      image: NetworkImage(item.shopImageUrl!),
                                       fit: BoxFit.cover),
                                 ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: <Widget>[
-                                    ElevatedButton(
-                                      onPressed: _doesAlreadyOwn(item)
-                                          ? null
-                                          : () => _buyItem(
-                                                item,
-                                                PurchaseType.points,
-                                              ),
-                                      style: ButtonStyle(
-                                        shape: MaterialStateProperty.all<
-                                            RoundedRectangleBorder>(
-                                          const RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(15.0),
-                                                bottomLeft:
-                                                    Radius.circular(15.0)),
-                                          ),
-                                        ),
-                                        backgroundColor: _doesAlreadyOwn(item)
-                                            ? MaterialStateProperty.all(
-                                                Colors.grey)
-                                            : null,
-                                      ),
-                                      child: Text("${item.pointsPrice} @"),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      item.name,
+                                      style: const TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold),
                                     ),
-                                    ElevatedButton(
-                                      onPressed: _doesAlreadyOwn(item)
-                                          ? null
-                                          : () => _buyItem(
-                                                item,
-                                                PurchaseType.realMoney,
+                                    Expanded(
+                                      flex: 1,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: <Widget>[
+                                          ElevatedButton(
+                                            onPressed: _doesAlreadyOwn(item)
+                                                ? null
+                                                : () => _buyItem(
+                                                      item,
+                                                      PurchaseType.currency,
+                                                    ),
+                                            style: ButtonStyle(
+                                              shape: MaterialStateProperty.all<
+                                                  RoundedRectangleBorder>(
+                                                const RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                  10.0),
+                                                          bottomLeft:
+                                                              Radius.circular(
+                                                                  10.0)),
+                                                ),
                                               ),
-                                      style: ButtonStyle(
-                                        shape: MaterialStateProperty.all<
-                                            RoundedRectangleBorder>(
-                                          const RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.only(
-                                                topRight: Radius.circular(15.0),
-                                                bottomRight:
-                                                    Radius.circular(15.0)),
+                                              backgroundColor:
+                                                  _doesAlreadyOwn(item)
+                                                      ? MaterialStateProperty
+                                                          .all(Colors.grey)
+                                                      : null,
+                                            ),
+                                            child:
+                                                Text("${item.currencyPrice} @"),
                                           ),
-                                        ),
-                                        backgroundColor: _doesAlreadyOwn(item)
-                                            ? MaterialStateProperty.all(
-                                                Colors.grey)
-                                            : null,
+                                          ElevatedButton(
+                                            onPressed: _doesAlreadyOwn(item)
+                                                ? null
+                                                : () => _buyItem(
+                                                      item,
+                                                      PurchaseType.money,
+                                                    ),
+                                            style: ButtonStyle(
+                                              shape: MaterialStateProperty.all<
+                                                  RoundedRectangleBorder>(
+                                                const RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                          topRight:
+                                                              Radius.circular(
+                                                                  10.0),
+                                                          bottomRight:
+                                                              Radius.circular(
+                                                                  10.0)),
+                                                ),
+                                              ),
+                                              backgroundColor:
+                                                  _doesAlreadyOwn(item)
+                                                      ? MaterialStateProperty
+                                                          .all(Colors.grey)
+                                                      : null,
+                                            ),
+                                            child: Text("${item.moneyPrice} €"),
+                                          ),
+                                        ],
                                       ),
-                                      // child: Text("${item["money_price"]} €"),
-                                      child: Text("${item.moneyPrice} €"),
                                     ),
                                   ],
                                 ),

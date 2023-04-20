@@ -4,6 +4,7 @@ import 'package:kavelypeli/screens/achievements_screen.dart';
 import 'package:kavelypeli/screens/friends_screen.dart';
 import 'package:kavelypeli/screens/profile_screen.dart';
 import 'package:kavelypeli/screens/shop_screen.dart';
+import 'package:kavelypeli/screens/inventory_screen.dart';
 import 'package:kavelypeli/screens/signin_screen.dart';
 
 import '../models/user_model.dart';
@@ -88,7 +89,11 @@ class _PageContainerState extends State<PageContainer> {
               ),
               title: const Text('Inventory'),
               onTap: () {
-                // Navigator.push(context, MaterialPageRoute(builder: (context) => InventoryPage()));
+                Navigator.pop(context);
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => InventoryPage(user: widget.user,))).then((value) {
+                      setState(() {});
+                });
               },
             ),
             const SizedBox(
@@ -174,6 +179,7 @@ class _PageContainerState extends State<PageContainer> {
               ),
               title: const Text('Log out'),
               onTap: () {
+                widget.changeTheme(ThemeMode.light);
                 FirebaseAuth.instance.signOut();
                 Navigator.pushReplacement(
                     context,
@@ -187,7 +193,7 @@ class _PageContainerState extends State<PageContainer> {
         ),
       ),
       appBar: AppBar(
-        title: const Text("Placeholder text"),
+        title: const Text("Kävelypeli"),
       ),
       body: PageView(
         controller: _pageController,
