@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:kavelypeli/models/user_model.dart';
 import 'package:kavelypeli/widgets/character_preview.dart';
@@ -6,7 +7,6 @@ import 'package:pedometer/pedometer.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:async';
 
 import '../util.dart';
@@ -17,8 +17,7 @@ class Home extends StatefulWidget {
   final AppUser user;
   final int? stepGoal;
 
-  const Home({Key? key, required this.user, required this.stepGoal})
-      : super(key: key);
+  const Home({Key? key, required this.user, required this.stepGoal}) : super(key: key);
 
   @override
   State<Home> createState() => _HomeState();
@@ -28,9 +27,21 @@ class _HomeState extends State<Home> {
   late Stream<StepCount> _stepCountStream;
   late Stream<PedestrianStatus> _pedestrianStatusStream;
   late SharedPreferences prefs;
-  String _status = "Unavailable";
-  late int _steps, _points, _stepGoal;
+  String _pedestrianStatus = "Unavailable";
+  String _stepCountStatus = "Unavailable";
+
+  late int _stepsToday, _points = widget.user.points, _stepGoal = widget.user.stepGoal!;
+  final int _pointsMultiplier = 5;
   bool _isMapVisible = false;
+  final db = FirebaseFirestore.instance;
+  late final DocumentReference userDocument = FirebaseFirestore.instance.collection('users').doc(widget.user.uid);
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
 
   @override
   void initState() {
@@ -40,58 +51,86 @@ class _HomeState extends State<Home> {
   }
 
   void _initPlatformState() async {
-    widget.user.updateLocalUser();
+    widget.user.updateLocalUser(); //points not updating in time
     _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
-    _pedestrianStatusStream
-        .listen(onPedestrianStatusChanged)
-        .onError(onPedestrianStatusError);
+    _pedestrianStatusStream.listen(onPedestrianStatusChanged).onError(((error) {
+      print('onPedestrianStatusError: $error');
+      setState(() {
+        _pedestrianStatus = 'Pedestrian Status not available';
+      });
+    }));
 
     _stepCountStream = Pedometer.stepCountStream;
-    _stepCountStream.listen(onStepCount).onError(onStepCountError);
-
-    setState(() {
-      _points = widget.user.points;
-      _steps = widget.user.steps;
-      _stepGoal = widget.user.stepGoal ?? 10000;
+    _stepCountStream.listen(onStepCount).onError((error) {
+      print('onStepCountError: $error');
+      setState(() {
+        _stepCountStatus = 'Step Count not available';
+      });
     });
 
-    if (!mounted) return;
+    _stepsToday = 0;
+    var stepsToday = await Util().loadFromPrefs('stepsToday');
+    if (stepsToday != null) {
+      _stepsToday = int.parse(stepsToday);
+    }
   }
 
-  void onStepCount(StepCount event) {
-    print(event);
-    if (_steps != "Step Count not available") {
-      setState(() {
-        _steps = event.steps;
-      });
+  bool isNotToday(DateTime lastSavedDate) {
+    return lastSavedDate.day != DateTime.now().day;
+  }
+
+  void onStepCount(StepCount event) async {
+    if (_stepCountStatus != "Step Count not available") {
+      var lastSavedSteps = await Util().loadFromPrefs('lastSavedSteps');
+      var lastSavedDate = await Util().loadFromPrefs('lastSavedDate');
+
+      if (lastSavedSteps == null && lastSavedDate == null) {
+        Util().saveToPrefs('lastSavedSteps', 0);
+        Util().saveToPrefs('lastSavedDate', DateTime.now());
+        lastSavedSteps = '0';
+        lastSavedDate = DateTime.now().toString();
+      }
+
+      if (event.steps < int.parse(lastSavedSteps)) {
+        Util().saveToPrefs('lastSavedSteps', 0);
+      }
+
+      if (_pedestrianStatus == 'walking') {
+        var lastSteps = _stepsToday;
+
+        setState(() {
+          _stepsToday = event.steps - int.parse(lastSavedSteps);
+        });
+        var stepIncrement = _stepsToday - lastSteps;
+        var pointsIncrement = stepIncrement * _pointsMultiplier;
+        setState(() {
+          _points += pointsIncrement;
+        });
+        userDocument.update({
+          'steps': FieldValue.increment(stepIncrement),
+          'points': FieldValue.increment(pointsIncrement),
+        });
+        Util().saveToPrefs('stepsToday', _stepsToday);
+      }
+
+      if (isNotToday(DateTime.parse(lastSavedDate))) {
+        Util().saveToPrefs('lastSavedSteps', event.steps);
+        Util().saveToPrefs('lastSavedDate', event.timeStamp);
+        _stepsToday = 0;
+      }
     }
   }
 
   void onPedestrianStatusChanged(PedestrianStatus event) {
-    print(event);
+    print(event.status);
     setState(() {
-      _status = event.status;
-    });
-  }
-
-  void onPedestrianStatusError(error) {
-    print('onPedestrianStatusError: $error');
-    setState(() {
-      _status = 'Pedestrian Status not available';
-    });
-    // print("STATUS : $_status");
-  }
-
-  void onStepCountError(error) {
-    print('onStepCountError: $error');
-    setState(() {
-      // _steps = 'Step Count not available';
+      _pedestrianStatus = event.status;
     });
   }
 
   double get _goalPct {
     try {
-      double pct = _steps / _stepGoal;
+      double pct = _stepsToday / _stepGoal;
       return pct < 0.0
           ? 0.0
           : pct > 1.0
@@ -102,25 +141,12 @@ class _HomeState extends State<Home> {
     }
   }
 
-  void _addSteps() {
-    setState(() {
-      _steps = _steps + Util().generateStepsCount();
-    });
-    Util().saveToPrefs("steps", _steps);
-  }
-
-  void _reduceSteps() {
-    setState(() {
-      _steps = _steps - Util().generateStepsCount();
-    });
-    Util().saveToPrefs("steps", _steps);
-  }
-
   @override
   Widget build(BuildContext context) {
     MediaQueryData mediaQuery = MediaQuery.of(context);
     double boxSize = mediaQuery.size.width / 2 - 40;
     setState(() {
+      //   _stepsToday = widget.user.steps.toString();
       _stepGoal = widget.stepGoal ?? _stepGoal;
     });
 
@@ -155,15 +181,14 @@ class _HomeState extends State<Home> {
                             flex: 1,
                             child: Container(
                               margin: const EdgeInsets.all(5),
-                              child: const FaIcon(FontAwesomeIcons.shoePrints,
-                                  size: 30),
+                              child: const FaIcon(FontAwesomeIcons.shoePrints, size: 30),
                             ),
                           ),
                           Expanded(
                             flex: 1,
                             child: Text(
-                              "$_steps",
-                              style: _steps == "Step Count not available"
+                              "$_stepsToday",
+                              style: _stepCountStatus == "Step Count not available"
                                   ? const TextStyle(fontSize: 20)
                                   : const TextStyle(fontSize: 40),
                               textAlign: TextAlign.center,
@@ -172,9 +197,9 @@ class _HomeState extends State<Home> {
                           Expanded(
                             flex: 1,
                             child: Icon(
-                              _status == 'walking'
+                              _pedestrianStatus == 'walking'
                                   ? Icons.directions_walk
-                                  : _status == 'stopped'
+                                  : _pedestrianStatus == 'stopped'
                                       ? Icons.accessibility_new
                                       : Icons.error,
                               size: 40,
@@ -203,8 +228,7 @@ class _HomeState extends State<Home> {
                             flex: 1,
                             child: Container(
                               margin: const EdgeInsets.all(5),
-                              child: const FaIcon(FontAwesomeIcons.solidStar,
-                                  size: 30),
+                              child: const FaIcon(FontAwesomeIcons.solidStar, size: 30),
                             ),
                           ),
                           Expanded(
@@ -242,14 +266,13 @@ class _HomeState extends State<Home> {
                               style: BorderStyle.solid,
                             ),
                           ),
-                          child: _steps != "Step Count not available"
+                          child: _stepCountStatus != "Step Count not available"
                               ? Column(
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.only(
-                                          top: 5.0, bottom: 5.0),
+                                      padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
                                       child: Text(
-                                        "$_steps / $_stepGoal",
+                                        "$_stepsToday / $_stepGoal",
                                         style: const TextStyle(fontSize: 20),
                                       ),
                                     ),
@@ -279,12 +302,11 @@ class _HomeState extends State<Home> {
                                   ],
                                 )
                               : Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 10.0),
+                                  padding: const EdgeInsets.symmetric(vertical: 10.0),
                                   child: Container(
                                     alignment: Alignment.center,
                                     child: Text(
-                                      "$_steps",
+                                      "$_stepsToday",
                                       style: const TextStyle(
                                         fontSize: 20,
                                       ),
@@ -293,19 +315,6 @@ class _HomeState extends State<Home> {
                                 ),
                         ),
                       ),
-                      // Row(
-                      //   mainAxisAlignment: MainAxisAlignment.center,
-                      //   children: <Widget>[
-                      //     ElevatedButton(
-                      //       onPressed: _addSteps,
-                      //       child: const Text("Add steps"),
-                      //     ),
-                      //     ElevatedButton(
-                      //       onPressed: _reduceSteps,
-                      //       child: const Text("Reduce steps"),
-                      //     ),
-                      //   ],
-                      // ),
                     ),
                   ],
                 ),
@@ -346,9 +355,7 @@ class _HomeState extends State<Home> {
                   Expanded(
                     child: Center(
                       // child: CharacterPreview(user: widget.user),
-                      child: _isMapVisible
-                          ? const MapWidget()
-                          : CharacterPreview(user: widget.user),
+                      child: _isMapVisible ? const MapWidget() : CharacterPreview(user: widget.user),
                     ),
                   ),
                 ],

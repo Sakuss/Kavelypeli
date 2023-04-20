@@ -73,11 +73,7 @@ class _PageContainerState extends State<PageContainer> {
                 ),
                 title: const Text('Profile'),
                 onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              ProfilePage(user: widget.user)));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(user: widget.user)));
                 }),
             const SizedBox(
               height: 20,
@@ -106,8 +102,7 @@ class _PageContainerState extends State<PageContainer> {
               ),
               title: const Text('Achievements'),
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AchievementPage()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => AchievementPage()));
               },
             ),
             const SizedBox(

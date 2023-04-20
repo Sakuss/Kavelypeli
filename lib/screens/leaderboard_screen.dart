@@ -21,6 +21,13 @@ class _LeaderboardState extends State<Leaderboard> {
   final _scrollController = ScrollController();
 
   @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
     _getMoreUsers();

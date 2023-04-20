@@ -32,14 +32,8 @@ class AppUser {
   ) async {
     try {
       // await user.updateDisplayName(username);
-      await FirebaseFirestore.instance
-          .collection('user_items')
-          .doc(user.uid)
-          .set({"items": []});
-      await FirebaseFirestore.instance
-          .collection('user_settings')
-          .doc(user.uid)
-          .set({"darkMode": false});
+      await FirebaseFirestore.instance.collection('user_items').doc(user.uid).set({"items": []});
+      await FirebaseFirestore.instance.collection('user_settings').doc(user.uid).set({"darkMode": false});
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         'username': username,
         'email': email,
@@ -111,14 +105,12 @@ class AppUser {
 
   static Future<List<AppItem>> _getUserItems(String uid) async {
     final FirebaseFirestore db = FirebaseFirestore.instance;
-    final DocumentReference userItemsDocRef =
-        db.collection('user_items').doc(uid);
+    final DocumentReference userItemsDocRef = db.collection('user_items').doc(uid);
 
     List<AppItem> items = [];
     try {
       final itemsSnapshot = await userItemsDocRef.get();
-      final Map<String, dynamic> data =
-          itemsSnapshot.data() as Map<String, dynamic>;
+      final Map<String, dynamic> data = itemsSnapshot.data() as Map<String, dynamic>;
       for (final item in data["items"]) {
         items.add(await AppItem.createItem(item));
       }
@@ -131,13 +123,11 @@ class AppUser {
 
   void saveItemsToDb() {
     final FirebaseFirestore db = FirebaseFirestore.instance;
-    final DocumentReference userItemsDocRef =
-        db.collection('user_items').doc(uid);
+    final DocumentReference userItemsDocRef = db.collection('user_items').doc(uid);
 
     try {
       db.runTransaction((transaction) async {
-        List<Map<String, dynamic>> json =
-            userItems!.map((item) => item.toJson()).toList();
+        List<Map<String, dynamic>> json = userItems!.map((item) => item.toJson()).toList();
         transaction.update(userItemsDocRef, {"items": json});
       }).whenComplete(() {
         print("User items updated");
@@ -155,8 +145,7 @@ class AppUser {
 
     try {
       final userSnapshot = await userDocRef.get();
-      final Map<String, dynamic> userData =
-          userSnapshot.data() as Map<String, dynamic>;
+      final Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
 
       currency = userData["currency"];
       email = userData["email"];
