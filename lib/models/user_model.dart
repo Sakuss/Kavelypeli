@@ -90,8 +90,6 @@ class AppUser {
       var userDocumentSnapshot = await userDocument.get();
       var firestoreUser = userDocumentSnapshot.data() as Map<String, dynamic>;
       var photoURL = await getPhotoURL(uid);
-      // List<AppItem> items = await _getUserItems(uid);
-      List<AppItem> items = [];
 
       return AppUser(
         username: firestoreUser['username'],
@@ -133,11 +131,13 @@ class AppUser {
 
   void saveItemsToDb() {
     final FirebaseFirestore db = FirebaseFirestore.instance;
-    final DocumentReference userItemsDocRef = db.collection('user_items').doc(uid);
+    final DocumentReference userItemsDocRef =
+        db.collection('user_items').doc(uid);
 
     try {
       db.runTransaction((transaction) async {
-        List<Map<String, dynamic>> json = userItems!.map((item) => item.toJson()).toList();
+        List<Map<String, dynamic>> json =
+            userItems!.map((item) => item.toJson()).toList();
         transaction.update(userItemsDocRef, {"items": json});
       }).whenComplete(() {
         print("User items updated");
@@ -152,15 +152,11 @@ class AppUser {
   void updateLocalUser() async {
     final FirebaseFirestore db = FirebaseFirestore.instance;
     final DocumentReference userDocRef = db.collection('users').doc(uid);
-    // final DocumentReference userItemsDocRef = db.collection('user_items').doc(uid);
 
     try {
       final userSnapshot = await userDocRef.get();
-      // final userItemsSnapshot = await userItemsDocRef.get();
       final Map<String, dynamic> userData =
           userSnapshot.data() as Map<String, dynamic>;
-      // final Map<String, dynamic> userItemsData =
-      // userItemsSnapshot.data() as Map<String, dynamic>;
 
       currency = userData["currency"];
       email = userData["email"];
@@ -173,5 +169,28 @@ class AppUser {
     } catch (e) {
       print(e);
     }
+  }
+
+  void saveUserToDb() async {
+    final FirebaseFirestore db = FirebaseFirestore.instance;
+    final DocumentReference userDocRef = db.collection('users').doc(uid);
+
+    try {
+      await userDocRef.update(toJson());
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "currency": currency,
+      "email": email,
+      "joinDate": joinDate,
+      "points": points,
+      "stepGoal": stepGoal,
+      "steps": steps,
+      "username": username,
+    };
   }
 }
