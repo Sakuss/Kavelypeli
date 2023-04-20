@@ -87,14 +87,14 @@ class _AchievementPageState extends State<AchievementPage> {
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    const SizedBox(height: 4),
+                                    /*const SizedBox(height: 4),
                                     Text(
                                       achievement['desc'],
                                       style: const TextStyle(
                                         color: Colors.black,
                                         fontSize: 14,
                                       ),
-                                    ),
+                                    ),*/
                                   ],
                                 ),
                               ),
