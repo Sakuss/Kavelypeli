@@ -30,8 +30,8 @@ class _AchievementPageState extends State<AchievementPage> {
         });
       });
     }
-    // Retrieve the list of achievements from Firestore
-    db.collection('achievements').get().then((QuerySnapshot snapshot) {
+    // Retrieve the list of achievements from Firestore, ordered by step requirement
+    db.collection('achievements').orderBy('req').get().then((QuerySnapshot snapshot) {
       setState(() {
         _achievements = snapshot.docs;
       });
@@ -76,26 +76,35 @@ class _AchievementPageState extends State<AchievementPage> {
                                 ),
                               ),
                               child: Expanded(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: <Widget>[
-                                    Text(
-                                      achievement['name'],
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: <Widget>[
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: <Widget>[
+                                            Text(
+                                              achievement['name'],
+                                              style: const TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              achievement['desc'],
+                                              style: const TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    /*const SizedBox(height: 4),
-                                    Text(
-                                      achievement['desc'],
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 14,
-                                      ),
-                                    ),*/
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             );
@@ -103,8 +112,43 @@ class _AchievementPageState extends State<AchievementPage> {
                         },
                       );
                     } else {
-                      return const SizedBox
-                          .shrink(); // hide the achievement card if the user doesn't meet the required step count
+                      return Opacity(
+                        opacity: 0.5,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                const Icon(
+                                  Icons.lock,
+                                  size: 50,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  achievement['name'],
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Unlock at $requiredSteps steps',
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
                     }
                   }).toList() ??
                   [],
