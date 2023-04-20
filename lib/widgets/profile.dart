@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+import '../models/user_model.dart';
 
 class Profile extends StatelessWidget {
-  final String name;
-  final String title;
-  final String? profilePictureUrl;
+  final AppUser user;
+  final bool showTooltip;
+  final VoidCallback? changeProfilePicture;
+
   // final DateTime joinedDate;
   // final String? bio;
 
@@ -16,44 +20,135 @@ class Profile extends StatelessWidget {
   //walking data (steps/distance per day / week / month)
 
   const Profile({
-    required this.name,
-    required this.title,
-    // required this.joinedDate,
-    this.profilePictureUrl,
+    required this.user,
+    this.changeProfilePicture,
     super.key,
+    this.showTooltip = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return SingleChildScrollView(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 30),
-            child: CircleAvatar(
-              radius: 100,
-              backgroundImage:
-                  NetworkImage('https://i.pinimg.com/originals/ba/92/7f/ba927ff34cd961ce2c184d47e8ead9f6.jpg'),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 55),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                InkWell(
+                  borderRadius: BorderRadius.circular(30),
+                  onTap: changeProfilePicture,
+                  child: showTooltip
+                      ? Tooltip(
+                          message: 'Tap to change profile picture',
+                          child: CircleAvatar(
+                            radius: 30,
+                            backgroundImage: NetworkImage(user.photoURL),
+                          ),
+                        )
+                      : CircleAvatar(
+                          radius: 30,
+                          backgroundImage: NetworkImage(user.photoURL),
+                        ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user.username!,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        "mistä tämä tulee?",
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Text(
-              name,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+          Container(
+            color: Colors.grey[300],
+            width: 300,
+            height: 400,
           ),
           Padding(
-            padding: const EdgeInsets.only(bottom: 30),
-            child: Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.normal,
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: SizedBox(
+              width: 250,
+              child: GridView.count(
+                crossAxisCount: 2,
+                shrinkWrap: true,
+                childAspectRatio: 3,
+                children: <Widget>[
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      const Text(
+                        'Steps',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      Text(
+                        user.steps.toString(),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      const Text(
+                        'Points',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      Text(
+                        user.points.toString(),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      const Text(
+                        'Date joined',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      Text(
+                        DateFormat('dd.MM.yyyy').format(user.joinDate!),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class Util {
   late SharedPreferences prefs;
 
@@ -22,21 +21,29 @@ class Util {
     return prefs.get(key);
   }
 
-  String generateStepsCount(){
-    double minVal = 500;
-    double maxVal = 1999;
+  void deleteFromPrefs(String key) async {
+    prefs = await SharedPreferences.getInstance();
+    await prefs.remove(key);
+  }
 
-    Random rand = Random();
+  void printPrefs() async {
+    prefs = await SharedPreferences.getInstance();
+    print(prefs.getKeys());
+  }
 
-    return (rand.nextDouble() * (maxVal - minVal) + minVal).round().toString();
+  int generateStepsCount() {
+    return (Random().nextDouble() * 2500).round();
   }
 
   void showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
+    final messenger = ScaffoldMessenger.of(context);
+
+    messenger.clearSnackBars();
+    messenger.showSnackBar(
       SnackBar(
         content: Text(
           message,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
           ),
         ),
