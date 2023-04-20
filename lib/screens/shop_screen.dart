@@ -32,6 +32,16 @@ class _ShopPageState extends State<ShopPage> {
   List<AppItem> _buyableItems = [];
   bool _storeLoaded = false;
 
+  static const List<String> filters = [
+    "Alphabet A-Z",
+    "Alphabet Z-A",
+    "Money price lowest",
+    "Money price highest",
+    "Currency price lowest",
+    "Currency price highest"
+  ];
+  String dropdownValue = filters.first;
+
   @override
   void initState() {
     // print("SHOP INITSTATE");
@@ -54,8 +64,9 @@ class _ShopPageState extends State<ShopPage> {
           AppItem.createItem(item).then((value) {
             setState(() {
               _buyableItems.add(value);
-              _buyableItems
-                  .sort((a, b) => a.moneyPrice.compareTo(b.moneyPrice));
+              _filterHandler("Alphabet A-Z");
+              // _buyableItems
+              //     .sort((a, b) => a.moneyPrice.compareTo(b.moneyPrice));
             });
           });
         }
@@ -66,26 +77,6 @@ class _ShopPageState extends State<ShopPage> {
       });
     } catch (_) {}
   }
-
-  // void _updateUserItems(AppItem appItem) {
-  //   try {
-  //     _db.runTransaction((transaction) async {
-  //       final userItemDocRef = _userItemsCollRef.doc(widget.user.uid);
-  //       setState(() {
-  //         widget.user.userItems!.add(appItem);
-  //       });
-  //       List<Map<String, dynamic>> json =
-  //           widget.user.userItems!.map((item) => item.toJson()).toList();
-  //       transaction.update(userItemDocRef, {"items": json});
-  //     }).whenComplete(() {
-  //       print("User items updated");
-  //     }).onError((error, stackTrace) {
-  //       print(error);
-  //     });
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  // }
 
   bool _doesAlreadyOwn(AppItem item) {
     for (AppItem i in widget.user.userItems!) {
@@ -142,6 +133,69 @@ class _ShopPageState extends State<ShopPage> {
     }
   }
 
+  void _filterHandler(String filterType) {
+    switch (filterType) {
+      case "Alphabet A-Z":
+        _buyableItems.sort((a, b) => a.name.compareTo(b.name));
+        break;
+      case "Alphabet Z-A":
+        _buyableItems.sort((a, b) => b.name.compareTo(a.name));
+        break;
+      case "Money price lowest":
+        _buyableItems.sort((a, b) {
+          int priceComparison = a.moneyPrice.compareTo(b.moneyPrice);
+          if (priceComparison != 0) {
+            return priceComparison;
+          }
+          int nameComparison = a.name.compareTo(b.name);
+          if (nameComparison != 0) {
+            return nameComparison;
+          }
+          return a.name.compareTo(b.name);
+        });
+        break;
+      case "Money price highest":
+        _buyableItems.sort((a, b) {
+          int priceComparison = b.moneyPrice.compareTo(a.moneyPrice);
+          if (priceComparison != 0) {
+            return priceComparison;
+          }
+          int nameComparison = a.name.compareTo(b.name);
+          if (nameComparison != 0) {
+            return nameComparison;
+          }
+          return a.name.compareTo(b.name);
+        });
+        break;
+      case "Currency price lowest":
+        _buyableItems.sort((a, b) {
+          int priceComparison = a.currencyPrice.compareTo(b.currencyPrice);
+          if (priceComparison != 0) {
+            return priceComparison;
+          }
+          int nameComparison = a.name.compareTo(b.name);
+          if (nameComparison != 0) {
+            return nameComparison;
+          }
+          return a.name.compareTo(b.name);
+        });
+        break;
+      case "Currency price highest":
+        _buyableItems.sort((a, b) {
+          int priceComparison = b.currencyPrice.compareTo(a.currencyPrice);
+          if (priceComparison != 0) {
+            return priceComparison;
+          }
+          int nameComparison = a.name.compareTo(b.name);
+          if (nameComparison != 0) {
+            return nameComparison;
+          }
+          return a.name.compareTo(b.name);
+        });
+        break;
+    }
+  }
+
   Widget get _loadingStore {
     return Center(
       child: Column(
@@ -172,115 +226,188 @@ class _ShopPageState extends State<ShopPage> {
   Widget build(BuildContext context) {
     return !_storeLoaded
         ? _loadingStore
-        : CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              SliverPadding(
-                padding: const EdgeInsets.all(20),
-                sliver: SliverGrid.count(
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  crossAxisCount: 2,
-                  children: [
-                    ..._buyableItems.map(
-                      (item) {
-                        return item.shopImageUrl == null
-                            ? _placeholderItem
-                            : Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: const BorderRadius.all(
-                                    Radius.circular(5.0),
-                                  ),
-                                  image: DecorationImage(
-                                      image: NetworkImage(item.shopImageUrl!),
-                                      fit: BoxFit.cover),
-                                ),
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      item.name,
-                                      style: const TextStyle(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Expanded(
-                                      flex: 1,
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: <Widget>[
-                                          ElevatedButton(
-                                            onPressed: _doesAlreadyOwn(item)
-                                                ? null
-                                                : () => _buyItem(
-                                                      item,
-                                                      PurchaseType.currency,
-                                                    ),
-                                            style: ButtonStyle(
-                                              shape: MaterialStateProperty.all<
-                                                  RoundedRectangleBorder>(
-                                                const RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.only(
-                                                          topLeft:
-                                                              Radius.circular(
-                                                                  10.0),
-                                                          bottomLeft:
-                                                              Radius.circular(
-                                                                  10.0)),
-                                                ),
-                                              ),
-                                              backgroundColor:
-                                                  _doesAlreadyOwn(item)
-                                                      ? MaterialStateProperty
-                                                          .all(Colors.grey)
-                                                      : null,
-                                            ),
-                                            child:
-                                                Text("${item.currencyPrice} @"),
+        : Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12.5),
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * 0.1,
+                  child: Card(
+                    elevation: 2,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          const Text(
+                            "Currency",
+                            style: TextStyle(fontSize: 25),
+                          ),
+                          Text(
+                            "${widget.user.currency!}",
+                            style: const TextStyle(fontSize: 25),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: DropdownButton<String>(
+                    value: dropdownValue,
+                    icon: const Icon(Icons.arrow_downward),
+                    elevation: 16,
+                    style: const TextStyle(color: Colors.deepPurple),
+                    underline: Container(
+                      height: 2,
+                      color: Colors.deepPurpleAccent,
+                    ),
+                    onChanged: (String? value) {
+                      // This is called when the user selects an item.
+                      setState(() {
+                        dropdownValue = value!;
+                        _filterHandler(value);
+                      });
+                    },
+                    items:
+                        filters.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: CustomScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.all(20),
+                      sliver: SliverGrid.count(
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        crossAxisCount: 2,
+                        children: [
+                          ..._buyableItems.map(
+                            (item) {
+                              return item.shopImageUrl == null
+                                  ? _placeholderItem
+                                  : Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: const BorderRadius.all(
+                                          Radius.circular(5.0),
+                                        ),
+                                        image: DecorationImage(
+                                            image: NetworkImage(
+                                                item.shopImageUrl!),
+                                            fit: BoxFit.cover),
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            item.name,
+                                            style: const TextStyle(
+                                                fontSize: 22,
+                                                fontWeight: FontWeight.bold),
                                           ),
-                                          ElevatedButton(
-                                            onPressed: _doesAlreadyOwn(item)
-                                                ? null
-                                                : () => _buyItem(
-                                                      item,
-                                                      PurchaseType.money,
+                                          Expanded(
+                                            flex: 1,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: <Widget>[
+                                                ElevatedButton(
+                                                  onPressed:
+                                                      _doesAlreadyOwn(item)
+                                                          ? null
+                                                          : () => _buyItem(
+                                                                item,
+                                                                PurchaseType
+                                                                    .currency,
+                                                              ),
+                                                  style: ButtonStyle(
+                                                    shape: MaterialStateProperty
+                                                        .all<
+                                                            RoundedRectangleBorder>(
+                                                      const RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                                topLeft: Radius
+                                                                    .circular(
+                                                                        10.0),
+                                                                bottomLeft: Radius
+                                                                    .circular(
+                                                                        10.0)),
+                                                      ),
                                                     ),
-                                            style: ButtonStyle(
-                                              shape: MaterialStateProperty.all<
-                                                  RoundedRectangleBorder>(
-                                                const RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.only(
-                                                          topRight:
-                                                              Radius.circular(
-                                                                  10.0),
-                                                          bottomRight:
-                                                              Radius.circular(
-                                                                  10.0)),
+                                                    backgroundColor:
+                                                        _doesAlreadyOwn(item)
+                                                            ? MaterialStateProperty
+                                                                .all(
+                                                                    Colors.grey)
+                                                            : null,
+                                                  ),
+                                                  child: Text(
+                                                      "${item.currencyPrice} @"),
                                                 ),
-                                              ),
-                                              backgroundColor:
-                                                  _doesAlreadyOwn(item)
-                                                      ? MaterialStateProperty
-                                                          .all(Colors.grey)
-                                                      : null,
+                                                ElevatedButton(
+                                                  onPressed:
+                                                      _doesAlreadyOwn(item)
+                                                          ? null
+                                                          : () => _buyItem(
+                                                                item,
+                                                                PurchaseType
+                                                                    .money,
+                                                              ),
+                                                  style: ButtonStyle(
+                                                    shape: MaterialStateProperty
+                                                        .all<
+                                                            RoundedRectangleBorder>(
+                                                      const RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                                topRight: Radius
+                                                                    .circular(
+                                                                        10.0),
+                                                                bottomRight: Radius
+                                                                    .circular(
+                                                                        10.0)),
+                                                      ),
+                                                    ),
+                                                    backgroundColor:
+                                                        _doesAlreadyOwn(item)
+                                                            ? MaterialStateProperty
+                                                                .all(
+                                                                    Colors.grey)
+                                                            : null,
+                                                  ),
+                                                  child: Text(
+                                                      "${item.moneyPrice} €"),
+                                                ),
+                                              ],
                                             ),
-                                            child: Text("${item.moneyPrice} €"),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                      },
-                    )
+                                    );
+                            },
+                          )
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-              ),
+              )
             ],
           );
   }

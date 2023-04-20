@@ -88,7 +88,7 @@ class _InventoryPageState extends State<InventoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.user.userItems);
+    // print(widget.user.userItems);
     return Scaffold(
         appBar: AppBar(title: const Text('Inventory')),
         body: widget.user.userItems!.isEmpty
