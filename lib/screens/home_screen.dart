@@ -49,16 +49,10 @@ class _HomeState extends State<Home> {
     _stepCountStream = Pedometer.stepCountStream;
     _stepCountStream.listen(onStepCount).onError(onStepCountError);
 
-    // _steps = "Step Count not available";
-    // _steps = '0';
-    // _steps = await Util().loadFromPrefs("steps") ?? '0';
-    // _stepGoal = '10000';
-    // _stepGoal = await Util().loadFromPrefs("stepGoal") ?? '10000';
     setState(() {
       _points = widget.user.points;
       _steps = widget.user.steps;
       _stepGoal = widget.user.stepGoal ?? 10000;
-      // print(_stepGoal);
     });
 
     if (!mounted) return;
@@ -70,7 +64,6 @@ class _HomeState extends State<Home> {
       setState(() {
         _steps = event.steps;
       });
-      // Util().saveToPrefs("steps", _steps);
     }
   }
 
@@ -128,7 +121,6 @@ class _HomeState extends State<Home> {
     MediaQueryData mediaQuery = MediaQuery.of(context);
     double boxSize = mediaQuery.size.width / 2 - 40;
     setState(() {
-    //   _steps = widget.user.steps.toString();
       _stepGoal = widget.stepGoal ?? _stepGoal;
     });
 
