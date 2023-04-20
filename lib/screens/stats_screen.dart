@@ -2,8 +2,14 @@ import 'package:flutter/material.dart';
 import '../widgets/bar_chart_model.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
-class StatsScreen extends StatelessWidget {
-  StatsScreen({Key? key}) : super(key: key);
+class StatsScreen extends StatefulWidget {
+  const StatsScreen({Key? key}) : super(key: key);
+
+  @override
+  State<StatsScreen> createState() => _StatsScreenState();
+}
+
+class _StatsScreenState extends State<StatsScreen> {
   final List<BarChartModel> data = [
     BarChartModel(
       month: "January",
@@ -81,7 +87,19 @@ class StatsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Stats"),
+        bottom: const TabBar(
+          tabs: [
+            Tab(
+              text: "Daily",
+            ),
+            Tab(
+              text: "Monthly",
+            )
+          ],
+        ),
+        title: const Text(
+          "Stats",
+        ),
         centerTitle: true,
         backgroundColor: Colors.blue[700],
       ),
