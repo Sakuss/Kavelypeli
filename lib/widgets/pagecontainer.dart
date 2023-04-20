@@ -4,6 +4,7 @@ import 'package:kavelypeli/screens/achievements_screen.dart';
 import 'package:kavelypeli/screens/friends_screen.dart';
 import 'package:kavelypeli/screens/profile_screen.dart';
 import 'package:kavelypeli/screens/shop_screen.dart';
+import 'package:kavelypeli/screens/inventory_screen.dart';
 import 'package:kavelypeli/screens/signin_screen.dart';
 
 import '../models/user_model.dart';
@@ -88,7 +89,8 @@ class _PageContainerState extends State<PageContainer> {
               ),
               title: const Text('Inventory'),
               onTap: () {
-                // Navigator.push(context, MaterialPageRoute(builder: (context) => InventoryPage()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => InventoryPage()));
               },
             ),
             const SizedBox(
