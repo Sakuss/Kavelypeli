@@ -159,6 +159,7 @@ class _PageContainerState extends State<PageContainer> {
               ),
               title: const Text('Log out'),
               onTap: () {
+                widget.changeTheme(ThemeMode.light);
                 FirebaseAuth.instance.signOut();
                 Navigator.pushReplacement(
                     context,

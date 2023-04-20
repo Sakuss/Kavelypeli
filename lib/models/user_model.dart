@@ -124,7 +124,6 @@ class AppUser {
       for (final item in data["items"]) {
         items.add(await AppItem.createItem(item));
       }
-      print("item name : ${items[0].shopImage}");
       return items;
     } catch (e) {
       print(e);
@@ -156,19 +155,24 @@ class AppUser {
   void updateLocalUser() async {
     final FirebaseFirestore db = FirebaseFirestore.instance;
     final DocumentReference userDocRef = db.collection('users').doc(uid);
+    // final DocumentReference userItemsDocRef = db.collection('user_items').doc(uid);
 
     try {
       final userSnapshot = await userDocRef.get();
-      final Map<String, dynamic> data =
+      // final userItemsSnapshot = await userItemsDocRef.get();
+      final Map<String, dynamic> userData =
           userSnapshot.data() as Map<String, dynamic>;
+      // final Map<String, dynamic> userItemsData =
+      // userItemsSnapshot.data() as Map<String, dynamic>;
 
-      currency = data["currency"];
-      email = data["email"];
-      joinDate = data["joinDate"].toDate();
-      points = data["points"];
-      stepGoal = data["stepGoal"];
-      steps = data["steps"];
-      username = data["username"];
+      currency = userData["currency"];
+      email = userData["email"];
+      joinDate = userData["joinDate"].toDate();
+      points = userData["points"];
+      stepGoal = userData["stepGoal"];
+      steps = userData["steps"];
+      username = userData["username"];
+      userItems = await _getUserItems(uid);
     } catch (e) {
       print(e);
     }

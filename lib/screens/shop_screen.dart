@@ -8,8 +8,8 @@ import 'dart:convert';
 import 'package:kavelypeli/util.dart';
 
 enum PurchaseType {
-  realMoney,
-  points,
+  money,
+  currency,
 }
 
 class ShopPage extends StatefulWidget {
@@ -103,7 +103,9 @@ class _ShopPageState extends State<ShopPage> {
     try {
       _db.runTransaction((transaction) async {
         final userItemDocRef = _userItemsCollRef.doc(widget.user.uid);
-        widget.user.userItems!.add(appItem);
+        setState(() {
+          widget.user.userItems!.add(appItem);
+        });
         List<Map<String, dynamic>> json =
             widget.user.userItems!.map((item) => item.toJson()).toList();
         transaction.update(userItemDocRef, {"items": json});
@@ -128,65 +130,50 @@ class _ShopPageState extends State<ShopPage> {
     return false;
   }
 
-  void _buyItem(AppItem item, PurchaseType currency) {
+  void _buyItem(AppItem item, PurchaseType purchaseType) {
     try {
       if (_doesAlreadyOwn(item)) return;
 
       final userDocRef = _userCollRef.doc(widget.user.uid);
       _db.runTransaction((transaction) async {
-        final snapshot = await transaction.get(userDocRef);
+        // final snapshot = await transaction.get(userDocRef);
 
-        if (currency == PurchaseType.realMoney) {
-          final int balance = snapshot.get("currency");
-          final int newBalance = balance - item.moneyPrice;
+        if (purchaseType == PurchaseType.currency) {
+          final int balance = widget.user.currency!;
+          final int newBalance = balance - item.currencyPrice;
 
           if (newBalance < 0) {
             throw {"error": "insufficient-balance", "balance": balance};
           } else {
             transaction.update(userDocRef, {"currency": newBalance});
             widget.user.currency = newBalance;
-            setState(() {
-              widget.user.userItems!.add(item);
-            });
+            // setState(() {
+            //   widget.user.userItems!.add(item);
+            // });
           }
-        } else if (currency == PurchaseType.points) {
-          final int balance = snapshot.get("points");
-          final int newBalance = balance - item.pointsPrice;
-
-          if (newBalance < 0) {
-            throw {"error": "insufficient-balance", "balance": balance};
-          } else {
-            transaction.update(userDocRef, {"points": newBalance});
-            widget.user.points = newBalance;
-            setState(() {
-              widget.user.userItems!.add(item);
-            });
-          }
+        } else if (purchaseType == PurchaseType.money) {
+          // setState(() {
+          //   widget.user.userItems!.add(item);
+          // });
         }
       }).then(
         (_) {
-          if (currency == PurchaseType.realMoney) {
+          if (purchaseType == PurchaseType.money) {
             Util().showSnackBar(
                 context, "You bought ${item.name} for ${item.moneyPrice} €");
-          } else if (currency == PurchaseType.points) {
+          } else if (purchaseType == PurchaseType.currency) {
             Util().showSnackBar(context,
-                "You bought ${item.name} for ${item.pointsPrice} points");
+                "You bought ${item.name} for ${item.currencyPrice} points");
           }
           _updateUserItems(item);
           print("UserDocument successfully updated!");
         },
         onError: (e) {
-          final diff = currency == PurchaseType.realMoney
-              ? item.moneyPrice - e["balance"] as int
-              : item.pointsPrice - e["balance"] as int;
+          final diff = item.currencyPrice - e["balance"] as int;
 
-          if (currency == PurchaseType.realMoney) {
-            Util().showSnackBar(
-                context, "Insufficient balance, you need $diff € more");
-          } else if (currency == PurchaseType.points) {
-            Util().showSnackBar(
-                context, "Insufficient balance, you need $diff @ more");
-          }
+          Util().showSnackBar(
+              context, "Insufficient balance, you need $diff @ more");
+
           print("Error updating document $e");
         },
       );
@@ -194,6 +181,73 @@ class _ShopPageState extends State<ShopPage> {
       Util().showSnackBar(context, "Could not buy item.");
     }
   }
+
+  // void _buyItem(AppItem item, PurchaseType currency) {
+  //   try {
+  //     if (_doesAlreadyOwn(item)) return;
+  //
+  //     final userDocRef = _userCollRef.doc(widget.user.uid);
+  //     _db.runTransaction((transaction) async {
+  //       final snapshot = await transaction.get(userDocRef);
+  //
+  //       if (currency == PurchaseType.realMoney) {
+  //         final int balance = snapshot.get("currency");
+  //         final int newBalance = balance - item.moneyPrice;
+  //
+  //         if (newBalance < 0) {
+  //           throw {"error": "insufficient-balance", "balance": balance};
+  //         } else {
+  //           transaction.update(userDocRef, {"currency": newBalance});
+  //           widget.user.currency = newBalance;
+  //           setState(() {
+  //             widget.user.userItems!.add(item);
+  //           });
+  //         }
+  //       } else if (currency == PurchaseType.points) {
+  //         final int balance = snapshot.get("points");
+  //         final int newBalance = balance - item.pointsPrice;
+  //
+  //         if (newBalance < 0) {
+  //           throw {"error": "insufficient-balance", "balance": balance};
+  //         } else {
+  //           transaction.update(userDocRef, {"points": newBalance});
+  //           widget.user.points = newBalance;
+  //           setState(() {
+  //             widget.user.userItems!.add(item);
+  //           });
+  //         }
+  //       }
+  //     }).then(
+  //       (_) {
+  //         if (currency == PurchaseType.realMoney) {
+  //           Util().showSnackBar(
+  //               context, "You bought ${item.name} for ${item.moneyPrice} €");
+  //         } else if (currency == PurchaseType.points) {
+  //           Util().showSnackBar(context,
+  //               "You bought ${item.name} for ${item.pointsPrice} points");
+  //         }
+  //         _updateUserItems(item);
+  //         print("UserDocument successfully updated!");
+  //       },
+  //       onError: (e) {
+  //         final diff = currency == PurchaseType.realMoney
+  //             ? item.moneyPrice - e["balance"] as int
+  //             : item.pointsPrice - e["balance"] as int;
+  //
+  //         if (currency == PurchaseType.realMoney) {
+  //           Util().showSnackBar(
+  //               context, "Insufficient balance, you need $diff € more");
+  //         } else if (currency == PurchaseType.points) {
+  //           Util().showSnackBar(
+  //               context, "Insufficient balance, you need $diff @ more");
+  //         }
+  //         print("Error updating document $e");
+  //       },
+  //     );
+  //   } catch (_) {
+  //     Util().showSnackBar(context, "Could not buy item.");
+  //   }
+  // }
 
   Widget get _loadingStore {
     return Center(
@@ -258,7 +312,7 @@ class _ShopPageState extends State<ShopPage> {
                                           ? null
                                           : () => _buyItem(
                                                 item,
-                                                PurchaseType.points,
+                                                PurchaseType.currency,
                                               ),
                                       style: ButtonStyle(
                                         shape: MaterialStateProperty.all<
@@ -275,14 +329,14 @@ class _ShopPageState extends State<ShopPage> {
                                                 Colors.grey)
                                             : null,
                                       ),
-                                      child: Text("${item.pointsPrice} @"),
+                                      child: Text("${item.currencyPrice} @"),
                                     ),
                                     ElevatedButton(
                                       onPressed: _doesAlreadyOwn(item)
                                           ? null
                                           : () => _buyItem(
                                                 item,
-                                                PurchaseType.realMoney,
+                                                PurchaseType.money,
                                               ),
                                       style: ButtonStyle(
                                         shape: MaterialStateProperty.all<

@@ -24,7 +24,7 @@ class _CharacterPreviewState extends State<CharacterPreview> {
   final Image _localDefaultAvatar =
       Image.asset("assets/images/default_avatar.png");
   bool _isAvatarLoaded = false;
-  // late List<AppItem> _userItems = [];
+  late List<AppItem> _userItems = [];
 
   @override
   void initState() {
@@ -36,6 +36,10 @@ class _CharacterPreviewState extends State<CharacterPreview> {
   void _initPlatformState() {
     _getUserAvatar();
     // _getUserAvatarItems();
+    setState(() {
+      widget.user.updateLocalUser();
+    });
+    // widget.user.userItems! = [];
   }
 
   // void _getUserAvatarItems() {

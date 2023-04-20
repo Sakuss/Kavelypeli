@@ -10,7 +10,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 class AppItem {
   late String? shopImageUrl, characterImageUrl;
   final String name, shopImage, characterImage;
-  final int moneyPrice, pointsPrice;
+  final int moneyPrice, currencyPrice;
 
   // final String? description;
   // final ItemType type;
@@ -22,7 +22,7 @@ class AppItem {
     required this.shopImage,
     required this.characterImage,
     required this.moneyPrice,
-    required this.pointsPrice,
+    required this.currencyPrice,
   });
 
   static Future<AppItem> createItem(Map<String, dynamic> item) async {
@@ -38,7 +38,7 @@ class AppItem {
       shopImage: item["shop_image"],
       characterImage: item["character_image"],
       moneyPrice: item["money_price"],
-      pointsPrice: item["points_price"],
+      currencyPrice: item["currency_price"],
       shopImageUrl: shopUrl,
       characterImageUrl: characterUrl,
     );
@@ -76,7 +76,7 @@ class AppItem {
       "shop_image": shopImage,
       "character_image": characterImage,
       "money_price": moneyPrice,
-      "points_price": pointsPrice,
+      "currency_price": currencyPrice,
     };
   }
 }
