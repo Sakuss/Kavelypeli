@@ -32,14 +32,8 @@ class AppUser {
   ) async {
     try {
       // await user.updateDisplayName(username);
-      await FirebaseFirestore.instance
-          .collection('user_items')
-          .doc(user.uid)
-          .set({"items": []});
-      await FirebaseFirestore.instance
-          .collection('user_settings')
-          .doc(user.uid)
-          .set({"darkMode": false});
+      await FirebaseFirestore.instance.collection('user_items').doc(user.uid).set({"items": []});
+      await FirebaseFirestore.instance.collection('user_settings').doc(user.uid).set({"darkMode": false});
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         'username': username,
         'email': email,
@@ -48,8 +42,9 @@ class AppUser {
         'points': 0,
         'currency': 0,
         'stepGoal': 10000,
+        'photoPath': 'profilepics/default.png'
       });
-      var photoURL = await getPhotoURL(user.uid);
+      var photoURL = await getPhotoURL('profilepics/default.png');
       return AppUser(
         username: username,
         email: email,
@@ -68,15 +63,15 @@ class AppUser {
     }
   }
 
-  static Future<String> getPhotoURL(String uid) async {
+  static Future<String> getPhotoURL(String path) async {
     final storageRef = FirebaseStorage.instance.ref();
     String photoURL;
     try {
-      final pathReference = storageRef.child('profilepics/$uid');
+      final pathReference = storageRef.child(path);
       photoURL = await pathReference.getDownloadURL();
     } catch (e) {
-      final pathReference = storageRef.child('profilepics/default.png');
-      photoURL = await pathReference.getDownloadURL();
+      print(e);
+      return "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
     }
     return photoURL;
   }
@@ -89,7 +84,7 @@ class AppUser {
 
       var userDocumentSnapshot = await userDocument.get();
       var firestoreUser = userDocumentSnapshot.data() as Map<String, dynamic>;
-      var photoURL = await getPhotoURL(uid);
+      var photoURL = await getPhotoURL(firestoreUser['photoPath']);
 
       return AppUser(
         username: firestoreUser['username'],
@@ -111,14 +106,12 @@ class AppUser {
 
   static Future<List<AppItem>> _getUserItems(String uid) async {
     final FirebaseFirestore db = FirebaseFirestore.instance;
-    final DocumentReference userItemsDocRef =
-        db.collection('user_items').doc(uid);
+    final DocumentReference userItemsDocRef = db.collection('user_items').doc(uid);
 
     List<AppItem> items = [];
     try {
       final itemsSnapshot = await userItemsDocRef.get();
-      final Map<String, dynamic> data =
-          itemsSnapshot.data() as Map<String, dynamic>;
+      final Map<String, dynamic> data = itemsSnapshot.data() as Map<String, dynamic>;
       for (final item in data["items"]) {
         items.add(await AppItem.createItem(item));
       }
@@ -131,13 +124,11 @@ class AppUser {
 
   void saveItemsToDb() {
     final FirebaseFirestore db = FirebaseFirestore.instance;
-    final DocumentReference userItemsDocRef =
-        db.collection('user_items').doc(uid);
+    final DocumentReference userItemsDocRef = db.collection('user_items').doc(uid);
 
     try {
       db.runTransaction((transaction) async {
-        List<Map<String, dynamic>> json =
-            userItems!.map((item) => item.toJson()).toList();
+        List<Map<String, dynamic>> json = userItems!.map((item) => item.toJson()).toList();
         transaction.update(userItemsDocRef, {"items": json});
       }).whenComplete(() {
         print("User items updated");
@@ -149,14 +140,13 @@ class AppUser {
     }
   }
 
-  void updateLocalUser() async {
+  Future<void> updateLocalUser() async {
     final FirebaseFirestore db = FirebaseFirestore.instance;
     final DocumentReference userDocRef = db.collection('users').doc(uid);
 
     try {
       final userSnapshot = await userDocRef.get();
-      final Map<String, dynamic> userData =
-          userSnapshot.data() as Map<String, dynamic>;
+      final Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
 
       currency = userData["currency"];
       email = userData["email"];

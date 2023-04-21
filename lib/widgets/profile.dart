@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:kavelypeli/widgets/character_preview.dart';
 
 import '../models/user_model.dart';
 
@@ -77,11 +78,7 @@ class Profile extends StatelessWidget {
               ],
             ),
           ),
-          Container(
-            color: Colors.grey[300],
-            width: 300,
-            height: 400,
-          ),
+          CharacterPreview(user: user),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20),
             child: SizedBox(

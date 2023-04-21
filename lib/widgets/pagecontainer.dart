@@ -73,11 +73,7 @@ class _PageContainerState extends State<PageContainer> {
                 ),
                 title: const Text('Profile'),
                 onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              ProfilePage(user: widget.user)));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(user: widget.user)));
                 }),
             const SizedBox(
               height: 20,
@@ -90,9 +86,15 @@ class _PageContainerState extends State<PageContainer> {
               title: const Text('Inventory'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => InventoryPage(user: widget.user,))).then((value) {
-                      setState(() {});
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => InventoryPage(
+                      user: widget.user,
+                    ),
+                  ),
+                ).then((value) {
+                  setState(() {});
                 });
               },
             ),
@@ -106,8 +108,7 @@ class _PageContainerState extends State<PageContainer> {
               ),
               title: const Text('Achievements'),
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => AchievementPage()));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => AchievementPage()));
               },
             ),
             const SizedBox(
@@ -196,6 +197,7 @@ class _PageContainerState extends State<PageContainer> {
         title: const Text("Kävelypeli"),
       ),
       body: PageView(
+        // physics: const PageScrollPhysics(),
         controller: _pageController,
         children: <Widget>[
           Leaderboard(user: widget.user),
