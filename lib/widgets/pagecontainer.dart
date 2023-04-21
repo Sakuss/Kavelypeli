@@ -6,6 +6,7 @@ import 'package:kavelypeli/screens/profile_screen.dart';
 import 'package:kavelypeli/screens/shop_screen.dart';
 import 'package:kavelypeli/screens/inventory_screen.dart';
 import 'package:kavelypeli/screens/signin_screen.dart';
+import 'package:kavelypeli/screens/stats_screen.dart';
 
 import '../models/user_model.dart';
 import '../screens/home_screen.dart';
@@ -133,15 +134,20 @@ class _PageContainerState extends State<PageContainer> {
               height: 20,
             ),
             ListTile(
-              leading: const Icon(
-                Icons.bar_chart,
-                color: Color(0xFF13C0E3),
-              ),
-              title: const Text('Stats'),
-              onTap: () {
-                // Navigator.push(context, MaterialPageRoute(builder: (context) => StatsPage()));
-              },
-            ),
+                leading: const Icon(
+                  Icons.bar_chart,
+                  color: Color(0xFF13C0E3),
+                ),
+                title: const Text('Stats'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => StatsScreen(),
+                    ),
+                  );
+                }),
             const SizedBox(height: 20),
             const Divider(color: Colors.black),
             const SizedBox(
