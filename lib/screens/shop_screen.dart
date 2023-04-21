@@ -8,8 +8,8 @@ import 'dart:convert';
 import 'package:kavelypeli/util.dart';
 
 enum PurchaseType {
-  realMoney,
-  points,
+  money,
+  currency,
 }
 
 class ShopPage extends StatefulWidget {
@@ -25,16 +25,22 @@ class ShopPage extends StatefulWidget {
 
 class _ShopPageState extends State<ShopPage> {
   final _db = FirebaseFirestore.instance;
-
-  // final _storage = FirebaseStorage.instance.ref("shop_item_pics");
   final _itemsCollRef = FirebaseFirestore.instance.collection("items");
   final _userItemsCollRef = FirebaseFirestore.instance.collection("user_items");
   final _userCollRef = FirebaseFirestore.instance.collection("users");
 
-  // List<Map<String, dynamic>>? _buyableItems = null;
   List<AppItem> _buyableItems = [];
-  List<AppItem> _userItems = [];
   bool _storeLoaded = false;
+
+  static const List<String> filters = [
+    "Alphabet A-Z",
+    "Alphabet Z-A",
+    "Money price lowest",
+    "Money price highest",
+    "Currency price lowest",
+    "Currency price highest"
+  ];
+  String dropdownValue = filters.first;
 
   @override
   void initState() {
@@ -45,11 +51,6 @@ class _ShopPageState extends State<ShopPage> {
 
   void _initPlatformState() {
     _getData();
-    widget.user.getUserItems().then((value) {
-      setState(() {
-        _userItems = value;
-      });
-    });
   }
 
   void _getData() {
@@ -59,11 +60,13 @@ class _ShopPageState extends State<ShopPage> {
             querySnapshot.docs.map((doc) => doc.data()).toList();
 
         for (final item in allData) {
-          AppItem.createShopItem(item).then((value) {
+          if (!mounted) return;
+          AppItem.createItem(item).then((value) {
             setState(() {
-              _buyableItems.add(value!);
-              _buyableItems
-                  .sort((a, b) => a.moneyPrice.compareTo(b.moneyPrice));
+              _buyableItems.add(value);
+              _filterHandler("Alphabet A-Z");
+              // _buyableItems
+              //     .sort((a, b) => a.moneyPrice.compareTo(b.moneyPrice));
             });
           });
         }
@@ -75,29 +78,8 @@ class _ShopPageState extends State<ShopPage> {
     } catch (_) {}
   }
 
-  void _updateUserItems(AppItem appItem) {
-    try {
-      widget.user.getUserItems().then((itemList) {
-        _db.runTransaction((transaction) async {
-          final userItemDocRef = _userItemsCollRef.doc(widget.user.uid);
-          itemList.add(appItem);
-          List<Map<String, dynamic>> json =
-              itemList.map((item) => item.toJson()).toList();
-          transaction.update(userItemDocRef, {"items": json});
-        }).whenComplete(() {
-          print("User items updated");
-        }).onError((error, stackTrace) {
-          print(error);
-          print("_updateUserItems error");
-        });
-      });
-    } catch (e) {
-      print(e);
-    }
-  }
-
   bool _doesAlreadyOwn(AppItem item) {
-    for (AppItem i in _userItems) {
+    for (AppItem i in widget.user.userItems!) {
       if (item.name == i.name) {
         return true;
       }
@@ -105,70 +87,112 @@ class _ShopPageState extends State<ShopPage> {
     return false;
   }
 
-  void _buyItem(AppItem item, PurchaseType currency) {
+  void _buyItem(AppItem item, PurchaseType purchaseType) {
     try {
       if (_doesAlreadyOwn(item)) return;
 
       final userDocRef = _userCollRef.doc(widget.user.uid);
       _db.runTransaction((transaction) async {
-        final snapshot = await transaction.get(userDocRef);
-
-        if (currency == PurchaseType.realMoney) {
-          final int balance = snapshot.get("currency");
-          final int newBalance = balance - item.moneyPrice;
+        if (purchaseType == PurchaseType.currency) {
+          final int balance = widget.user.currency!;
+          final int newBalance = balance - item.currencyPrice;
 
           if (newBalance < 0) {
             throw {"error": "insufficient-balance", "balance": balance};
           } else {
             transaction.update(userDocRef, {"currency": newBalance});
             widget.user.currency = newBalance;
-            setState(() {
-              _userItems.add(item);
-            });
           }
-        } else if (currency == PurchaseType.points) {
-          final int balance = snapshot.get("points");
-          final int newBalance = balance - item.pointsPrice;
-
-          if (newBalance < 0) {
-            throw {"error": "insufficient-balance", "balance": balance};
-          } else {
-            transaction.update(userDocRef, {"points": newBalance});
-            widget.user.points = newBalance;
-            setState(() {
-              _userItems.add(item);
-            });
-          }
-        }
+        } else if (purchaseType == PurchaseType.money) {}
       }).then(
         (_) {
-          if (currency == PurchaseType.realMoney) {
+          if (purchaseType == PurchaseType.money) {
             Util().showSnackBar(
                 context, "You bought ${item.name} for ${item.moneyPrice} €");
-          } else if (currency == PurchaseType.points) {
+          } else if (purchaseType == PurchaseType.currency) {
             Util().showSnackBar(context,
-                "You bought ${item.name} for ${item.pointsPrice} points");
+                "You bought ${item.name} for ${item.currencyPrice} points");
           }
-          _updateUserItems(item);
+          setState(() {
+            widget.user.userItems!.add(item);
+            widget.user.saveItemsToDb();
+          });
           print("UserDocument successfully updated!");
         },
         onError: (e) {
-          final diff = currency == PurchaseType.realMoney
-              ? item.moneyPrice - e["balance"] as int
-              : item.pointsPrice - e["balance"] as int;
+          final diff = item.currencyPrice - e["balance"] as int;
 
-          if (currency == PurchaseType.realMoney) {
-            Util().showSnackBar(
-                context, "Insufficient balance, you need $diff € more");
-          } else if (currency == PurchaseType.points) {
-            Util().showSnackBar(
-                context, "Insufficient balance, you need $diff @ more");
-          }
+          Util().showSnackBar(
+              context, "Insufficient balance, you need $diff @ more");
+
           print("Error updating document $e");
         },
       );
     } catch (_) {
       Util().showSnackBar(context, "Could not buy item.");
+    }
+  }
+
+  void _filterHandler(String filterType) {
+    switch (filterType) {
+      case "Alphabet A-Z":
+        _buyableItems.sort((a, b) => a.name.compareTo(b.name));
+        break;
+      case "Alphabet Z-A":
+        _buyableItems.sort((a, b) => b.name.compareTo(a.name));
+        break;
+      case "Money price lowest":
+        _buyableItems.sort((a, b) {
+          int priceComparison = a.moneyPrice.compareTo(b.moneyPrice);
+          if (priceComparison != 0) {
+            return priceComparison;
+          }
+          int nameComparison = a.name.compareTo(b.name);
+          if (nameComparison != 0) {
+            return nameComparison;
+          }
+          return a.name.compareTo(b.name);
+        });
+        break;
+      case "Money price highest":
+        _buyableItems.sort((a, b) {
+          int priceComparison = b.moneyPrice.compareTo(a.moneyPrice);
+          if (priceComparison != 0) {
+            return priceComparison;
+          }
+          int nameComparison = a.name.compareTo(b.name);
+          if (nameComparison != 0) {
+            return nameComparison;
+          }
+          return a.name.compareTo(b.name);
+        });
+        break;
+      case "Currency price lowest":
+        _buyableItems.sort((a, b) {
+          int priceComparison = a.currencyPrice.compareTo(b.currencyPrice);
+          if (priceComparison != 0) {
+            return priceComparison;
+          }
+          int nameComparison = a.name.compareTo(b.name);
+          if (nameComparison != 0) {
+            return nameComparison;
+          }
+          return a.name.compareTo(b.name);
+        });
+        break;
+      case "Currency price highest":
+        _buyableItems.sort((a, b) {
+          int priceComparison = b.currencyPrice.compareTo(a.currencyPrice);
+          if (priceComparison != 0) {
+            return priceComparison;
+          }
+          int nameComparison = a.name.compareTo(b.name);
+          if (nameComparison != 0) {
+            return nameComparison;
+          }
+          return a.name.compareTo(b.name);
+        });
+        break;
     }
   }
 
@@ -202,91 +226,188 @@ class _ShopPageState extends State<ShopPage> {
   Widget build(BuildContext context) {
     return !_storeLoaded
         ? _loadingStore
-        : CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              SliverPadding(
-                padding: const EdgeInsets.all(20),
-                sliver: SliverGrid.count(
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  crossAxisCount: 2,
-                  children: [
-                    ..._buyableItems.map(
-                      (item) {
-                        return item.itemUrl == null
-                            ? _placeholderItem
-                            : Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: const BorderRadius.all(
-                                    Radius.circular(5.0),
-                                  ),
-                                  image: DecorationImage(
-                                      // image: NetworkImage(item["itemUrl"]),
-                                      image: NetworkImage(item.itemUrl!),
-                                      fit: BoxFit.cover),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: <Widget>[
-                                    ElevatedButton(
-                                      onPressed: _doesAlreadyOwn(item)
-                                          ? null
-                                          : () => _buyItem(
-                                                item,
-                                                PurchaseType.points,
-                                              ),
-                                      style: ButtonStyle(
-                                        shape: MaterialStateProperty.all<
-                                            RoundedRectangleBorder>(
-                                          const RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(15.0),
-                                                bottomLeft:
-                                                    Radius.circular(15.0)),
-                                          ),
-                                        ),
-                                        backgroundColor: _doesAlreadyOwn(item)
-                                            ? MaterialStateProperty.all(
-                                                Colors.grey)
-                                            : null,
-                                      ),
-                                      child: Text("${item.pointsPrice} @"),
-                                    ),
-                                    ElevatedButton(
-                                      onPressed: _doesAlreadyOwn(item)
-                                          ? null
-                                          : () => _buyItem(
-                                                item,
-                                                PurchaseType.realMoney,
-                                              ),
-                                      style: ButtonStyle(
-                                        shape: MaterialStateProperty.all<
-                                            RoundedRectangleBorder>(
-                                          const RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.only(
-                                                topRight: Radius.circular(15.0),
-                                                bottomRight:
-                                                    Radius.circular(15.0)),
-                                          ),
-                                        ),
-                                        backgroundColor: _doesAlreadyOwn(item)
-                                            ? MaterialStateProperty.all(
-                                                Colors.grey)
-                                            : null,
-                                      ),
-                                      // child: Text("${item["money_price"]} €"),
-                                      child: Text("${item.moneyPrice} €"),
-                                    ),
-                                  ],
-                                ),
-                              );
-                      },
-                    )
-                  ],
+        : Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.5),
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height * 0.1,
+                  child: Card(
+                    elevation: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          const Text(
+                            "Currency",
+                            style: TextStyle(fontSize: 25),
+                          ),
+                          Text(
+                            "${widget.user.currency!}",
+                            style: const TextStyle(fontSize: 25),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: DropdownButton<String>(
+                    value: dropdownValue,
+                    icon: const Icon(Icons.arrow_downward),
+                    elevation: 16,
+                    style: const TextStyle(color: Colors.deepPurple),
+                    underline: Container(
+                      height: 2,
+                      color: Colors.deepPurpleAccent,
+                    ),
+                    onChanged: (String? value) {
+                      // This is called when the user selects an item.
+                      setState(() {
+                        dropdownValue = value!;
+                        _filterHandler(value);
+                      });
+                    },
+                    items:
+                        filters.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: CustomScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.all(20),
+                      sliver: SliverGrid.count(
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        crossAxisCount: 2,
+                        children: [
+                          ..._buyableItems.map(
+                            (item) {
+                              return item.shopImageUrl == null
+                                  ? _placeholderItem
+                                  : Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: const BorderRadius.all(
+                                          Radius.circular(5.0),
+                                        ),
+                                        image: DecorationImage(
+                                            image: NetworkImage(
+                                                item.shopImageUrl!),
+                                            fit: BoxFit.cover),
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            item.name,
+                                            style: const TextStyle(
+                                                fontSize: 22,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          Expanded(
+                                            flex: 1,
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: <Widget>[
+                                                ElevatedButton(
+                                                  onPressed:
+                                                      _doesAlreadyOwn(item)
+                                                          ? null
+                                                          : () => _buyItem(
+                                                                item,
+                                                                PurchaseType
+                                                                    .currency,
+                                                              ),
+                                                  style: ButtonStyle(
+                                                    shape: MaterialStateProperty
+                                                        .all<
+                                                            RoundedRectangleBorder>(
+                                                      const RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                                topLeft: Radius
+                                                                    .circular(
+                                                                        10.0),
+                                                                bottomLeft: Radius
+                                                                    .circular(
+                                                                        10.0)),
+                                                      ),
+                                                    ),
+                                                    backgroundColor:
+                                                        _doesAlreadyOwn(item)
+                                                            ? MaterialStateProperty
+                                                                .all(
+                                                                    Colors.grey)
+                                                            : null,
+                                                  ),
+                                                  child: Text(
+                                                      "${item.currencyPrice} @"),
+                                                ),
+                                                ElevatedButton(
+                                                  onPressed:
+                                                      _doesAlreadyOwn(item)
+                                                          ? null
+                                                          : () => _buyItem(
+                                                                item,
+                                                                PurchaseType
+                                                                    .money,
+                                                              ),
+                                                  style: ButtonStyle(
+                                                    shape: MaterialStateProperty
+                                                        .all<
+                                                            RoundedRectangleBorder>(
+                                                      const RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius.only(
+                                                                topRight: Radius
+                                                                    .circular(
+                                                                        10.0),
+                                                                bottomRight: Radius
+                                                                    .circular(
+                                                                        10.0)),
+                                                      ),
+                                                    ),
+                                                    backgroundColor:
+                                                        _doesAlreadyOwn(item)
+                                                            ? MaterialStateProperty
+                                                                .all(
+                                                                    Colors.grey)
+                                                            : null,
+                                                  ),
+                                                  child: Text(
+                                                      "${item.moneyPrice} €"),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                            },
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              )
             ],
           );
   }

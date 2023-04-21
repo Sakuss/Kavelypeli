@@ -21,6 +21,13 @@ class _LeaderboardState extends State<Leaderboard> {
   final _scrollController = ScrollController();
 
   @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
     _getMoreUsers();
@@ -37,13 +44,15 @@ class _LeaderboardState extends State<Leaderboard> {
     for (final document in documents) {
       AppUser user = AppUser(
         uid: document.id,
-        photoURL: await AppUser.getPhotoURL(document.id),
+        photoURL: await AppUser.getPhotoURL(document['photoPath']),
         joinDate: document['joinDate'].toDate(),
         username: document['username'],
         points: document['points'],
         steps: document['steps'],
       );
-      _users.add(user);
+      setState(() {
+        _users.add(user);
+      });
     }
     setState(() {
       _lastDocument = documents.isNotEmpty ? documents.last : null;
@@ -51,66 +60,77 @@ class _LeaderboardState extends State<Leaderboard> {
     });
   }
 
+  Future<void> handleRefresh() async {
+    setState(() {
+      _users.clear();
+      _lastDocument = null;
+    });
+    return _getMoreUsers();
+  }
+
   @override
   Widget build(BuildContext context) {
     return NotificationListener(
-      child: ListView.builder(
-        controller: _scrollController,
-        itemCount: _users.length,
-        itemBuilder: (context, index) {
-          if (_isLoading && index == _users.length - 1) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          final user = _users[index];
-          bool isAppUser = user.username == widget.user.username;
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-            child: ListTile(
-              leading: Text('${index + 1}.'),
-              title: Row(
-                children: [
-                  CircleAvatar(
-                    backgroundImage: NetworkImage(user.photoURL),
-                  ),
-                  const SizedBox(width: 8),
-                  isAppUser
-                      ? Text(
-                          user.username!,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        )
-                      : Text(user.username!),
-                  if (isAppUser)
-                    const Icon(
-                      Icons.star,
-                      color: Colors.yellow,
+      child: RefreshIndicator(
+        onRefresh: handleRefresh,
+        child: ListView.builder(
+          controller: _scrollController,
+          itemCount: _users.length,
+          itemBuilder: (context, index) {
+            if (_isLoading && index == _users.length - 1) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+            final user = _users[index];
+            bool isAppUser = user.username == widget.user.username;
+            return Card(
+              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+              child: ListTile(
+                leading: Text('${index + 1}.'),
+                title: Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundImage: NetworkImage(user.photoURL),
                     ),
-                ],
-              ),
-              onTap: isAppUser
-                  ? null
-                  : () => showDialog(
-                        context: context,
-                        builder: (context) {
-                          return Dialog(
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(15),
-                              ),
+                    const SizedBox(width: 8),
+                    isAppUser
+                        ? Text(
+                            user.username!,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
                             ),
-                            child: Profile(
-                              user: user,
-                            ),
-                          );
-                        },
+                          )
+                        : Text(user.username!),
+                    if (isAppUser)
+                      const Icon(
+                        Icons.star,
+                        color: Colors.yellow,
                       ),
-              trailing: Text(user.points.toString()),
-            ),
-          );
-        },
+                  ],
+                ),
+                onTap: isAppUser
+                    ? null
+                    : () => showDialog(
+                          context: context,
+                          builder: (context) {
+                            return Dialog(
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(15),
+                                ),
+                              ),
+                              child: Profile(
+                                user: user,
+                              ),
+                            );
+                          },
+                        ),
+                trailing: Text(user.points.toString()),
+              ),
+            );
+          },
+        ),
       ),
       onNotification: (notification) {
         if (notification is ScrollEndNotification &&
