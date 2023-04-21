@@ -33,8 +33,8 @@ class _ShopPageState extends State<ShopPage> {
   bool _storeLoaded = false;
 
   static const List<String> filters = [
-    "Alphabet A-Z",
-    "Alphabet Z-A",
+    "Name A-Z",
+    "Name Z-A",
     "Money price lowest",
     "Money price highest",
     "Currency price lowest",
@@ -135,11 +135,11 @@ class _ShopPageState extends State<ShopPage> {
 
   void _filterHandler(String filterType) {
     switch (filterType) {
-      case "Alphabet A-Z":
+      case "Name A-Z":
         _buyableItems.sort((a, b) => a.name.compareTo(b.name));
         break;
-      case "Alphabet Z-A":
-        _buyableItems.sort((a, b) => b.name.compareTo(a.name));
+      case "Name Z-A":
+        _buyableItems.sort((a, b) => b.name.toLowerCase().compareTo(a.name.toLowerCase()));
         break;
       case "Money price lowest":
         _buyableItems.sort((a, b) {
