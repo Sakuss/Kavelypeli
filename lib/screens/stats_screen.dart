@@ -12,63 +12,38 @@ class StatsScreen extends StatefulWidget {
 class _StatsScreenState extends State<StatsScreen> {
   final List<BarChartModel> data = [
     BarChartModel(
-      month: "January",
-      steps: 200000,
+      month: "Monday",
+      steps: 10000,
       color: charts.ColorUtil.fromDartColor(Colors.blue),
     ),
     BarChartModel(
-      month: "February",
-      steps: 200000,
+      month: "Tuesday",
+      steps: 10000,
       color: charts.ColorUtil.fromDartColor(Colors.blue),
     ),
     BarChartModel(
-      month: "March",
-      steps: 200000,
+      month: "Wednesday",
+      steps: 10000,
       color: charts.ColorUtil.fromDartColor(Colors.blue),
     ),
     BarChartModel(
-      month: "April",
-      steps: 200000,
+      month: "Thursday",
+      steps: 10000,
       color: charts.ColorUtil.fromDartColor(Colors.blue),
     ),
     BarChartModel(
-      month: "May",
-      steps: 200000,
+      month: "Friday",
+      steps: 10000,
       color: charts.ColorUtil.fromDartColor(Colors.blue),
     ),
     BarChartModel(
-      month: "June",
-      steps: 200000,
+      month: "Saturday",
+      steps: 10000,
       color: charts.ColorUtil.fromDartColor(Colors.blue),
     ),
     BarChartModel(
-      month: "July",
-      steps: 200000,
-      color: charts.ColorUtil.fromDartColor(Colors.blue),
-    ),
-    BarChartModel(
-      month: "August",
-      steps: 200000,
-      color: charts.ColorUtil.fromDartColor(Colors.blue),
-    ),
-    BarChartModel(
-      month: "September",
-      steps: 200000,
-      color: charts.ColorUtil.fromDartColor(Colors.blue),
-    ),
-    BarChartModel(
-      month: "October",
-      steps: 200000,
-      color: charts.ColorUtil.fromDartColor(Colors.blue),
-    ),
-    BarChartModel(
-      month: "November",
-      steps: 200000,
-      color: charts.ColorUtil.fromDartColor(Colors.blue),
-    ),
-    BarChartModel(
-      month: "December",
-      steps: 200000,
+      month: "Sunday",
+      steps: 10000,
       color: charts.ColorUtil.fromDartColor(Colors.blue),
     ),
   ];
@@ -94,7 +69,7 @@ class _StatsScreenState extends State<StatsScreen> {
             ),
             Tab(
               text: "Monthly",
-            )
+            ),
           ],
         ),
         title: const Text(
