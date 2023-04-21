@@ -139,7 +139,7 @@ class AppUser {
     }
   }
 
-  void updateLocalUser() async {
+  Future<void> updateLocalUser() async {
     final FirebaseFirestore db = FirebaseFirestore.instance;
     final DocumentReference userDocRef = db.collection('users').doc(uid);
 

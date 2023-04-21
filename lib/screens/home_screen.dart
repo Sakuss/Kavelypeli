@@ -30,7 +30,8 @@ class _HomeState extends State<Home> {
   String _pedestrianStatus = "Unavailable";
   String _stepCountStatus = "Unavailable";
 
-  late int _stepsToday, _points = widget.user.points, _stepGoal = widget.user.stepGoal!;
+  late int _stepsToday, _points;
+  late final int _stepGoal = widget.user.stepGoal!;
   final int _pointsMultiplier = 5;
   bool _isMapVisible = false;
   final db = FirebaseFirestore.instance;
@@ -51,7 +52,7 @@ class _HomeState extends State<Home> {
   }
 
   void _initPlatformState() async {
-    widget.user.updateLocalUser(); //points not updating in time
+    updateUser();
     _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
     _pedestrianStatusStream.listen(onPedestrianStatusChanged).onError(((error) {
       print('onPedestrianStatusError: $error');
@@ -67,12 +68,19 @@ class _HomeState extends State<Home> {
         _stepCountStatus = 'Step Count not available';
       });
     });
-
+    _points = 0;
     _stepsToday = 0;
     var stepsToday = await Util().loadFromPrefs('stepsToday');
     if (stepsToday != null) {
       _stepsToday = int.parse(stepsToday);
     }
+  }
+
+  void updateUser() async {
+    await widget.user.updateLocalUser();
+    setState(() {
+      _points = widget.user.points;
+    });
   }
 
   bool isNotToday(DateTime lastSavedDate) {
@@ -145,10 +153,6 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     MediaQueryData mediaQuery = MediaQuery.of(context);
     double boxSize = mediaQuery.size.width / 2 - 40;
-    setState(() {
-      //   _stepsToday = widget.user.steps.toString();
-      _stepGoal = widget.stepGoal ?? _stepGoal;
-    });
 
     return Padding(
       padding: const EdgeInsets.all(5),
