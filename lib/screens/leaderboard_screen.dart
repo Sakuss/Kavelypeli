@@ -35,6 +35,7 @@ class _LeaderboardState extends State<Leaderboard> {
     final snapshot = _lastDocument == null ? await _query.get() : await _query.startAfterDocument(_lastDocument!).get();
     final documents = snapshot.docs;
     for (final document in documents) {
+      if (!mounted) return;
       AppUser user = AppUser(
         uid: document.id,
         photoURL: await AppUser.getPhotoURL(document.id),

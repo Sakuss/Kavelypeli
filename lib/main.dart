@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:kavelypeli/util.dart';
@@ -41,9 +42,23 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _initPlatformState() async {
-    await Util().loadFromPrefs("darkMode").then((value) {
-      changeTheme(value == "true" ? ThemeMode.dark : ThemeMode.light);
-    });
+    print("USER ${widget._firebaseUser}");
+    if (widget._firebaseUser == null) {
+      Util().loadFromPrefs("darkMode").then((value) {
+        changeTheme(value == "true" ? ThemeMode.dark : ThemeMode.light);
+      });
+    } else {
+      try {
+        FirebaseFirestore.instance
+            .collection("user_settings")
+            .doc(widget._firebaseUser!.uid)
+            .get()
+            .then((snapshot) {
+          changeTheme(
+              snapshot["darkMode"] as bool ? ThemeMode.dark : ThemeMode.light);
+        });
+      } catch (_) {}
+    }
   }
 
   @override
