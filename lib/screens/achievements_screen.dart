@@ -38,6 +38,16 @@ class _AchievementPageState extends State<AchievementPage> {
     });
   }
 
+  // Add a method to calculate the user's progress towards the next achievement
+  int calculateProgress(int requiredSteps, int userSteps) {
+    if (userSteps == 0) {
+      return 0;
+    } else {
+      int progress = userSteps % requiredSteps;
+      return progress == 0 ? requiredSteps : progress;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,6 +65,7 @@ class _AchievementPageState extends State<AchievementPage> {
               crossAxisCount: 2,
               children: _achievements?.map((achievement) {
                     int requiredSteps = achievement['req'];
+                    int progress = calculateProgress(requiredSteps, _userSteps ?? 0);
                     if (_userSteps != null && _userSteps! >= requiredSteps) {
                       return FutureBuilder(
                         future: storage.refFromURL(achievement['imageUrl']).getDownloadURL(),
@@ -98,6 +109,15 @@ class _AchievementPageState extends State<AchievementPage> {
                                               style: const TextStyle(
                                                 color: Colors.black,
                                                 fontSize: 14,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            const Text(
+                                              'Completed!',
+                                              style: TextStyle(
+                                                color: Colors.green,
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                           ],
@@ -144,6 +164,12 @@ class _AchievementPageState extends State<AchievementPage> {
                                     fontSize: 14,
                                   ),
                                 ),
+                                const SizedBox(height: 4),
+                                Text('Progress: $progress / $requiredSteps',
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14,
+                                    ))
                               ],
                             ),
                           ),
