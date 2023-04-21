@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -28,13 +29,16 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void changeProfilePicture() async {
+    final DocumentReference userDocument = FirebaseFirestore.instance.collection('users').doc(user.uid);
     final XFile? image = await imagePicker.pickImage(source: ImageSource.gallery);
     if (image == null) return;
     File file = File(image.path);
-    var userImageRef = storageRef.child('profilepics/${user.uid}');
+    var bucketPath = 'profilepics/${user.uid}';
+    var userImageRef = storageRef.child(bucketPath);
     try {
+      userDocument.update({'photoPath': bucketPath});
       await userImageRef.putFile(file);
-      var photoURL = await AppUser.getPhotoURL(user.uid);
+      var photoURL = await AppUser.getPhotoURL(bucketPath);
       setState(() {
         user.photoURL = photoURL;
       });

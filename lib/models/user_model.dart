@@ -42,8 +42,9 @@ class AppUser {
         'points': 0,
         'currency': 0,
         'stepGoal': 10000,
+        'photoPath': 'profilepics/default.png'
       });
-      var photoURL = await getPhotoURL(user.uid);
+      var photoURL = await getPhotoURL('profilepics/default.png');
       return AppUser(
         username: username,
         email: email,
@@ -62,15 +63,15 @@ class AppUser {
     }
   }
 
-  static Future<String> getPhotoURL(String uid) async {
+  static Future<String> getPhotoURL(String path) async {
     final storageRef = FirebaseStorage.instance.ref();
     String photoURL;
     try {
-      final pathReference = storageRef.child('profilepics/$uid');
+      final pathReference = storageRef.child(path);
       photoURL = await pathReference.getDownloadURL();
     } catch (e) {
-      final pathReference = storageRef.child('profilepics/default.png');
-      photoURL = await pathReference.getDownloadURL();
+      print(e);
+      return "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
     }
     return photoURL;
   }
@@ -83,7 +84,7 @@ class AppUser {
 
       var userDocumentSnapshot = await userDocument.get();
       var firestoreUser = userDocumentSnapshot.data() as Map<String, dynamic>;
-      var photoURL = await getPhotoURL(uid);
+      var photoURL = await getPhotoURL(firestoreUser['photoPath']);
 
       return AppUser(
         username: firestoreUser['username'],
