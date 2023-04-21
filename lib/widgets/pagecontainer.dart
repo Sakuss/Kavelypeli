@@ -86,9 +86,15 @@ class _PageContainerState extends State<PageContainer> {
               title: const Text('Inventory'),
               onTap: () {
                 Navigator.pop(context);
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => InventoryPage(user: widget.user,))).then((value) {
-                      setState(() {});
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => InventoryPage(
+                      user: widget.user,
+                    ),
+                  ),
+                ).then((value) {
+                  setState(() {});
                 });
               },
             ),
@@ -191,6 +197,7 @@ class _PageContainerState extends State<PageContainer> {
         title: const Text("Kävelypeli"),
       ),
       body: PageView(
+        // physics: const PageScrollPhysics(),
         controller: _pageController,
         children: <Widget>[
           Leaderboard(user: widget.user),
