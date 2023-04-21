@@ -21,7 +21,7 @@ class FriendsSearchDelegate extends SearchDelegate<Map<String, dynamic>> {
       for (var docSnapshot in querySnapshot.docs) {
         var userData = docSnapshot.data();
         userData['uid'] = docSnapshot.id;
-        userData['photoURL'] = await AppUser.getPhotoURL(docSnapshot.id);
+        userData['photoURL'] = await AppUser.getPhotoURL(docSnapshot['photoPath']);
         users.add(userData);
       }
       return users;
