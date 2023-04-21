@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -26,21 +28,32 @@ class ShopPage extends StatefulWidget {
 class _ShopPageState extends State<ShopPage> {
   final _db = FirebaseFirestore.instance;
   final _itemsCollRef = FirebaseFirestore.instance.collection("items");
-  final _userItemsCollRef = FirebaseFirestore.instance.collection("user_items");
   final _userCollRef = FirebaseFirestore.instance.collection("users");
 
   List<AppItem> _buyableItems = [];
+  List<AppItem> _buyableItemsCopy = [];
+
   bool _storeLoaded = false;
 
   static const List<String> filters = [
-    "Alphabet A-Z",
-    "Alphabet Z-A",
+    "Name A-Z",
+    "Name Z-A",
     "Money price lowest",
     "Money price highest",
     "Currency price lowest",
-    "Currency price highest"
+    "Currency price highest",
   ];
-  String dropdownValue = filters.first;
+  static const List<String> categories = [
+    "All",
+    "Hats",
+    "Glasses",
+    "Shirts",
+    "Pants",
+    "Gloves",
+    "Shoes",
+  ];
+  String filtersDropdownValue = filters.first;
+  String categoriesDropdownValue = categories.first;
 
   @override
   void initState() {
@@ -64,9 +77,7 @@ class _ShopPageState extends State<ShopPage> {
           AppItem.createItem(item).then((value) {
             setState(() {
               _buyableItems.add(value);
-              _filterHandler("Alphabet A-Z");
-              // _buyableItems
-              //     .sort((a, b) => a.moneyPrice.compareTo(b.moneyPrice));
+              _filtersHandler("Name A-Z");
             });
           });
         }
@@ -133,12 +144,50 @@ class _ShopPageState extends State<ShopPage> {
     }
   }
 
-  void _filterHandler(String filterType) {
+  void _categoriesHandler(CategoryType categoryType) {
+    _buyableItemsCopy = _buyableItemsCopy.isEmpty
+        ? List.from(_buyableItems)
+        : _buyableItemsCopy;
+    _buyableItems = List.from(_buyableItemsCopy);
+
+    switch (categoryType) {
+      case CategoryType.hats:
+        _buyableItems
+            .removeWhere((element) => element.category != CategoryType.hats);
+        break;
+      case CategoryType.glasses:
+        _buyableItems
+            .removeWhere((element) => element.category != CategoryType.glasses);
+        break;
+      case CategoryType.shirts:
+        _buyableItems
+            .removeWhere((element) => element.category != CategoryType.shirts);
+        break;
+      case CategoryType.pants:
+        _buyableItems
+            .removeWhere((element) => element.category != CategoryType.pants);
+        break;
+      case CategoryType.gloves:
+        _buyableItems
+            .removeWhere((element) => element.category != CategoryType.gloves);
+        break;
+      case CategoryType.shoes:
+        _buyableItems
+            .removeWhere((element) => element.category != CategoryType.shoes);
+        break;
+      case CategoryType.all:
+        _buyableItems = List.from(_buyableItemsCopy);
+        break;
+    }
+    _filtersHandler(filtersDropdownValue);
+  }
+
+  void _filtersHandler(String filterType) {
     switch (filterType) {
-      case "Alphabet A-Z":
+      case "Name A-Z":
         _buyableItems.sort((a, b) => a.name.compareTo(b.name));
         break;
-      case "Alphabet Z-A":
+      case "Name Z-A":
         _buyableItems.sort((a, b) => b.name.compareTo(a.name));
         break;
       case "Money price lowest":
@@ -256,33 +305,81 @@ class _ShopPageState extends State<ShopPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: DropdownButton<String>(
-                    value: dropdownValue,
-                    icon: const Icon(Icons.arrow_downward),
-                    elevation: 16,
-                    style: const TextStyle(color: Colors.deepPurple),
-                    underline: Container(
-                      height: 2,
-                      color: Colors.deepPurpleAccent,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20.0,
+                ),
+                child: Row(
+                  // crossAxisAlignment: CrossAxisAlignment.center,
+                  // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          right: 5.0,
+                        ),
+                        child: DropdownButton<String>(
+                          // alignment: Alignment.center,
+                          value: filtersDropdownValue,
+                          // icon: const Icon(Icons.arrow_downward),
+                          elevation: 16,
+                          style: const TextStyle(color: Colors.deepPurple),
+                          underline: Container(
+                            height: 2,
+                            color: Colors.deepPurpleAccent,
+                          ),
+                          onChanged: (String? value) {
+                            // This is called when the user selects an item.
+                            setState(() {
+                              filtersDropdownValue = value!;
+                              _filtersHandler(value);
+                            });
+                          },
+                          items: filters
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
+                      ),
                     ),
-                    onChanged: (String? value) {
-                      // This is called when the user selects an item.
-                      setState(() {
-                        dropdownValue = value!;
-                        _filterHandler(value);
-                      });
-                    },
-                    items:
-                        filters.map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
+                    Expanded(
+                      flex: 1,
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          left: 5.0,
+                        ),
+                        child: DropdownButton<String>(
+                          // alignment: Alignment.centerRight,
+                          value: categoriesDropdownValue,
+                          // icon: const Icon(Icons.arrow_downward),
+                          elevation: 16,
+                          style: const TextStyle(color: Colors.deepPurple),
+                          underline: Container(
+                            height: 2,
+                            color: Colors.deepPurpleAccent,
+                          ),
+                          onChanged: (String? value) {
+                            // This is called when the user selects an item.
+                            setState(() {
+                              categoriesDropdownValue = value!;
+                              _categoriesHandler(
+                                  AppItem.getCategoryType(value.toLowerCase()));
+                            });
+                          },
+                          items: categories
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Expanded(

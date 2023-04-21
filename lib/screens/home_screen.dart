@@ -65,7 +65,7 @@ class _HomeState extends State<Home> {
     _stepCountStream.listen(onStepCount).onError((error) {
       print('onStepCountError: $error');
       setState(() {
-        _stepCountStatus = 'Step Count not available';
+        // _stepCountStatus = 'Step Count not available';
       });
     });
     _points = 0;
