@@ -62,16 +62,6 @@ class _StatsScreenState extends State<StatsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        bottom: const TabBar(
-          tabs: [
-            Tab(
-              text: "Daily",
-            ),
-            Tab(
-              text: "Monthly",
-            ),
-          ],
-        ),
         title: const Text(
           "Stats",
         ),
