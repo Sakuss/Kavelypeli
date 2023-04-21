@@ -12,37 +12,37 @@ class StatsScreen extends StatefulWidget {
 class _StatsScreenState extends State<StatsScreen> {
   final List<BarChartModel> data = [
     BarChartModel(
-      month: "Monday",
+      date: "Mon",
+      steps: 900,
+      color: charts.ColorUtil.fromDartColor(Colors.blue),
+    ),
+    BarChartModel(
+      date: "Tue",
       steps: 10000,
       color: charts.ColorUtil.fromDartColor(Colors.blue),
     ),
     BarChartModel(
-      month: "Tuesday",
+      date: "Wed",
       steps: 10000,
       color: charts.ColorUtil.fromDartColor(Colors.blue),
     ),
     BarChartModel(
-      month: "Wednesday",
+      date: "Thu",
       steps: 10000,
       color: charts.ColorUtil.fromDartColor(Colors.blue),
     ),
     BarChartModel(
-      month: "Thursday",
+      date: "Fri",
       steps: 10000,
       color: charts.ColorUtil.fromDartColor(Colors.blue),
     ),
     BarChartModel(
-      month: "Friday",
+      date: "Sat",
       steps: 10000,
       color: charts.ColorUtil.fromDartColor(Colors.blue),
     ),
     BarChartModel(
-      month: "Saturday",
-      steps: 10000,
-      color: charts.ColorUtil.fromDartColor(Colors.blue),
-    ),
-    BarChartModel(
-      month: "Sunday",
+      date: "Sun",
       steps: 10000,
       color: charts.ColorUtil.fromDartColor(Colors.blue),
     ),
@@ -54,7 +54,7 @@ class _StatsScreenState extends State<StatsScreen> {
       charts.Series(
         id: "steps",
         data: data,
-        domainFn: (BarChartModel series, _) => series.month,
+        domainFn: (BarChartModel series, _) => series.date,
         measureFn: (BarChartModel series, _) => series.steps,
         colorFn: (BarChartModel series, _) => series.color,
       ),
