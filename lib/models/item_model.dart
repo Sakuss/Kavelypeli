@@ -71,6 +71,25 @@ class AppItem {
     }
   }
 
+  static String? getCategoryTypeString(CategoryType value) {
+    switch (value) {
+      case CategoryType.hats:
+        return "hats";
+      case CategoryType.glasses:
+        return "glasses";
+      case CategoryType.shirts:
+        return "shirts";
+      case CategoryType.pants:
+        return "pants";
+      case CategoryType.gloves:
+        return "gloves";
+      case CategoryType.shoes:
+        return "shoes";
+      default:
+        return null;
+    }
+  }
+
   Map<String, dynamic> toJson() {
     return {
       "name": name,
@@ -79,6 +98,7 @@ class AppItem {
       "money_price": moneyPrice,
       "currency_price": currencyPrice,
       "equipped": equipped,
+      "category": getCategoryTypeString(category!),
     };
   }
 }
