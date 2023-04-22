@@ -101,6 +101,7 @@ class _ShopPageState extends State<ShopPage> {
   void _buyItem(AppItem item, PurchaseType purchaseType) {
     try {
       if (_doesAlreadyOwn(item)) return;
+      print("buy");
 
       final userDocRef = _userCollRef.doc(widget.user.uid);
       _db.runTransaction((transaction) async {
