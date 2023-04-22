@@ -76,7 +76,7 @@ class AppUser {
     return photoURL;
   }
 
-  static Future<AppUser?> createUser(String uid) async {
+  static Future<AppUser?> createUserWithUid(String uid) async {
     print("CREATING USER ...");
     try {
       final FirebaseFirestore db = FirebaseFirestore.instance;
@@ -97,6 +97,29 @@ class AppUser {
         currency: firestoreUser['currency'],
         stepGoal: firestoreUser["stepGoal"],
         userItems: await _getUserItems(uid),
+      );
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  static Future<AppUser?> createUserFromDocument(DocumentSnapshot document) async {
+    try {
+      var firestoreUser = document.data() as Map<String, dynamic>;
+      var photoURL = await getPhotoURL(firestoreUser['photoPath']);
+
+      return AppUser(
+        username: firestoreUser['username'],
+        email: firestoreUser['email'],
+        photoURL: photoURL,
+        joinDate: firestoreUser['joinDate'].toDate(),
+        uid: document.id,
+        steps: firestoreUser['steps'],
+        points: firestoreUser['points'],
+        currency: firestoreUser['currency'],
+        stepGoal: firestoreUser["stepGoal"],
+        userItems: await _getUserItems(document.id),
       );
     } catch (e) {
       print(e);

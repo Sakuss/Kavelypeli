@@ -33,7 +33,7 @@ class Profile extends StatelessWidget {
       child: Column(
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 55),
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -66,11 +66,7 @@ class Profile extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        "mistä tämä tulee?",
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal,
-                        ),
+                        'Member since: ${DateFormat('dd.MM.yyyy').format(user.joinDate!)}',
                       ),
                     ],
                   ),
@@ -82,11 +78,11 @@ class Profile extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20),
             child: SizedBox(
-              width: 250,
+              width: 200,
               child: GridView.count(
                 crossAxisCount: 2,
                 shrinkWrap: true,
-                childAspectRatio: 3,
+                childAspectRatio: 2,
                 children: <Widget>[
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -119,25 +115,6 @@ class Profile extends StatelessWidget {
                       ),
                       Text(
                         user.points.toString(),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      const Text(
-                        'Date joined',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                      Text(
-                        DateFormat('dd.MM.yyyy').format(user.joinDate!),
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,

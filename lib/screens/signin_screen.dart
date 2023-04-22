@@ -28,13 +28,11 @@ class _SignInState extends State<SignIn> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              retextfield(
-                  "Email", Icons.person_outline, false, _emailTextController),
+              retextfield("Email", Icons.person_outline, false, _emailTextController),
               const SizedBox(
                 height: 30,
               ),
-              retextfield("Password", Icons.lock_outline, true,
-                  _passwordTextController),
+              retextfield("Password", Icons.lock_outline, true, _passwordTextController),
               const SizedBox(
                 height: 30,
               ),
@@ -44,12 +42,11 @@ class _SignInState extends State<SignIn> {
                 () {
                   FirebaseAuth.instance
                       .signInWithEmailAndPassword(
-                          email: _emailTextController.text,
-                          password: _passwordTextController.text)
+                          email: _emailTextController.text, password: _passwordTextController.text)
                       .then(
                     (responseData) async {
                       print("VALUE : $responseData");
-                      var user = await AppUser.createUser(responseData.user!.uid);
+                      var user = await AppUser.createUserWithUid(responseData.user!.uid);
                       if (user == null) {
                         //do something
                       }
@@ -93,16 +90,11 @@ class _SignInState extends State<SignIn> {
       children: [
         GestureDetector(
             onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          SignUp(changeTheme: widget.changeTheme)));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => SignUp(changeTheme: widget.changeTheme)));
             },
             child: const Text(
               "Sign up",
-              style:
-                  TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
             ))
       ],
     );
