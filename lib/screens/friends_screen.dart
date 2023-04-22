@@ -33,7 +33,7 @@ class _FriendsPageState extends State<FriendsPage> {
       var querySnapshot = await db.collection('friends').where('user_id', isEqualTo: widget.user.uid).get();
       for (var docSnapshot in querySnapshot.docs) {
         var friendId = docSnapshot.get('friend_id');
-        var friend = await AppUser.createUser(friendId);
+        var friend = await AppUser.createUserWithUid(friendId);
         if (friend != null) {
           friendsList.add(friend);
         }

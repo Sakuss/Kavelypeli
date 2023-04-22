@@ -48,13 +48,8 @@ class _MyAppState extends State<MyApp> {
       });
     } else {
       try {
-        FirebaseFirestore.instance
-            .collection("user_settings")
-            .doc(widget._firebaseUser!.uid)
-            .get()
-            .then((snapshot) {
-          changeTheme(
-              snapshot["darkMode"] as bool ? ThemeMode.dark : ThemeMode.light);
+        FirebaseFirestore.instance.collection("user_settings").doc(widget._firebaseUser!.uid).get().then((snapshot) {
+          changeTheme(snapshot["darkMode"] as bool ? ThemeMode.dark : ThemeMode.light);
         });
       } catch (_) {}
     }
@@ -70,7 +65,7 @@ class _MyAppState extends State<MyApp> {
       home: widget._firebaseUser == null
           ? SignIn(changeTheme: changeTheme)
           : FutureBuilder(
-              future: AppUser.createUser(widget._firebaseUser!.uid),
+              future: AppUser.createUserWithUid(widget._firebaseUser!.uid),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return PageContainer(
