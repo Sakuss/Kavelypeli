@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  charts_flutter: 0.12.0
   flutter:
     sdk: flutter
 
@@ -42,12 +43,14 @@ dependencies:
   percent_indicator: ^4.0.1
   shared_preferences: ^2.0.20
   font_awesome_flutter: ^10.4.0
-  cloud_firestore: ^4.4.5
+  cloud_firestore: ^4.5.2
+  fl_chart: ^0.62.0
   grouped_list: ^5.1.2
   google_maps_flutter: ^2.2.5
   geolocator: ^9.0.2
   image_picker: ^0.8.7+2
   intl: ^0.17.0
+  permission_handler: ^10.2.0
 
 dev_dependencies:
   flutter_test:

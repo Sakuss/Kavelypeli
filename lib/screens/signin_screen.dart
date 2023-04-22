@@ -46,7 +46,7 @@ class _SignInState extends State<SignIn> {
                       .then(
                     (responseData) async {
                       print("VALUE : $responseData");
-                      var user = await AppUser.createUser(responseData.user!.uid);
+                      var user = await AppUser.createUserWithUid(responseData.user!.uid);
                       if (user == null) {
                         //do something
                       }
