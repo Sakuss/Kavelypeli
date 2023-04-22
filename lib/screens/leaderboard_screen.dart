@@ -42,14 +42,8 @@ class _LeaderboardState extends State<Leaderboard> {
     final snapshot = _lastDocument == null ? await _query.get() : await _query.startAfterDocument(_lastDocument!).get();
     final documents = snapshot.docs;
     for (final document in documents) {
-      AppUser user = AppUser(
-        uid: document.id,
-        photoURL: await AppUser.getPhotoURL(document['photoPath']),
-        joinDate: document['joinDate'].toDate(),
-        username: document['username'],
-        points: document['points'],
-        steps: document['steps'],
-      );
+      AppUser? user = await AppUser.createUserFromDocument(document);
+      if (user == null) continue;
       setState(() {
         _users.add(user);
       });
@@ -74,12 +68,13 @@ class _LeaderboardState extends State<Leaderboard> {
       child: RefreshIndicator(
         onRefresh: handleRefresh,
         child: ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
           controller: _scrollController,
           itemCount: _users.length,
           itemBuilder: (context, index) {
             if (_isLoading && index == _users.length - 1) {
               return const Center(
-                child: CircularProgressIndicator(),
+                child: LinearProgressIndicator(),
               );
             }
             final user = _users[index];

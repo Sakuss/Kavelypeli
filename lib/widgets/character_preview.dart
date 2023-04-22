@@ -21,12 +21,17 @@ class _CharacterPreviewState extends State<CharacterPreview> {
   final userItemsDocRef = FirebaseFirestore.instance.collection("user_items");
   final _storage = FirebaseStorage.instance.ref("character_item_pics");
   Image? _avatar = null;
-  final Image _localDefaultAvatar =
-      Image.asset("assets/images/default_avatar.png");
-  final Image _placeholderImage =
-      Image.asset("assets/images/placeholder_image.png");
+  final Image _localDefaultAvatar = Image.asset("assets/images/default_avatar.png");
+  final Image _placeholderImage = Image.asset("assets/images/placeholder_image.png");
   bool _isAvatarLoaded = false;
   late List<AppItem> _userItems = [];
+
+  @override
+  void setState(fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
 
   @override
   void initState() {
@@ -135,9 +140,8 @@ class _CharacterPreviewState extends State<CharacterPreview> {
             children: [
               _avatar ?? _localDefaultAvatar,
               // ..._userItems.map((item) => Image.network(item.itemUrl!)),
-              ...widget.user.userItems!.map((item) => item.equipped
-                  ? Image.network(item.characterImageUrl!)
-                  : _placeholderImage),
+              ...widget.user.userItems!
+                  .map((item) => item.equipped ? Image.network(item.characterImageUrl!) : _placeholderImage),
             ],
           );
   }
