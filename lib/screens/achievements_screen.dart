@@ -167,7 +167,7 @@ class _AchievementPageState extends State<AchievementPage> {
                                 const SizedBox(height: 4),
                                 Text('Progress: $progress / $requiredSteps',
                                     style: const TextStyle(
-                                      color: Colors.black,
+                                      color: Colors.red,
                                       fontSize: 14,
                                     ))
                               ],
