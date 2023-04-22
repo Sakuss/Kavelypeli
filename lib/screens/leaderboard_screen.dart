@@ -68,12 +68,13 @@ class _LeaderboardState extends State<Leaderboard> {
       child: RefreshIndicator(
         onRefresh: handleRefresh,
         child: ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
           controller: _scrollController,
           itemCount: _users.length,
           itemBuilder: (context, index) {
             if (_isLoading && index == _users.length - 1) {
               return const Center(
-                child: CircularProgressIndicator(),
+                child: LinearProgressIndicator(),
               );
             }
             final user = _users[index];
