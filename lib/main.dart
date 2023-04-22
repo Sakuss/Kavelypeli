@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/services.dart';
 import 'package:kavelypeli/util.dart';
 import 'package:kavelypeli/widgets/pagecontainer.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 
@@ -37,6 +39,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    checkPermissions();
     _initPlatformState();
   }
 
@@ -52,6 +55,22 @@ class _MyAppState extends State<MyApp> {
           changeTheme(snapshot["darkMode"] as bool ? ThemeMode.dark : ThemeMode.light);
         });
       } catch (_) {}
+    }
+  }
+
+  Future<void> checkPermissions() async {
+    PermissionStatus locationStatus = await Permission.location.status;
+    PermissionStatus activityStatus = await Permission.activityRecognition.status;
+    if (locationStatus != PermissionStatus.granted || activityStatus != PermissionStatus.granted) {
+      requestPermissions();
+    }
+  }
+
+  Future<void> requestPermissions() async {
+    PermissionStatus locationStatus = await Permission.location.request();
+    PermissionStatus activityStatus = await Permission.activityRecognition.request();
+    if (locationStatus == PermissionStatus.denied || activityStatus == PermissionStatus.denied) {
+      SystemNavigator.pop();
     }
   }
 
