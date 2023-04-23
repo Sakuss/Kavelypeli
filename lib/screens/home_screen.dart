@@ -17,7 +17,8 @@ class Home extends StatefulWidget {
   final AppUser user;
   final int? stepGoal;
 
-  const Home({Key? key, required this.user, required this.stepGoal}) : super(key: key);
+  const Home({Key? key, required this.user, required this.stepGoal})
+      : super(key: key);
 
   @override
   State<Home> createState() => _HomeState();
@@ -35,7 +36,8 @@ class _HomeState extends State<Home> {
   final int _pointsMultiplier = 5;
   bool _isMapVisible = false;
   final db = FirebaseFirestore.instance;
-  late final DocumentReference userDocument = FirebaseFirestore.instance.collection('users').doc(widget.user.uid);
+  late final DocumentReference userDocument =
+      FirebaseFirestore.instance.collection('users').doc(widget.user.uid);
 
   @override
   void setState(fn) {
@@ -46,7 +48,7 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    print("HOME : initState");
+    // print("HOME : initState");
     super.initState();
     _initPlatformState();
   }
@@ -55,7 +57,7 @@ class _HomeState extends State<Home> {
     updateUser();
     _pedestrianStatusStream = Pedometer.pedestrianStatusStream;
     _pedestrianStatusStream.listen(onPedestrianStatusChanged).onError(((error) {
-      print('onPedestrianStatusError: $error');
+      // print('onPedestrianStatusError: $error');
       setState(() {
         _pedestrianStatus = 'Pedestrian Status not available';
       });
@@ -63,7 +65,7 @@ class _HomeState extends State<Home> {
 
     _stepCountStream = Pedometer.stepCountStream;
     _stepCountStream.listen(onStepCount).onError((error) {
-      print('onStepCountError: $error');
+      // print('onStepCountError: $error');
       setState(() {
         _stepCountStatus = 'Step Count not available';
       });
@@ -130,7 +132,7 @@ class _HomeState extends State<Home> {
   }
 
   void onPedestrianStatusChanged(PedestrianStatus event) {
-    print(event.status);
+    // print(event.status);
     setState(() {
       _pedestrianStatus = event.status;
     });
@@ -185,16 +187,21 @@ class _HomeState extends State<Home> {
                             flex: 1,
                             child: Container(
                               margin: const EdgeInsets.all(5),
-                              child: const FaIcon(FontAwesomeIcons.shoePrints, size: 30),
+                              child: const FaIcon(FontAwesomeIcons.shoePrints,
+                                  size: 30),
                             ),
                           ),
                           Expanded(
                             flex: 1,
                             child: Text(
-                              "$_stepsToday",
-                              style: _stepCountStatus == "Step Count not available"
-                                  ? const TextStyle(fontSize: 20)
-                                  : const TextStyle(fontSize: 40),
+                              _stepCountStatus == "Step Count not available"
+                                  ? _stepCountStatus
+                                  : "$_stepsToday",
+                              style: TextStyle(
+                                  fontSize: _stepCountStatus ==
+                                          "Step Count not available"
+                                      ? 20
+                                      : 40),
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -232,7 +239,8 @@ class _HomeState extends State<Home> {
                             flex: 1,
                             child: Container(
                               margin: const EdgeInsets.all(5),
-                              child: const FaIcon(FontAwesomeIcons.solidStar, size: 30),
+                              child: const FaIcon(FontAwesomeIcons.solidStar,
+                                  size: 30),
                             ),
                           ),
                           Expanded(
@@ -274,7 +282,8 @@ class _HomeState extends State<Home> {
                               ? Column(
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
+                                      padding: const EdgeInsets.only(
+                                          top: 5.0, bottom: 5.0),
                                       child: Text(
                                         "$_stepsToday / $_stepGoal",
                                         style: const TextStyle(fontSize: 20),
@@ -306,12 +315,14 @@ class _HomeState extends State<Home> {
                                   ],
                                 )
                               : Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10.0),
                                   child: Container(
                                     alignment: Alignment.center,
-                                    child: Text(
-                                      "$_stepsToday",
-                                      style: const TextStyle(
+                                    child: const Text(
+                                      // "$_stepsToday",
+                                      "Step count not available",
+                                      style: TextStyle(
                                         fontSize: 20,
                                       ),
                                     ),
@@ -359,7 +370,9 @@ class _HomeState extends State<Home> {
                   Expanded(
                     child: Center(
                       // child: CharacterPreview(user: widget.user),
-                      child: _isMapVisible ? const MapWidget() : CharacterPreview(user: widget.user),
+                      child: _isMapVisible
+                          ? const MapWidget()
+                          : CharacterPreview(user: widget.user),
                     ),
                   ),
                 ],

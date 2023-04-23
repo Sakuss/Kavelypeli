@@ -50,15 +50,7 @@ class _SignInState extends State<SignIn> {
                       if (user == null) {
                         //do something
                       }
-                      // Util().saveToPrefs("uid", value.user?.uid);
-                      // Util().saveToPrefs(
-                      //   "user",
-                      //   AppUser(
-                      //           username: value.additionalUserInfo?.username,
-                      //           uid: value.user?.uid,
-                      //           email: value.user?.email)
-                      //       .toJson(),
-                      // );
+                      widget.changeTheme(user!.appUserSettings!.darkMode ? ThemeMode.dark : ThemeMode.light);
                       Navigator.push(
                         context,
                         MaterialPageRoute(

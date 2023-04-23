@@ -279,7 +279,7 @@ class _ShopPageState extends State<ShopPage> {
         : Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.5),
+                padding: const EdgeInsets.only(left: 12.5, right: 12.5, top: 12.5),
                 child: SizedBox(
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height * 0.1,

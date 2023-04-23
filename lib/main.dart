@@ -44,15 +44,15 @@ class _MyAppState extends State<MyApp> {
   }
 
   void _initPlatformState() async {
-    print("USER ${widget._firebaseUser}");
-    if (widget._firebaseUser == null) {
-      Util().loadFromPrefs("darkMode").then((value) {
-        changeTheme(value == "true" ? ThemeMode.dark : ThemeMode.light);
-      });
-    } else {
+    if (widget._firebaseUser != null) {
       try {
-        FirebaseFirestore.instance.collection("user_settings").doc(widget._firebaseUser!.uid).get().then((snapshot) {
-          changeTheme(snapshot["darkMode"] as bool ? ThemeMode.dark : ThemeMode.light);
+        FirebaseFirestore.instance
+            .collection("user_settings")
+            .doc(widget._firebaseUser!.uid)
+            .get()
+            .then((snapshot) {
+          changeTheme(
+              snapshot["darkMode"] as bool ? ThemeMode.dark : ThemeMode.light);
         });
       } catch (_) {}
     }
@@ -60,16 +60,20 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> checkPermissions() async {
     PermissionStatus locationStatus = await Permission.location.status;
-    PermissionStatus activityStatus = await Permission.activityRecognition.status;
-    if (locationStatus != PermissionStatus.granted || activityStatus != PermissionStatus.granted) {
+    PermissionStatus activityStatus =
+        await Permission.activityRecognition.status;
+    if (locationStatus != PermissionStatus.granted ||
+        activityStatus != PermissionStatus.granted) {
       requestPermissions();
     }
   }
 
   Future<void> requestPermissions() async {
     PermissionStatus locationStatus = await Permission.location.request();
-    PermissionStatus activityStatus = await Permission.activityRecognition.request();
-    if (locationStatus == PermissionStatus.denied || activityStatus == PermissionStatus.denied) {
+    PermissionStatus activityStatus =
+        await Permission.activityRecognition.request();
+    if (locationStatus == PermissionStatus.denied ||
+        activityStatus == PermissionStatus.denied) {
       SystemNavigator.pop();
     }
   }
