@@ -58,7 +58,7 @@ class AppUser {
         userItems: <AppItem>[],
       );
     } catch (e) {
-      print(e);
+      // print(e);
       return null;
     }
   }
@@ -70,14 +70,14 @@ class AppUser {
       final pathReference = storageRef.child(path);
       photoURL = await pathReference.getDownloadURL();
     } catch (e) {
-      print(e);
+      // print(e);
       return "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
     }
     return photoURL;
   }
 
   static Future<AppUser?> createUserWithUid(String uid) async {
-    print("CREATING USER ...");
+    // print("CREATING USER ...");
     try {
       final FirebaseFirestore db = FirebaseFirestore.instance;
       final DocumentReference userDocument = db.collection('users').doc(uid);
@@ -99,7 +99,7 @@ class AppUser {
         userItems: await _getUserItems(uid),
       );
     } catch (e) {
-      print(e);
+      // print(e);
       return null;
     }
   }
@@ -122,7 +122,7 @@ class AppUser {
         userItems: await _getUserItems(document.id),
       );
     } catch (e) {
-      print(e);
+      // print(e);
       return null;
     }
   }
@@ -140,7 +140,7 @@ class AppUser {
       }
       return items;
     } catch (e) {
-      print(e);
+      // print(e);
       return <AppItem>[];
     }
   }
@@ -154,12 +154,12 @@ class AppUser {
         List<Map<String, dynamic>> json = userItems!.map((item) => item.toJson()).toList();
         transaction.update(userItemsDocRef, {"items": json});
       }).whenComplete(() {
-        print("User items updated");
+        // print("User items updated");
       }).onError((error, stackTrace) {
-        print(error);
+        // print(error);
       });
     } catch (e) {
-      print(e);
+      // print(e);
     }
   }
 
@@ -180,7 +180,7 @@ class AppUser {
       username = userData["username"];
       userItems = await _getUserItems(uid);
     } catch (e) {
-      print(e);
+      // print(e);
     }
   }
 
@@ -191,7 +191,7 @@ class AppUser {
     try {
       await userDocRef.update(toJson());
     } catch (e) {
-      print(e);
+      // print(e);
     }
   }
 
