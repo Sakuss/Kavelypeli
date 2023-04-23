@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:kavelypeli/models/item_model.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:kavelypeli/models/user_settings_model.dart';
 
 class AppUser {
   String uid;
@@ -11,6 +12,7 @@ class AppUser {
   DateTime? joinDate;
   String photoURL;
   List<AppItem>? userItems;
+  AppUserSettings? appUserSettings;
 
   AppUser({
     this.username,
@@ -18,12 +20,15 @@ class AppUser {
     this.currency,
     this.stepGoal,
     this.userItems,
+    this.appUserSettings,
     required this.photoURL,
     required this.joinDate,
     required this.uid,
     required this.steps,
     required this.points,
   });
+
+  String get userid => uid;
 
   static Future<AppUser?> createUserOnSignup(
     User user,
@@ -56,6 +61,7 @@ class AppUser {
         currency: 0,
         stepGoal: 10000,
         userItems: <AppItem>[],
+        appUserSettings: await AppUserSettings.createAppUserSettings(user.uid),
       );
     } catch (e) {
       // print(e);
@@ -77,7 +83,7 @@ class AppUser {
   }
 
   static Future<AppUser?> createUserWithUid(String uid) async {
-    // print("CREATING USER ...");
+    print("CREATING USER WITH UID ...");
     try {
       final FirebaseFirestore db = FirebaseFirestore.instance;
       final DocumentReference userDocument = db.collection('users').doc(uid);
@@ -97,6 +103,7 @@ class AppUser {
         currency: firestoreUser['currency'],
         stepGoal: firestoreUser["stepGoal"],
         userItems: await _getUserItems(uid),
+        appUserSettings: await AppUserSettings.createAppUserSettings(uid),
       );
     } catch (e) {
       // print(e);
@@ -105,6 +112,7 @@ class AppUser {
   }
 
   static Future<AppUser?> createUserFromDocument(DocumentSnapshot document) async {
+    print("CREATING USER FROM DOCUMENT ...");
     try {
       var firestoreUser = document.data() as Map<String, dynamic>;
       var photoURL = await getPhotoURL(firestoreUser['photoPath']);
@@ -120,6 +128,7 @@ class AppUser {
         currency: firestoreUser['currency'],
         stepGoal: firestoreUser["stepGoal"],
         userItems: await _getUserItems(document.id),
+        appUserSettings: await AppUserSettings.createAppUserSettings(document.id),
       );
     } catch (e) {
       // print(e);

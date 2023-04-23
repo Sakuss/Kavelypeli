@@ -2,17 +2,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kavelypeli/models/user_model.dart';
 
 class AppUserSettings {
-  bool? darkMode;
+  bool darkMode;
 
   AppUserSettings({
-    this.darkMode,
+    required this.darkMode,
   });
 
-  static Future<AppUserSettings?> createAppUserSettings(AppUser user) async {
+  static Future<AppUserSettings?> createAppUserSettings(String uid) async {
     try {
       final FirebaseFirestore db = FirebaseFirestore.instance;
       final DocumentReference userSettingsDocRef =
-      db.collection('user_settings').doc(user.uid);
+      db.collection('user_settings').doc(uid);
 
       final userSettingsDocSnapshot = await userSettingsDocRef.get();
 

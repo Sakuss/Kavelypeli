@@ -23,7 +23,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  late final AppUserSettings _appUserSettings;
+  // late final AppUserSettings _appUserSettings;
   late final DocumentReference _userDocRef =
       FirebaseFirestore.instance.collection('users').doc(widget.user.uid);
   late final DocumentReference _userSettingsDocRef = FirebaseFirestore.instance
@@ -120,13 +120,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void initPlatformState() async {
     _authService = AuthService(context: context);
-    _appUserSettings =
-        (await AppUserSettings.createAppUserSettings(widget.user))!;
+    // _appUserSettings =
+    //     (await AppUserSettings.createAppUserSettings(widget.user.uid))!;
     setState(() {
       // _darkMode = Util().loadFromPrefs("darkMode") == "true";
       // _darkMode = snapshot["darkMode"];
-      _darkMode = _appUserSettings.darkMode ??
-          Util().loadFromPrefs("darkMode") == "true";
+      // _darkMode = _appUserSettings.darkMode;
+      _darkMode = widget.user.appUserSettings!.darkMode;
       _elements[5]["element"] = darkModeTile;
     });
     // _userSettingsDocRef.get().then((snapshot) {
@@ -318,7 +318,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _elements[5]["element"] = darkModeTile;
     });
     _userSettingsDocRef.update({"darkMode": _darkMode});
-    // Util().saveToPrefs("darkMode", _darkMode);
     widget.changeTheme(_darkMode ? ThemeMode.dark : ThemeMode.light);
   }
 
