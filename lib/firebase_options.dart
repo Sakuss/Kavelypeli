@@ -63,7 +63,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '846131788290',
     projectId: 'kavelypeli',
     storageBucket: 'kavelypeli.appspot.com',
-    iosClientId: '846131788290-70huqsf136pe645vpcsaj9qtuek5v71p.apps.googleusercontent.com',
+    iosClientId:
+        '846131788290-70huqsf136pe645vpcsaj9qtuek5v71p.apps.googleusercontent.com',
     iosBundleId: 'com.example.kavelypeli',
   );
 }
