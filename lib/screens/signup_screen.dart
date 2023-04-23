@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:kavelypeli/util.dart';
@@ -18,8 +17,7 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   final TextEditingController _passwordTextController = TextEditingController();
-  final TextEditingController _passwordConfirmationTextController =
-      TextEditingController();
+  final TextEditingController _passwordConfirmationTextController = TextEditingController();
   final TextEditingController _emailTextController = TextEditingController();
   final TextEditingController _userNameTextController = TextEditingController();
 
@@ -37,23 +35,19 @@ class _SignUpState extends State<SignUp> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              retextfield("Username", Icons.person_outline, false,
-                  _userNameTextController),
+              retextfield("Username", Icons.person_outline, false, _userNameTextController),
               const SizedBox(
                 height: 25,
               ),
-              retextfield(
-                  "Email", Icons.mail_outline, false, _emailTextController),
+              retextfield("Email", Icons.mail_outline, false, _emailTextController),
               const SizedBox(
                 height: 25,
               ),
-              retextfield("Password", Icons.lock_outline, true,
-                  _passwordTextController),
+              retextfield("Password", Icons.lock_outline, true, _passwordTextController),
               const SizedBox(
                 height: 25,
               ),
-              retextfield("Confirm Password", Icons.lock_outline, true,
-                  _passwordConfirmationTextController),
+              retextfield("Confirm Password", Icons.lock_outline, true, _passwordConfirmationTextController),
               const SizedBox(
                 height: 25,
               ),
@@ -61,16 +55,17 @@ class _SignUpState extends State<SignUp> {
                 context,
                 false,
                 () {
-                  if (_passwordTextController.text !=
-                      _passwordConfirmationTextController.text) {
-                    showAlertDialog(
-                        context, "Please enter matching passwords to continue");
+                  if (_userNameTextController.text.isEmpty) {
+                    showAlertDialog(context, "Please enter a username to continue");
+                    return;
+                  }
+                  if (_passwordTextController.text != _passwordConfirmationTextController.text) {
+                    showAlertDialog(context, "Please enter matching passwords to continue");
                     return;
                   }
                   FirebaseAuth.instance
                       .createUserWithEmailAndPassword(
-                          email: _emailTextController.text,
-                          password: _passwordTextController.text)
+                          email: _emailTextController.text, password: _passwordTextController.text)
                       .then(
                     (responseData) async {
                       var user = await AppUser.createUserOnSignup(

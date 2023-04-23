@@ -13,37 +13,37 @@ class _StatsScreenState extends State<StatsScreen> {
   final List<BarChartModel> data = [
     BarChartModel(
       date: "Mon",
-      steps: 900,
+      steps: 90,
       color: charts.ColorUtil.fromDartColor(Colors.blue),
     ),
     BarChartModel(
       date: "Tue",
-      steps: 10000,
+      steps: 100,
       color: charts.ColorUtil.fromDartColor(Colors.blue),
     ),
     BarChartModel(
       date: "Wed",
-      steps: 10000,
+      steps: 370,
       color: charts.ColorUtil.fromDartColor(Colors.blue),
     ),
     BarChartModel(
       date: "Thu",
-      steps: 10000,
+      steps: 90,
       color: charts.ColorUtil.fromDartColor(Colors.blue),
     ),
     BarChartModel(
       date: "Fri",
-      steps: 10000,
+      steps: 10,
       color: charts.ColorUtil.fromDartColor(Colors.blue),
     ),
     BarChartModel(
       date: "Sat",
-      steps: 10000,
+      steps: 40,
       color: charts.ColorUtil.fromDartColor(Colors.blue),
     ),
     BarChartModel(
       date: "Sun",
-      steps: 10000,
+      steps: 100,
       color: charts.ColorUtil.fromDartColor(Colors.blue),
     ),
   ];
