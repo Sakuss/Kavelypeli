@@ -53,22 +53,24 @@ class Profile extends StatelessWidget {
                           backgroundImage: NetworkImage(user.photoURL),
                         ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        user.username!,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          user.username!,
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      Text(
-                        'Member since: ${DateFormat('dd.MM.yyyy').format(user.joinDate!)}',
-                      ),
-                    ],
+                        Text(
+                          'Member since: ${DateFormat('dd.MM.yyyy').format(user.joinDate!)}',
+                        ),
+                      ],
+                    ),
                   ),
                 )
               ],
