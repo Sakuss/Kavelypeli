@@ -28,6 +28,8 @@ class _AchievementPageState extends State<AchievementPage> {
         setState(() {
           _userSteps = snapshot.get('steps');
         });
+      }).catchError((error) {
+        print('Error retrieving user data: $error');
       });
     }
     // Retrieve the list of achievements from Firestore, ordered by step requirement
@@ -35,6 +37,8 @@ class _AchievementPageState extends State<AchievementPage> {
       setState(() {
         _achievements = snapshot.docs;
       });
+    }).catchError((error) {
+      print('Error retrieving achievement data: $error');
     });
   }
 
@@ -165,7 +169,13 @@ class _AchievementPageState extends State<AchievementPage> {
                                   ),
                                 ),
                                 const SizedBox(height: 4),
-                                Text('Progress: $progress / $requiredSteps',
+                                const Text('Progress:',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14,
+                                    )),
+                                const SizedBox(height: 4),
+                                Text('$progress / $requiredSteps',
                                     style: const TextStyle(
                                       color: Colors.red,
                                       fontSize: 14,
