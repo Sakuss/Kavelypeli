@@ -1,7 +1,7 @@
 # Kävelypeli
 This project has been implemented by the second-year students of the Information technology degree program at Oulu University of Applied Sciences. This application measures and displays steps in a fun way and encourages especially young people to move. The user can, for example, collect points, buy accessories for the character, unlock achievements, and monitor the activity of friends.
 
-Add some pictures here? 
+![alt text](./home.png)
 
 ## Features
 -	User authentication and profile creation
@@ -25,8 +25,3 @@ Olli Petäjäniemi, [Github](https://github.com/petajaol)
 <br>Saku Suorajärvi, [Github](https://github.com/Sakuss)
 <br>Aaro Putto, [Github](https://github.com/aaroputto)
 <br>Teea Põldsam, [Github](https://github.com/tpoldsam)
-
-
-## Database ER-diagram
-
-Add picture of database ER here?
